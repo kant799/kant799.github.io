@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>乐相逢 - 刮刮乐</title>
+    <title>来财！来！</title>
     <link href="https://cdn.staticfile.org/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
     <link href="https://cdn.staticfile.org/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -415,7 +415,20 @@
         function generatePrizeData() {
             prizeData.length = 0; // Clear previous data
             const totalCells = 50;
-            const leCount = Math.floor(Math.random() * 3) + 0; // Randomly 0 to 3 '乐' symbols (降低中奖概率)
+            // 设置不同'乐'出现次数的概率权重：0次60%，1次25%，2次10%，3次5%
+            const weights = [0.45, 0.35, 0.15, 0.05];
+            const randomValue = Math.random();
+            let leCount = 0;
+            
+            if (randomValue < weights[0]) {
+                leCount = 0;
+            } else if (randomValue < weights[0] + weights[1]) {
+                leCount = 1;
+            } else if (randomValue < weights[0] + weights[1] + weights[2]) {
+                leCount = 2;
+            } else {
+                leCount = 3;
+            }
 
             const leIndices = new Set();
             while (leIndices.size < leCount) {
