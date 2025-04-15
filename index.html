@@ -14,7 +14,41 @@
         body {
             font-family: 'Noto Sans SC', Tahoma, Arial, Roboto, "Droid Sans", "Helvetica Neue", "Droid Sans Fallback", "Heiti SC", "Hiragino Sans GB", Simsun, sans-serif;
             @apply bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 transition-colors duration-300;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            background: rgb(51, 51, 51);
+            position: relative;
+            overflow: hidden;
         }
+        
+        body::before {
+            content: '来财';
+            position: absolute;
+            top: 40%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 60vw;
+            font-weight: bold;
+            color: rgba(255, 255, 255, 0.05);
+            font-family: 'Noto Serif SC', serif;
+            z-index: -1;
+            white-space: nowrap;
+        }
+
+        @media (max-width: 768px) {
+            body::before {
+                content: '来财';
+                white-space: pre;
+                font-size: 40vw;
+                line-height: 1.2;
+                font-size: 70vw;
+                top: 75%;
+            }
+        }
+
+
 
         /* Serif font for specific elements */
         .font-serif-sc {
@@ -65,7 +99,7 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            background-color: rgba(255, 255, 255, 0.1); /* Light background for cells */
+            background-color: rgba(230, 230, 230, 0.9); /* Light grey background for cells */
             border-radius: 4px;
             text-align: center;
             overflow: hidden; /* Ensure content fits */
@@ -88,7 +122,7 @@
 
         .prize-amount {
             font-size: clamp(0.6rem, 2vw, 0.75rem); /* Smaller responsive font size */
-            color: rgb(255, 255, 255);
+            color: rgb(80, 80, 80); /* Dark grey text color */
             font-weight: 500;
             line-height: 1.2;
             margin-top: 2px;
@@ -117,12 +151,28 @@
         }
 
         /* Decorative elements (Example: using pseudo-elements) */
-        .scratch-card::before,
+        .scratch-card {
+            padding: 1rem;
+        }
+
+        .scratch-area-container {
+            height: 75%;
+            margin: 0.5rem;
+        }
+
+        .prize-grid {
+            gap: 8px;
+            padding: 12px;
+        }
+
+        .scratch-card::before {
+            top: 8%;
+            left: -20%;
+        }
+
         .scratch-card::after {
-            content: '';
-            position: absolute;
-            z-index: 0;
-            opacity: 0.6;
+            bottom: 3%;
+            right: 8%;
         }
          /* Example decorative line */
         .scratch-card::before {
@@ -156,18 +206,36 @@
 
         /* Style the '乐' character specifically */
         .prize-symbol.le-char {
-             color: rgb(248, 203, 132);
+             color: rgb(46, 82,169); 
              text-shadow: 0 0 8px rgba(255, 223, 150, 0.7);
         }
 
-         /* Button styles */
+         /* Stats styles */
+        .stats-container {
+            width: 85%;
+            max-width: 400px;
+            margin-top: 1.5rem;
+        }
+        .stat-box {
+            min-width: 120px;
+            text-align: center;
+        }
+        
+        /* Button styles */
         .action-button {
-            @apply px-6 py-3 text-lg font-semibold transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2;
-            position: relative;
+            @apply px-6 py-3 text-lg font-semibold transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2;
             overflow: hidden;
             border: 2px solid rgba(255, 255, 255, 0.3);
             border-radius: 8px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            background: linear-gradient(135deg, #ffffff, #f0f0f0);
+            transform: scale(1);
+            transition: transform 0.3s ease;
+        }
+        
+        .action-button:hover {
+            transform: scale(1.05);
         }
         
         /* 添加按钮悬停时的光效 */
@@ -207,7 +275,6 @@
 
         .start-button {
             @apply bg-gradient-to-r from-red-600 to-amber-500 text-white shadow-lg hover:from-red-700 hover:to-amber-600 focus:ring-amber-400 dark:from-red-500 dark:to-amber-500 dark:text-white dark:focus:ring-amber-500;
-            border-image: linear-gradient(45deg, #FFD700, #FF4500) 1;
             text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
         }
         
@@ -225,7 +292,6 @@
 
         .restart-button {
             @apply bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg hover:from-blue-600 hover:to-indigo-700 focus:ring-indigo-500 dark:from-blue-400 dark:to-indigo-500 dark:focus:ring-indigo-400;
-            border-image: linear-gradient(45deg, #4F46E5, #1E40AF) 1;
             text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
         }
         
@@ -246,6 +312,7 @@
              @apply fixed top-4 right-4 z-50 p-2 rounded-full bg-gray-300 dark:bg-gray-700 text-gray-800 dark:text-gray-200 transition-colors duration-300;
              border: none;
              cursor: pointer;
+             display: none;
          }
          #theme-toggle i {
              @apply text-xl;
@@ -277,6 +344,18 @@
         </div>
     </div>
 
+    <!-- Stats Display -->
+    <div class="stats-container flex justify-center gap-4 mb-4 text-white">
+        <div class="stat-box bg-gray-700 p-2 rounded-lg shadow-lg">
+            <div class="text-xs opacity-80">已刮卡片</div>
+            <div id="cards-scratched" class="text-xl font-bold leading-tight">0</div>
+        </div>
+        <div class="stat-box bg-gray-700 p-2 rounded-lg shadow-lg">
+            <div class="text-xs opacity-80">累计奖金</div>
+            <div id="total-prize" class="text-xl font-bold leading-tight">¥0</div>
+        </div>
+    </div>
+
     <!-- Action Buttons -->
     <div class="mt-6 text-center">
         <button id="start-button" class="action-button start-button">
@@ -301,9 +380,11 @@
         let gameStarted = false;
         let isScratchingActive = false;
         const prizeData = []; // Array to hold { symbol: '乐'/'icon_class', amount: number }
+        let totalCardsScratched = 0;
+        let totalPrizeMoney = 0;
 
         // Icons to use for non-'乐' spots and cover
-        const fillerIcons = ['fa-solid fa-star', 'fa-solid fa-clover', 'fa-solid fa-heart', 'fa-solid fa-certificate'];
+        const fillerIcons = ['fa-solid fa-gem', 'fa-solid fa-crown', 'fa-solid fa-trophy', 'fa-solid fa-medal', 'fa-solid fa-coins', 'fa-solid fa-money-bill-wave', 'fa-solid fa-diamond', 'fa-solid fa-award'];
         const coverIcons = ['fa-solid fa-lantern-chinese', 'fa-solid fa-sack-dollar', 'fa-solid fa-coins', 'fa-solid fa-star-of-david']; // Example festive icons
         let currentCoverIconClass = 'fa-solid fa-sack-dollar'; // Default cover icon
 
@@ -316,15 +397,15 @@
             // 随机选择一个1-9的数字
             digit = Math.floor(Math.random() * 9) + 1;
             
-            if (rand < 0.60) { // 60% 几十 (10-90)
+            if (rand < 0.70) { // 70% 几十 (10-90)
                 amount = digit * 10;
-            } else if (rand < 0.85) { // 25% 几百 (100-900)
+            } else if (rand < 0.95) { // 25% 几百 (100-900)
                 amount = digit * 100;
-            } else if (rand < 0.95) { // 10% 几千 (1000-9000)
+            } else if (rand < 0.98) { // 3% 几千 (1000-9000)
                 amount = digit * 1000;
-            } else if (rand < 0.99) { // 4% 几万 (10000-90000)
+            } else if (rand < 0.995) { // 0.5% 几万 (10000-90000)
                 amount = digit * 10000;
-            } else { // 1% 几十万 (100000-900000)
+            } else { // 0.5% 几十万 (100000-900000)
                 amount = digit * 100000;
             }
             
@@ -532,6 +613,11 @@
             restartButton.classList.add('hidden');
         }
 
+        function updateStats() {
+            document.getElementById('cards-scratched').textContent = totalCardsScratched;
+            document.getElementById('total-prize').textContent = `¥${totalPrizeMoney.toLocaleString()}`;
+        }
+
         startButton.addEventListener('click', () => {
             gameStarted = true;
             isScratchingActive = true;
@@ -540,9 +626,22 @@
             restartButton.classList.remove('hidden');
             // Show prize symbols and amounts
             document.querySelectorAll('.prize-symbol, .prize-amount').forEach(el => el.style.opacity = '1');
+            totalCardsScratched++;
+            updateStats();
         });
 
         restartButton.addEventListener('click', () => {
+            // Calculate total prize from revealed '乐' symbols
+            const prizeCells = document.querySelectorAll('.prize-cell');
+            prizeCells.forEach((cell, index) => {
+                if (cell.querySelector('.le-char') && cell.querySelector('.prize-symbol').style.opacity === '1') {
+                    totalPrizeMoney += prizeData[index].amount;
+                }
+            });
+            
+            // Update total prize display
+            document.getElementById('total-prize').textContent = `¥${totalPrizeMoney.toLocaleString()}`;
+            
             // Add a little fade out effect before reset (optional)
              canvas.style.opacity = '0';
              setTimeout(() => {
