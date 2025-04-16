@@ -3,713 +3,86 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>来财！来！</title>
+    <title>阿蓝的好奇心</title>
     <link href="https://cdn.staticfile.org/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
     <link href="https://cdn.staticfile.org/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
-        /* Base font stack */
-        body {
-            font-family: 'Noto Sans SC', Tahoma, Arial, Roboto, "Droid Sans", "Helvetica Neue", "Droid Sans Fallback", "Heiti SC", "Hiragino Sans GB", Simsun, sans-serif;
-            @apply bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 transition-colors duration-300;
-            user-select: none;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            background: rgb(51, 51, 51);
-            position: relative;
-            overflow: hidden;
+        .project-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .project-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+        }
+
+        @keyframes gradientAnimation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .animated-gradient {
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: gradientAnimation 15s ease infinite;
+        }
+
+        @keyframes borderAnimation {
+            0% { border-color: #ffb6c1; }
+            25% { border-color: #add8e6; }
+            50% { border-color: #98cbfb; }
+            75% { border-color: #e6e6fa; }
+            100% { border-color: #ffb6c1; }
+        }
+
+        .animated-border-card {
+            border: 3px solid transparent; /* Initial transparent border */
+            animation: borderAnimation 4s linear infinite;
         }
         
-        body::before {
-            content: '来财';
-            position: absolute;
-            top: 40%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 60vw;
-            font-weight: bold;
-            color: rgba(255, 255, 255, 0.05);
-            font-family: 'Noto Serif SC', serif;
-            z-index: -1;
-            white-space: nowrap;
+        .text-gradient {
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: gradientAnimation 15s ease infinite;
         }
-
-        @media (max-width: 768px) {
-            body::before {
-                content: '来财';
-                white-space: pre;
-                font-size: 40vw;
-                line-height: 1.2;
-                font-size: 70vw;
-                top: 75%;
-            }
-        }
-
-
-
-        /* Serif font for specific elements */
-        .font-serif-sc {
-            font-family: 'Noto Serif SC', serif;
-        }
-
-        /* Card specific styles */
-        .scratch-card {
-            background-color: rgb(235, 11, 41);
-            position: relative;
-            overflow: hidden; /* Hide overflowing decorative elements */
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1), 0 5px 10px rgba(0, 0, 0, 0.05);
-            transition: box-shadow 0.3s ease;
-            /* Responsive width */
-            width: 85%;
-            max-width: 400px; /* Max width on desktop */
-            aspect-ratio: 9 / 15; /* 修改为9:15的宽高比例 */
-        }
-        .dark .scratch-card {
-             box-shadow: 0 10px 25px rgba(255, 255, 255, 0.05), 0 5px 10px rgba(255, 255, 255, 0.02);
-        }
-
-        /* Scratch area container */
-        .scratch-area-container {
-            position: relative;
-            height: 80%; /* 4/5 of the card height */
-            background-color: rgba(0, 0, 0, 0.05); /* Slight background tint */
-        }
-
-        /* Grid for prizes */
-        .prize-grid {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            grid-template-rows: repeat(10, 1fr); /* Ensure 10 rows */
-            padding: 10px; /* Add some padding within the grid */
-            gap: 5px; /* Gap between grid items */
-            user-select: none; /* Prevent text selection */
-            z-index: 1;
-        }
-
-        .prize-cell {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            background-color: rgba(230, 230, 230, 0.9); /* Light grey background for cells */
-            border-radius: 4px;
-            text-align: center;
-            overflow: hidden; /* Ensure content fits */
-            position: relative; /* For absolute positioning of symbol/amount */
-        }
-
-        .prize-symbol {
-            font-size: clamp(1rem, 3vw, 1.5rem); /* Responsive font size */
-            color: rgb(248, 203, 132);
-            line-height: 1.1;
-            font-weight: 600;
-            font-family: 'Noto Serif SC', serif; /* Use serif for the special character */
-            opacity: 0; /* Initially hidden */
-            transition: opacity 0.3s ease;
-        }
-        .prize-symbol i { /* Style for icons if used instead of text */
-             font-size: clamp(0.8rem, 2.5vw, 1.2rem);
-             color: rgba(0, 50, 159, 0.8);
-        }
-
-        .prize-amount {
-            font-size: clamp(0.6rem, 2vw, 0.75rem); /* Smaller responsive font size */
-            color: rgb(80, 80, 80); /* Dark grey text color */
-            font-weight: 500;
-            line-height: 1.2;
-            margin-top: 2px;
-            white-space: nowrap; /* Prevent wrapping */
-            opacity: 0; /* Initially hidden */
-            transition: opacity 0.3s ease;
-        }
-
-        /* Canvas overlay */
-        #scratch-canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            cursor: default; /* Default cursor until game starts */
-            z-index: 2;
-            transition: opacity 0.1s ease;
-        }
-
-        /* Shovel cursor */
-        .scratch-active {
-            /* Simple crosshair cursor as a fallback, replace with URL if you have a .cur file */
-             cursor: crosshair;
-            /* cursor: url('path/to/your/shovel.cur'), crosshair; */
-        }
-
-        /* Decorative elements (Example: using pseudo-elements) */
-        .scratch-card {
-            padding: 1rem;
-        }
-
-        .scratch-area-container {
-            height: 75%;
-            margin: 0.5rem;
-        }
-
-        .prize-grid {
-            gap: 8px;
-            padding: 12px;
-        }
-
-        .scratch-card::before {
-            top: 8%;
-            left: -20%;
-        }
-
-        .scratch-card::after {
-            bottom: 3%;
-            right: 8%;
-        }
-         /* Example decorative line */
-        .scratch-card::before {
-            width: 150%;
-            height: 50px;
-            background: linear-gradient(45deg, rgba(0, 50, 159, 0.5), rgba(248, 203, 132, 0.5));
-            top: 5%;
-            left: -25%;
-            transform: rotate(-15deg);
-            filter: blur(10px);
-        }
-         /* Example decorative dots/blob */
-        .scratch-card::after {
-            width: 80px;
-            height: 80px;
-            background: radial-gradient(circle, rgba(248, 203, 132, 0.6), transparent 70%);
-            bottom: 2%;
-            right: 5%;
-             border-radius: 50%;
-             filter: blur(5px);
-        }
-
-        /* Ensure content is above pseudo-elements */
-        .card-content {
-            position: relative;
-            z-index: 1;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* Style the '乐' character specifically */
-        .prize-symbol.le-char {
-             color: rgb(46, 82,169); 
-             text-shadow: 0 0 8px rgba(255, 223, 150, 0.7);
-        }
-
-         /* Stats styles */
-        .stats-container {
-            width: 85%;
-            max-width: 400px;
-            margin-top: 1.5rem;
-        }
-        .stat-box {
-            min-width: 120px;
-            text-align: center;
-        }
-        
-        /* Button styles */
-        .action-button {
-            @apply px-6 py-3 text-lg font-semibold transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2;
-            overflow: hidden;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            padding: 20px;
-            background: linear-gradient(135deg, #ffffff, #f0f0f0);
-            transform: scale(1);
-            transition: transform 0.3s ease;
-        }
-        
-        .action-button:hover {
-            transform: scale(1.05);
-        }
-        
-        /* 添加按钮悬停时的光效 */
-        .action-button::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 70%);
-            transform: scale(0);
-            transition: transform 0.5s ease-out;
-            z-index: 0;
-            pointer-events: none;
-        }
-        
-        .action-button:hover::before {
-            transform: scale(1);
-        }
-        
-        .action-button i {
-            position: relative;
-            z-index: 1;
-            font-size: 1.2em;
-            transition: transform 0.3s ease;
-        }
-        
-        .action-button:hover i {
-            transform: rotate(15deg);
-        }
-        
-        .action-button span {
-            position: relative;
-            z-index: 1;
-        }
-
-        .start-button {
-            @apply bg-gradient-to-r from-red-600 to-amber-500 text-white shadow-lg hover:from-red-700 hover:to-amber-600 focus:ring-amber-400 dark:from-red-500 dark:to-amber-500 dark:text-white dark:focus:ring-amber-500;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-        }
-        
-        .start-button::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 0;
-            width: 100%;
-            height: 6px;
-            background: linear-gradient(90deg, rgba(255,215,0,0.7), rgba(255,69,0,0.7));
-            border-radius: 0 0 10px 10px;
-            z-index: 0;
-        }
-
-        .restart-button {
-            @apply bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg hover:from-blue-600 hover:to-indigo-700 focus:ring-indigo-500 dark:from-blue-400 dark:to-indigo-500 dark:focus:ring-indigo-400;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-        }
-        
-        .restart-button::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 0;
-            width: 100%;
-            height: 6px;
-            background: linear-gradient(90deg, rgba(79,70,229,0.7), rgba(30,64,175,0.7));
-            border-radius: 0 0 10px 10px;
-            z-index: 0;
-        }
-
-         /* Theme toggle button */
-         #theme-toggle {
-             @apply fixed top-4 right-4 z-50 p-2 rounded-full bg-gray-300 dark:bg-gray-700 text-gray-800 dark:text-gray-200 transition-colors duration-300;
-             border: none;
-             cursor: pointer;
-             display: none;
-         }
-         #theme-toggle i {
-             @apply text-xl;
-         }
-
     </style>
 </head>
-<body class="flex flex-col items-center justify-center min-h-screen p-4">
+<body class="bg-gray-50 transition-colors duration-300 min-h-screen pb-24" style="user-select: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none;">
+    <!-- 顶部标题 -->
+    <header class="text-center py-8 animated-gradient">
+        <h1 class="text-3xl md:text-3xl font-thin text-white tracking-widest">
+            <i class="fas fa-compass mr-4"></i>
+            阿蓝的好奇心
+        </h1>
+    </header>
 
-    <button id="theme-toggle" aria-label="Toggle Dark Mode">
-        <i class="fas fa-sun"></i> <!-- Initial icon, JS will change it -->
-    </button>
-
-    <div class="scratch-card rounded-xl flex flex-col">
-        <div class="card-content">
-            <!-- 1/5 Instructions Area -->
-            <div class="instructions-area h-[20%] flex flex-col justify-center items-center text-center p-3 md:p-4">
-                <h1 class="font-serif-sc text-3xl md:text-4xl font-bold" style="color: rgb(248, 203, 132); text-shadow: 1px 1px 3px rgba(0,0,0,0.4);">乐相逢</h1>
-                <p class="text-sm md:text-base text-white mt-1 opacity-90">刮开覆盖膜，刮出“<span class="font-serif-sc font-semibold" style="color: rgb(248, 203, 132);">乐</span>”字即可获得下方奖金！</p>
-            </div>
-
-            <!-- 4/5 Scratch Area -->
-            <div class="scratch-area-container flex-grow relative">
-                <div id="prize-grid" class="prize-grid">
-                    <!-- Prize cells will be generated by JavaScript -->
+    <!-- 主要内容区 -->
+    <main class="container mx-auto px-4 py-12">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            <!-- 项目卡片示例 -->
+            <a href="https://kant799.me/ggl" class="block" target="_blank">
+                <div class="project-card animated-border-card bg-white rounded-xl px-6 pt-16 pb-16 shadow-lg">
+                    <h3 class="text-3xl font-bold text-center w-full text-gradient">刮刮乐</h3>
                 </div>
-                <canvas id="scratch-canvas"></canvas>
-            </div>
+            </a>
+            
+            <!-- 更多重复卡片... -->
         </div>
-    </div>
+    </main>
 
-    <!-- Stats Display -->
-    <div class="stats-container flex justify-center gap-4 mb-4 text-white">
-        <div class="stat-box bg-gray-700 p-2 rounded-lg shadow-lg">
-            <div class="text-xs opacity-80">已刮卡片</div>
-            <div id="cards-scratched" class="text-xl font-bold leading-tight">0</div>
+    <!-- 底部导航 -->
+    <footer class="border-t border-gray-200 mt-12 py-4 fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800">
+        <div class="container mx-auto px-4 text-center">
+            <a href="https://github.com/kant799/kant799.github.io" target="_blank" 
+               class="inline-flex items-center text-gray-600 hover:text-blue-600 transition-colors">
+                <i class="fab fa-github text-2xl mr-2"></i>
+            </a>
         </div>
-        <div class="stat-box bg-gray-700 p-2 rounded-lg shadow-lg">
-            <div class="text-xs opacity-80">累计奖金</div>
-            <div id="total-prize" class="text-xl font-bold leading-tight">¥0</div>
-        </div>
-    </div>
+    </footer>
 
-    <!-- Action Buttons -->
-    <div class="mt-6 text-center">
-        <button id="start-button" class="action-button start-button">
-             <i class="fas fa-wand-magic-sparkles mr-2"></i><span>开始刮奖</span>
-        </button>
-        <button id="restart-button" class="action-button restart-button hidden">
-            <i class="fas fa-redo mr-2"></i><span>再来一张</span>
-        </button>
-    </div>
-
-    <div class="text-center text-gray-400 text-xs mt-6 mb-4">此网页仅供娱乐，不代表任何实际的金额</div>
-
-    <script>
-        const scratchCard = document.querySelector('.scratch-card');
-        const prizeGrid = document.getElementById('prize-grid');
-        const canvas = document.getElementById('scratch-canvas');
-        const ctx = canvas.getContext('2d');
-        const startButton = document.getElementById('start-button');
-        const restartButton = document.getElementById('restart-button');
-        const themeToggleButton = document.getElementById('theme-toggle');
-        const themeToggleIcon = themeToggleButton.querySelector('i');
-
-        let isDrawing = false;
-        let gameStarted = false;
-        let isScratchingActive = false;
-        const prizeData = []; // Array to hold { symbol: '乐'/'icon_class', amount: number }
-        let totalCardsScratched = 0;
-        let totalPrizeMoney = 0;
-
-        // Icons to use for non-'乐' spots and cover
-        const fillerIcons = ['fa-solid fa-gem', 'fa-solid fa-crown', 'fa-solid fa-trophy', 'fa-solid fa-medal', 'fa-solid fa-coins', 'fa-solid fa-money-bill-wave', 'fa-solid fa-diamond', 'fa-solid fa-award'];
-        const coverIcons = ['fa-solid fa-lantern-chinese', 'fa-solid fa-sack-dollar', 'fa-solid fa-coins', 'fa-solid fa-star-of-david']; // Example festive icons
-        let currentCoverIconClass = 'fa-solid fa-sack-dollar'; // Default cover icon
-
-        // --- Prize Generation Logic ---
-        function generatePrizeAmount() {
-            const rand = Math.random();
-            let amount;
-            let digit; // 用于存储非零数字
-            
-            // 随机选择一个1-9的数字
-            digit = Math.floor(Math.random() * 9) + 1;
-            
-            if (rand < 0.70) { // 70% 几十 (10-90)
-                amount = digit * 10;
-            } else if (rand < 0.95) { // 25% 几百 (100-900)
-                amount = digit * 100;
-            } else if (rand < 0.98) { // 3% 几千 (1000-9000)
-                amount = digit * 1000;
-            } else if (rand < 0.995) { // 0.5% 几万 (10000-90000)
-                amount = digit * 10000;
-            } else { // 0.5% 几十万 (100000-900000)
-                amount = digit * 100000;
-            }
-            
-            return amount;
-        }
-
-        function generatePrizeData() {
-            prizeData.length = 0; // Clear previous data
-            const totalCells = 50;
-            // 设置不同'乐'出现次数的概率权重：0次60%，1次25%，2次10%，3次5%
-            const weights = [0.45, 0.35, 0.15, 0.05];
-            const randomValue = Math.random();
-            let leCount = 0;
-            
-            if (randomValue < weights[0]) {
-                leCount = 0;
-            } else if (randomValue < weights[0] + weights[1]) {
-                leCount = 1;
-            } else if (randomValue < weights[0] + weights[1] + weights[2]) {
-                leCount = 2;
-            } else {
-                leCount = 3;
-            }
-
-            const leIndices = new Set();
-            while (leIndices.size < leCount) {
-                leIndices.add(Math.floor(Math.random() * totalCells));
-            }
-
-            for (let i = 0; i < totalCells; i++) {
-                const amount = generatePrizeAmount();
-                if (leIndices.has(i)) {
-                    prizeData.push({ symbol: '乐', amount: amount });
-                } else {
-                     // Assign a random filler icon class
-                    const randomIconClass = fillerIcons[Math.floor(Math.random() * fillerIcons.length)];
-                    prizeData.push({ symbol: randomIconClass, amount: amount });
-                }
-            }
-        }
-
-        // --- Populate HTML Grid ---
-        function populateGrid() {
-            prizeGrid.innerHTML = ''; // Clear existing cells
-            prizeData.forEach(item => {
-                const cell = document.createElement('div');
-                cell.className = 'prize-cell';
-
-                const symbolSpan = document.createElement('span');
-                 symbolSpan.className = 'prize-symbol';
-
-                 if (item.symbol === '乐') {
-                     symbolSpan.textContent = '乐';
-                     symbolSpan.classList.add('le-char'); // Add specific class for '乐'
-                 } else {
-                     // Use <i> element for Font Awesome icon
-                     const iconElement = document.createElement('i');
-                     iconElement.className = item.symbol; // Assign the class like 'fa-solid fa-star'
-                     symbolSpan.appendChild(iconElement);
-                 }
-
-
-                const amountSpan = document.createElement('span');
-                amountSpan.className = 'prize-amount';
-                // Format large numbers nicely (optional)
-                amountSpan.textContent = `¥${item.amount.toLocaleString()}`;
-
-                cell.appendChild(symbolSpan);
-                cell.appendChild(amountSpan);
-                prizeGrid.appendChild(cell);
-            });
-        }
-
-        // --- Canvas Drawing ---
-         function setupCanvas() {
-             // Debounce resize handler
-            let resizeTimeout;
-            const handleResize = () => {
-                clearTimeout(resizeTimeout);
-                resizeTimeout = setTimeout(() => {
-                    // Set canvas dimensions based on its container
-                    const container = canvas.parentElement;
-                    canvas.width = container.offsetWidth;
-                    canvas.height = container.offsetHeight;
-                    drawCover(); // Redraw cover after resize
-                 }, 100); // Adjust delay as needed
-             };
-
-            window.addEventListener('resize', handleResize);
-             handleResize(); // Initial setup
-         }
-
-        function drawCover() {
-            if (!ctx) return;
-
-            // Choose a random cover icon for this card instance
-             currentCoverIconClass = coverIcons[Math.floor(Math.random() * coverIcons.length)];
-
-            // Get computed style for Font Awesome
-            const faStyle = getComputedStyle(document.querySelector('.fa-solid') || document.body); // Fallback to body
-            const faFont = `900 ${canvas.width / 12}px "Font Awesome 6 Free"`; // Adjust size relative to canvas width
-
-            // Clear canvas
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-             // Draw a semi-opaque background layer first (optional, adds depth)
-             // ctx.fillStyle = 'rgba(200, 200, 200, 0.95)'; // Light greyish cover
-             // ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-             // Draw pattern on top
-             ctx.fillStyle = 'rgb(192, 192, 192)'; // Silver/Grey color for the cover icons
-             ctx.fillRect(0, 0, canvas.width, canvas.height); // Solid silver background
-
-             // Draw icons as pattern
-             ctx.font = faFont;
-             ctx.fillStyle = 'rgba(128, 128, 128, 0.7)'; // Darker grey for icons
-             ctx.textAlign = 'center';
-             ctx.textBaseline = 'middle';
-
-             const iconCode = getIconUnicode(currentCoverIconClass); // Get Unicode dynamically
-             if (iconCode) {
-                 const cols = 5;
-                 const rows = 10;
-                 const cellWidth = canvas.width / cols;
-                 const cellHeight = canvas.height / rows;
-
-                 for (let r = 0; r < rows; r++) {
-                     for (let c = 0; c < cols; c++) {
-                         const x = c * cellWidth + cellWidth / 2;
-                         const y = r * cellHeight + cellHeight / 2;
-                          ctx.fillText(iconCode, x, y);
-                     }
-                 }
-             } else {
-                 console.warn("Could not get Unicode for cover icon:", currentCoverIconClass);
-                 // Fallback to simple fill if icon fails
-                 ctx.fillStyle = 'rgb(192, 192, 192)';
-                 ctx.fillRect(0, 0, canvas.width, canvas.height);
-            }
-
-             // Make sure composite operation is default after drawing
-             ctx.globalCompositeOperation = 'source-over';
-             canvas.style.opacity = '1'; // Ensure canvas is visible
-         }
-
-         // Helper to get Font Awesome icon unicode dynamically (requires FA CSS loaded)
-         function getIconUnicode(className) {
-             const iconElement = document.createElement('i');
-             iconElement.className = className;
-             iconElement.style.display = 'none'; // Hide element
-             document.body.appendChild(iconElement);
-             const style = window.getComputedStyle(iconElement, '::before');
-             const content = style.getPropertyValue('content');
-             document.body.removeChild(iconElement); // Clean up
-             // Return the character inside the quotes, e.g., content: '"\f005"' -> '\f005'
-             return content && content !== 'none' ? JSON.parse(content) : null;
-         }
-
-
-        // --- Scratching Logic ---
-        function getScratchCoordinates(event) {
-            const rect = canvas.getBoundingClientRect();
-            let x, y;
-            if (event.touches && event.touches.length > 0) {
-                 // Prevent scrolling while scratching on touch devices
-                 event.preventDefault();
-                x = event.touches[0].clientX - rect.left;
-                y = event.touches[0].clientY - rect.top;
-            } else {
-                x = event.clientX - rect.left;
-                y = event.clientY - rect.top;
-            }
-            return { x, y };
-        }
-
-        function scratch(e) {
-            if (!isDrawing || !isScratchingActive) return;
-
-            const { x, y } = getScratchCoordinates(e);
-            const scratchRadius = Math.min(canvas.width, canvas.height) * 0.05; // Adjust size based on canvas dimension
-
-            ctx.globalCompositeOperation = 'destination-out'; // Erase mode
-            ctx.beginPath();
-            ctx.arc(x, y, scratchRadius, 0, Math.PI * 2, false);
-            ctx.fill();
-        }
-
-        function startDrawing(e) {
-            if (!isScratchingActive) return;
-            isDrawing = true;
-            scratch(e); // Start scratching immediately on press
-        }
-
-        function stopDrawing() {
-            isDrawing = false;
-        }
-
-        // Add event listeners
-        canvas.addEventListener('mousedown', startDrawing);
-        canvas.addEventListener('touchstart', startDrawing, { passive: false }); // Use passive: false to allow preventDefault
-
-        canvas.addEventListener('mousemove', scratch);
-        canvas.addEventListener('touchmove', scratch, { passive: false }); // Use passive: false to allow preventDefault
-
-        canvas.addEventListener('mouseup', stopDrawing);
-        canvas.addEventListener('mouseleave', stopDrawing);
-        canvas.addEventListener('touchend', stopDrawing);
-
-        // --- Game State Control ---
-        function initGame() {
-            gameStarted = false;
-            isScratchingActive = false;
-            generatePrizeData();
-            populateGrid();
-            setupCanvas(); // Recalculates size and draws cover
-            canvas.classList.remove('scratch-active');
-            startButton.classList.remove('hidden');
-            restartButton.classList.add('hidden');
-        }
-
-        function updateStats() {
-            document.getElementById('cards-scratched').textContent = totalCardsScratched;
-            document.getElementById('total-prize').textContent = `¥${totalPrizeMoney.toLocaleString()}`;
-        }
-
-        startButton.addEventListener('click', () => {
-            gameStarted = true;
-            isScratchingActive = true;
-            canvas.classList.add('scratch-active');
-            startButton.classList.add('hidden');
-            restartButton.classList.remove('hidden');
-            // Show prize symbols and amounts
-            document.querySelectorAll('.prize-symbol, .prize-amount').forEach(el => el.style.opacity = '1');
-            totalCardsScratched++;
-            updateStats();
-        });
-
-        restartButton.addEventListener('click', () => {
-            // Calculate total prize from revealed '乐' symbols
-            const prizeCells = document.querySelectorAll('.prize-cell');
-            prizeCells.forEach((cell, index) => {
-                if (cell.querySelector('.le-char') && cell.querySelector('.prize-symbol').style.opacity === '1') {
-                    totalPrizeMoney += prizeData[index].amount;
-                }
-            });
-            
-            // Update total prize display
-            document.getElementById('total-prize').textContent = `¥${totalPrizeMoney.toLocaleString()}`;
-            
-            // Add a little fade out effect before reset (optional)
-             canvas.style.opacity = '0';
-             setTimeout(() => {
-                 initGame();
-                 // Optionally fade back in
-                 setTimeout(() => { canvas.style.opacity = '1'; }, 20);
-            }, 100); // Faster transition duration
-        });
-
-        // --- Dark/Light Mode ---
-         const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
-
-         function applyTheme(theme) {
-             if (theme === 'dark') {
-                 document.documentElement.classList.add('dark');
-                 themeToggleIcon.classList.remove('fa-sun');
-                 themeToggleIcon.classList.add('fa-moon');
-             } else {
-                 document.documentElement.classList.remove('dark');
-                 themeToggleIcon.classList.remove('fa-moon');
-                 themeToggleIcon.classList.add('fa-sun');
-             }
-         }
-
-         // Check localStorage first, then system preference
-         const savedTheme = localStorage.getItem('theme');
-         if (savedTheme) {
-             applyTheme(savedTheme);
-         } else {
-             applyTheme(prefersDark.matches ? 'dark' : 'light');
-         }
-
-         // Listener for system theme changes
-         prefersDark.addEventListener('change', (e) => {
-             // Only apply system change if no manual override exists
-             if (!localStorage.getItem('theme')) {
-                 applyTheme(e.matches ? 'dark' : 'light');
-             }
-         });
-
-         // Listener for manual toggle button
-         themeToggleButton.addEventListener('click', () => {
-             const currentTheme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
-             const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-             localStorage.setItem('theme', newTheme); // Save user preference
-             applyTheme(newTheme);
-         });
-
-
-        // --- Initial Load ---
-        document.addEventListener('DOMContentLoaded', initGame);
-
-    </script>
 
 </body>
 </html>
