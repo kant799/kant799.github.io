@@ -118,9 +118,48 @@
             max-height: 400px;
             overflow-y: auto;
         }
+        
+        /* 自定义鼠标指针样式 */
+        * {
+            cursor: none !important;
+        }
+        
+        .custom-cursor {
+            position: fixed;
+            width: 30px;
+            height: 30px;
+            border: 2px solid #4D6BFE;
+            border-radius: 50%;
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            z-index: 9999;
+            transition: width 0.2s, height 0.2s, background-color 0.2s, transform 0.1s;
+        }
+        
+        .custom-cursor.hover {
+            width: 40px;
+            height: 40px;
+            background-color: rgba(77, 107, 254, 0.1);
+            border-color: #4D6BFE;
+        }
+        
+        .custom-cursor.active {
+            width: 25px;
+            height: 25px;
+            background-color: rgba(77, 107, 254, 0.3);
+            border-color: #4D6BFE;
+        }
+        
+        /* 对于按钮和可点击元素，添加悬停效果 */
+        button, a, .copy-column-btn, .bento-card {
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
     </style>
 </head>
-<body class="bg-white text-black min-h-screen">
+<body class="bg-[#F5F5F5] text-black min-h-screen">
+    <!-- 自定义鼠标指针元素 -->
+    <div class="custom-cursor"></div>
+    
     <div class="container mx-auto px-4 py-8 max-w-[1920px]">
         <header class="mb-12 flex flex-col md:flex-row justify-between items-center">
             <div>
@@ -325,7 +364,7 @@
         </div>
 
         <footer class="text-center text-sm text-gray-400 py-6">
-            <p>PODCAST SUBSCRIPTION TRACKER · <span id="currentYear">2023</span></p>
+            <p>PODCAST SUBSCRIPTION TRACKER · <span id="currentYear">2023</span> · Alan</p>
         </footer>
     </div>
 
@@ -337,6 +376,143 @@
     <script>
         // 设置当前年份
         document.getElementById('currentYear').textContent = new Date().getFullYear();
+        
+        // 自定义鼠标指针功能
+        document.addEventListener('DOMContentLoaded', function() {
+            const cursor = document.querySelector('.custom-cursor');
+            
+            // 鼠标移动时更新自定义指针位置
+            document.addEventListener('mousemove', (e) => {
+                cursor.style.left = e.clientX + 'px';
+                cursor.style.top = e.clientY + 'px';
+            });
+            
+            // 鼠标按下时的效果
+            document.addEventListener('mousedown', () => {
+                cursor.classList.add('active');
+            });
+            
+            // 鼠标释放时的效果
+            document.addEventListener('mouseup', () => {
+                cursor.classList.remove('active');
+            });
+            
+            // 为可交互元素添加悬停效果
+            const interactiveElements = document.querySelectorAll('button, a, .copy-column-btn, .bento-card');
+            interactiveElements.forEach(el => {
+                el.addEventListener('mouseenter', () => {
+                    cursor.classList.add('hover');
+                });
+                
+                el.addEventListener('mouseleave', () => {
+                    cursor.classList.remove('hover');
+                });
+            });
+            
+            // 确保鼠标指针在页面加载时可见
+            cursor.style.opacity = 1;
+            
+            // 处理复制按钮点击事件
+            const copyButtons = document.querySelectorAll('.copy-column-btn');
+            copyButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const columnIndex = this.getAttribute('data-column');
+                    const table = document.querySelector('.history-table');
+                    const rows = table.querySelectorAll('tbody tr');
+                    
+                    // 收集该列的所有数据
+                    let columnData = [];
+                    rows.forEach(row => {
+                        const cell = row.cells[columnIndex];
+                        if (cell) {
+                            columnData.push(cell.textContent.trim());
+                        }
+                    });
+                    
+                    // 将数据复制到剪贴板
+                    const textToCopy = columnData.join('\n');
+                    navigator.clipboard.writeText(textToCopy)
+                        .then(() => {
+                            // 更改图标为成功图标
+                            const icon = this.querySelector('i');
+                            const originalClass = icon.className;
+                            
+                            // 保存原始类名，以便稍后恢复
+                            if (!this.hasAttribute('data-original-icon')) {
+                                this.setAttribute('data-original-icon', originalClass);
+                            }
+                            
+                            // 更改为成功图标
+                            icon.className = 'fa-solid fa-check';
+                            this.classList.add('text-highlight');
+                            
+                            // 显示通知
+                            showNotification(`已复制${columnData.length}条数据到剪贴板`);
+                            
+                            // 2秒后恢复原始图标
+                            setTimeout(() => {
+                                icon.className = this.getAttribute('data-original-icon');
+                                this.classList.remove('text-highlight');
+                            }, 2000);
+                        })
+                        .catch(err => {
+                            // 更改图标为错误图标
+                            const icon = this.querySelector('i');
+                            const originalClass = icon.className;
+                            
+                            if (!this.hasAttribute('data-original-icon')) {
+                                this.setAttribute('data-original-icon', originalClass);
+                            }
+                            
+                            // 更改为错误图标
+                            icon.className = 'fa-solid fa-xmark';
+                            this.classList.add('text-red-500');
+                            
+                            // 显示错误通知
+                            showNotification('复制失败，请重试', true);
+                            
+                            // 2秒后恢复原始图标
+                            setTimeout(() => {
+                                icon.className = this.getAttribute('data-original-icon');
+                                this.classList.remove('text-red-500');
+                            }, 2000);
+                            
+                            console.error('复制失败:', err);
+                        });
+                });
+            });
+        });
+        
+        // 显示通知函数
+        function showNotification(message, isError = false) {
+            const notification = document.getElementById('notification');
+            const notificationText = document.getElementById('notificationText');
+            
+            // 设置通知内容和样式
+            notificationText.textContent = message;
+            
+            if (isError) {
+                notification.classList.add('bg-red-600');
+                notification.classList.remove('bg-black');
+            } else {
+                notification.classList.add('bg-black');
+                notification.classList.remove('bg-red-600');
+            }
+            
+            // 显示通知
+            notification.classList.remove('hidden');
+            setTimeout(() => {
+                notification.classList.remove('translate-y-20', 'opacity-0');
+            }, 10);
+            
+            // 3秒后隐藏通知
+            setTimeout(() => {
+                notification.classList.add('translate-y-20', 'opacity-0');
+                setTimeout(() => {
+                    notification.classList.add('hidden');
+                }, 300);
+            }, 3000);
+        }
         
         // 监听历史数据更新
         document.addEventListener('DOMContentLoaded', function() {
