@@ -116,27 +116,37 @@ function updatePodcastTable(podcasts, previousData, podcastMapping) {
         
         // 使用排序后的播客数组生成表格
         sortedPodcasts.forEach(podcast => {
-            let trendIcon = '<span class="trend-neutral">→</span>'; // Default to neutral
+            let trendText = '<span class="trend-neutral">0</span>'; // Default to neutral, showing 0 change
             let trendClass = 'trend-neutral';
 
             if (previousData && previousData.podcasts) {
                 const prevPodcast = previousData.podcasts.find(p => p.id === podcast.id);
                 if (prevPodcast) {
-                    if (podcast.subscriptionCount > prevPodcast.subscriptionCount) {
-                        trendIcon = '<span class="trend-up">↑</span>';
+                    const diff = podcast.subscriptionCount - prevPodcast.subscriptionCount;
+                    if (diff > 0) {
+                        trendText = `<span class="trend-up">+${diff.toLocaleString('zh-CN')}</span>`;
                         trendClass = 'trend-up';
-                    } else if (podcast.subscriptionCount < prevPodcast.subscriptionCount) {
-                        trendIcon = '<span class="trend-down">↓</span>';
+                    } else if (diff < 0) {
+                        trendText = `<span class="trend-down">${diff.toLocaleString('zh-CN')}</span>`; // Negative sign is already included
                         trendClass = 'trend-down';
+                    } else {
+                        trendText = `<span class="trend-neutral">0</span>`;
+                        trendClass = 'trend-neutral';
                     }
+                } else {
+                    trendText = '<span class="text-gray-400">-</span>'; // No previous data for this podcast
+                    trendClass = 'text-gray-400';
                 }
+            } else {
+                trendText = '<span class="text-gray-400">-</span>'; // No previous data at all
+                trendClass = 'text-gray-400';
             }
 
             tableHTML += `
                 <tr class="border-b border-gray-200 hover:bg-gray-50 transition-colors duration-150">
                     <td class="py-3 px-4 text-sm text-gray-800">${podcast.title}</td>
-                    <td class="py-3 px-4 text-right text-sm font-medium text-gray-800">${podcast.subscriptionCount.toLocaleString('zh-CN')}</td>
-                    <td class="py-3 px-4 text-right text-sm font-medium ${trendClass}">${trendIcon}</td>
+                    <td class="py-3 px-4 text-center text-sm font-medium text-gray-800">${podcast.subscriptionCount.toLocaleString('zh-CN')}</td>
+                    <td class="py-3 px-4 text-center text-sm font-medium ${trendClass}">${trendText}</td>
                 </tr>
             `;
         });

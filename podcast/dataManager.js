@@ -104,15 +104,15 @@ class DataManager {
     }
 
     getPreviousData() {
+        // After a successful refreshData(), this.currentData holds the newest data,
+        // and this.historyData has also been updated to include this newest data as its last element.
+        // Therefore, the "previous" data record (the one just before the current one)
+        // is at index historyData.length - 2.
         if (this.historyData.length >= 2) {
-            // historyData is [oldest, ..., second_latest, latest]
-            // currentData is what would be the 'latest' if it was pushed.
-            // So previous relevant to currentData is the last item in historyData
-            return this.historyData[this.historyData.length - 1];
-        } else if (this.historyData.length === 1 && this.currentData && this.historyData[0].timestamp !== this.currentData.timestamp) {
-             // This case handles if history has one entry, and currentData is a new distinct entry.
-             return this.historyData[0];
+            return this.historyData[this.historyData.length - 2];
         }
+        // If historyData.length is 0 or 1, there's no meaningful "previous" data
+        // to compare against the current data for trend calculation.
         return null;
     }
 
