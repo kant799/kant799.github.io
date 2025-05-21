@@ -147,34 +147,66 @@ function updatePodcastTable(podcasts, previousData, podcastMapping) {
 function updateHistoryTable(historyData, podcastMapping) {
     const historyTableBody = document.getElementById('historyTable');
     if (!historyData || historyData.length === 0) {
-        historyTableBody.innerHTML = `<tr><td colspan="${Object.keys(podcastMapping).length + 1}" class="py-4 px-4 text-center text-gray-500">暂无历史数据</td></tr>`;
+        historyTableBody.innerHTML = `<tr><td colspan="10" class="py-4 px-4 text-center text-gray-500">暂无历史数据</td></tr>`;
         return;
     }
 
-    const recentHistory = historyData.slice(-10).reverse(); // Show latest 10, newest first
+    const recentHistory = historyData.slice(-9).reverse(); // 显示最近9条记录，最新的在前
+    const podcastTitles = Object.keys(podcastMapping); // 获取所有播客标题
+    
+    // 创建一个数组，包含播客标题和最新的订阅数
+    const podcastsWithLatestData = [];
+    podcastTitles.forEach(title => {
+        const id = podcastMapping[title];
+        // 获取最新的数据记录（如果存在）
+        const latestRecord = recentHistory[0];
+        if (latestRecord) {
+            const podcast = latestRecord.podcasts.find(p => p.id === id);
+            podcastsWithLatestData.push({
+                title: title,
+                id: id,
+                latestCount: podcast ? podcast.subscriptionCount : 0
+            });
+        } else {
+            podcastsWithLatestData.push({
+                title: title,
+                id: id,
+                latestCount: 0
+            });
+        }
+    });
+    
+    // 按最新订阅数降序排序
+    podcastsWithLatestData.sort((a, b) => b.latestCount - a.latestCount);
+    
     let tableHTML = '';
-    const podcastTitlesOrder = Object.keys(podcastMapping); // Ensures consistent column order based on DataManager source
 
-    recentHistory.forEach(record => {
-        const date = new Date(record.timestamp);
-        const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
-        
+    // 为每个播客创建一行（已排序）
+    podcastsWithLatestData.forEach(podcastData => {
+        const title = podcastData.title;
+        const id = podcastData.id;
         tableHTML += `<tr class="border-b border-gray-200 hover:bg-gray-50 transition-colors duration-150">
-                        <td class="py-3 px-4 text-sm text-gray-800">${formattedDate}</td>`;
+            <td class="py-3 px-4 text-sm text-gray-800">${title}</td>`;
         
-        const recordPodcastsMap = new Map(record.podcasts.map(p => [p.id, p]));
-
-        podcastTitlesOrder.forEach(title => {
-            const id = podcastMapping[title];
-            const podcast = recordPodcastsMap.get(id);
+        // 添加每个时间点的数据
+        recentHistory.forEach(record => {
+            const podcast = record.podcasts.find(p => p.id === id);
             if (podcast) {
                 tableHTML += `<td class="py-3 px-4 text-sm text-gray-800 text-right">${podcast.subscriptionCount.toLocaleString('zh-CN')}</td>`;
             } else {
                 tableHTML += `<td class="py-3 px-4 text-sm text-gray-400 text-right">-</td>`;
             }
         });
+
+        // 补充空列，确保每行都有10列
+        const remainingCols = 9 - recentHistory.length;
+        for (let i = 0; i < remainingCols; i++) {
+            tableHTML += `<td class="py-3 px-4 text-sm text-gray-400 text-right">-</td>`;
+        }
+
         tableHTML += `</tr>`;
     });
+
     historyTableBody.innerHTML = tableHTML;
 }
 

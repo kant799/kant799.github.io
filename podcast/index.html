@@ -233,20 +233,86 @@
                         <table class="min-w-full bg-white history-table">
                             <thead>
                                 <tr>
-                                    <th class="border-r border-gray-100 sticky top-0 bg-white z-10">日期时间</th>
-                                    <th class="border-r border-gray-100 sticky top-0 bg-white z-10">不开玩笑</th>
-                                    <th class="border-r border-gray-100 sticky top-0 bg-white z-10">无聊斋</th>
-                                    <th class="border-r border-gray-100 sticky top-0 bg-white z-10">基本无害</th>
-                                    <th class="border-r border-gray-100 sticky top-0 bg-white z-10">三个火呛手</th>
-                                    <th class="border-r border-gray-100 sticky top-0 bg-white z-10">正经叭叭</th>
-                                    <th class="border-r border-gray-100 sticky top-0 bg-white z-10">谐星聊天会</th>
-                                    <th class="border-r border-gray-100 sticky top-0 bg-white z-10">文化有限</th>
-                                    <th class="sticky top-0 bg-white z-10">屠龙之术</th>
+                                    <th class="border-r border-gray-100 sticky top-0 bg-white z-10">
+                                        播客名称
+                                    </th>
+                                    <th class="border-r border-gray-100 sticky top-0 bg-white z-10">
+                                        <div class="flex items-center justify-end space-x-2">
+                                            <span>最新</span>
+                                            <button class="copy-column-btn text-gray-400 hover:text-highlight transition-colors" data-column="1" title="复制此列数据">
+                                                <i class="fa-regular fa-copy"></i>
+                                            </button>
+                                        </div>
+                                    </th>
+                                    <th class="border-r border-gray-100 sticky top-0 bg-white z-10">
+                                        <div class="flex items-center justify-end space-x-2">
+                                            <span>前1次</span>
+                                            <button class="copy-column-btn text-gray-400 hover:text-highlight transition-colors" data-column="2" title="复制此列数据">
+                                                <i class="fa-regular fa-copy"></i>
+                                            </button>
+                                        </div>
+                                    </th>
+                                    <th class="border-r border-gray-100 sticky top-0 bg-white z-10">
+                                        <div class="flex items-center justify-end space-x-2">
+                                            <span>前2次</span>
+                                            <button class="copy-column-btn text-gray-400 hover:text-highlight transition-colors" data-column="3" title="复制此列数据">
+                                                <i class="fa-regular fa-copy"></i>
+                                            </button>
+                                        </div>
+                                    </th>
+                                    <th class="border-r border-gray-100 sticky top-0 bg-white z-10">
+                                        <div class="flex items-center justify-end space-x-2">
+                                            <span>前3次</span>
+                                            <button class="copy-column-btn text-gray-400 hover:text-highlight transition-colors" data-column="4" title="复制此列数据">
+                                                <i class="fa-regular fa-copy"></i>
+                                            </button>
+                                        </div>
+                                    </th>
+                                    <th class="border-r border-gray-100 sticky top-0 bg-white z-10">
+                                        <div class="flex items-center justify-end space-x-2">
+                                            <span>前4次</span>
+                                            <button class="copy-column-btn text-gray-400 hover:text-highlight transition-colors" data-column="5" title="复制此列数据">
+                                                <i class="fa-regular fa-copy"></i>
+                                            </button>
+                                        </div>
+                                    </th>
+                                    <th class="border-r border-gray-100 sticky top-0 bg-white z-10">
+                                        <div class="flex items-center justify-end space-x-2">
+                                            <span>前5次</span>
+                                            <button class="copy-column-btn text-gray-400 hover:text-highlight transition-colors" data-column="6" title="复制此列数据">
+                                                <i class="fa-regular fa-copy"></i>
+                                            </button>
+                                        </div>
+                                    </th>
+                                    <th class="border-r border-gray-100 sticky top-0 bg-white z-10">
+                                        <div class="flex items-center justify-end space-x-2">
+                                            <span>前6次</span>
+                                            <button class="copy-column-btn text-gray-400 hover:text-highlight transition-colors" data-column="7" title="复制此列数据">
+                                                <i class="fa-regular fa-copy"></i>
+                                            </button>
+                                        </div>
+                                    </th>
+                                    <th class="border-r border-gray-100 sticky top-0 bg-white z-10">
+                                        <div class="flex items-center justify-end space-x-2">
+                                            <span>前7次</span>
+                                            <button class="copy-column-btn text-gray-400 hover:text-highlight transition-colors" data-column="8" title="复制此列数据">
+                                                <i class="fa-regular fa-copy"></i>
+                                            </button>
+                                        </div>
+                                    </th>
+                                    <th class="sticky top-0 bg-white z-10">
+                                        <div class="flex items-center justify-end space-x-2">
+                                            <span>前8次</span>
+                                            <button class="copy-column-btn text-gray-400 hover:text-highlight transition-colors" data-column="9" title="复制此列数据">
+                                                <i class="fa-regular fa-copy"></i>
+                                            </button>
+                                        </div>
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody id="historyTable">
                                 <tr>
-                                    <td colspan="9" class="py-4 px-4 text-center text-gray-500">
+                                    <td colspan="10" class="py-4 px-4 text-center text-gray-500">
                                         <i class="fa-solid fa-circle-notch fa-spin mr-2"></i>
                                         加载中...
                                     </td>
@@ -383,4 +449,49 @@
     <script src="app.js"></script>
 </body>
 </html>
+
+<script>
+    // 添加复制列数据功能
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.copy-column-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const columnIndex = parseInt(this.dataset.column);
+                const table = document.querySelector('.history-table');
+                const rows = Array.from(table.querySelectorAll('tbody tr'));
+                
+                // 获取列数据（跳过标题行）
+                let columnData = rows.map(row => {
+                    const cell = row.cells[columnIndex];
+                    return cell ? cell.textContent.trim() : '';
+                }).filter(text => text !== '' && text !== '-');
+                
+                // 添加列标题
+                const columnTitle = table.querySelector(`thead th:nth-child(${columnIndex + 1}) span`).textContent;
+                columnData.unshift(columnTitle);
+                
+                // 使用换行符连接数据，这样粘贴到Excel时每个数据会占一个单元格
+                const textToCopy = columnData.join('\n');
+                
+                navigator.clipboard.writeText(textToCopy).then(() => {
+                    // 显示复制成功提示
+                    showNotification(`已复制"${columnTitle}"列数据，可直接粘贴到Excel中`);
+                    
+                    // 添加复制成功动画效果
+                    const icon = this.querySelector('i');
+                    icon.classList.remove('fa-copy');
+                    icon.classList.add('fa-check');
+                    this.classList.add('text-green-500');
+                    
+                    setTimeout(() => {
+                        icon.classList.remove('fa-check');
+                        icon.classList.add('fa-copy');
+                        this.classList.remove('text-green-500');
+                    }, 1000);
+                }).catch(err => {
+                    showNotification('复制失败，请重试');
+                });
+            });
+        });
+    });
+</script>
 
