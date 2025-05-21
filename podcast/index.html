@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小宇宙播客订阅追踪</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        highlight: '#4D6BFE',
+                        'highlight-light': 'rgba(77, 107, 254, 0.1)',
+                        'highlight-medium': 'rgba(77, 107, 254, 0.3)',
+                    },
+                    fontFamily: {
+                        sans: ['-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
+                    },
+                    fontSize: {
+                        '7xl': '5rem',
+                        '8xl': '6rem',
+                        '9xl': '8rem',
+                    },
+                    gridTemplateColumns: {
+                        'bento': 'repeat(auto-fit, minmax(300px, 1fr))',
+                        'bento-lg': 'repeat(auto-fit, minmax(400px, 1fr))',
+                    },
+                    height: {
+                        '128': '32rem',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .bento-card {
+            animation: fadeIn 0.5s ease-out forwards;
+            opacity: 0;
+            border-radius: 24px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .bento-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        }
+        
+        .bento-card:nth-child(1) { animation-delay: 0.1s; }
+        .bento-card:nth-child(2) { animation-delay: 0.2s; }
+        .bento-card:nth-child(3) { animation-delay: 0.3s; }
+        .bento-card:nth-child(4) { animation-delay: 0.4s; }
+        .bento-card:nth-child(5) { animation-delay: 0.5s; }
+        .bento-card:nth-child(6) { animation-delay: 0.6s; }
+        
+        .trend-up { color: #10B981; }
+        .trend-down { color: #EF4444; }
+        .trend-neutral { color: #9CA3AF; }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, rgba(77, 107, 254, 0.05) 0%, rgba(77, 107, 254, 0.2) 100%);
+        }
+        
+        .chart-container canvas {
+            max-height: 100%;
+            width: 100%;
+        }
+        
+        /* 自定义滚动条 */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: rgba(77, 107, 254, 0.3);
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(77, 107, 254, 0.5);
+        }
+        
+        /* 表格样式 */
+        .history-table th, .history-table td {
+            padding: 0.75rem 1rem;
+            text-align: center;
+        }
+        
+        .history-table th {
+            font-weight: 600;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        
+        .history-table td {
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .history-table tr:hover {
+            background-color: rgba(77, 107, 254, 0.03);
+        }
+        
+        /* 历史记录表格容器 */
+        .history-table-container {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body class="bg-white text-black min-h-screen">
+    <div class="container mx-auto px-4 py-8 max-w-[1920px]">
+        <header class="mb-12 flex flex-col md:flex-row justify-between items-center">
+            <div>
+                <h1 class="text-5xl md:text-6xl font-bold mb-2">播客订阅追踪</h1>
+                <p class="text-sm uppercase tracking-widest text-gray-500">PODCAST SUBSCRIPTION TRACKER</p>
+            </div>
+            <div class="mt-6 md:mt-0 flex items-center">
+                <p class="text-sm mr-6 text-gray-600" id="lastUpdated">最后更新时间: <span class="font-mono">加载中...</span></p>
+                <div class="flex space-x-3">
+                    <button id="clearButton" class="bg-black hover:bg-red-600 text-white px-6 py-3 rounded-full flex items-center transition-all duration-300">
+                        <i class="fa-solid fa-trash-can mr-2"></i>
+                        <span class="text-sm uppercase tracking-wider">清除记录</span>
+                    </button>
+                    <button id="refreshButton" class="bg-black hover:bg-highlight text-white px-6 py-3 rounded-full flex items-center transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <i class="fa-solid fa-rotate hidden animate-spin mr-2" id="refreshSpinner"></i>
+                        <i class="fa-solid fa-rotate mr-2" id="refreshIcon"></i>
+                        <span id="refreshButtonText" class="text-sm uppercase tracking-wider">刷新数据</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Bento Grid 布局 - 所有内容整合到一个网格中 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+            <!-- 订阅数据表格卡片 -->
+            <div class="bento-card bg-white border border-gray-100 p-6 shadow-sm md:col-span-1 lg:col-span-1">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <p class="text-sm uppercase tracking-widest text-gray-500 mb-1">CURRENT DATA</p>
+                        <h2 class="text-2xl font-bold">当前订阅数据</h2>
+                    </div>
+                    <div class="text-xs text-gray-400 uppercase">
+                        按订阅量排序
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full bg-white">
+                        <thead>
+                            <tr class="border-b border-gray-100">
+                                <th class="py-3 px-4 text-left text-sm font-medium text-gray-500">播客</th>
+                                <th class="py-3 px-4 text-right text-sm font-medium text-gray-500">订阅人数</th>
+                                <th class="py-3 px-4 text-right text-sm font-medium text-gray-500">趋势</th>
+                            </tr>
+                        </thead>
+                        <tbody id="podcastTable">
+                            <!-- Skeleton Loader Rows -->
+                            <tr class="border-b border-gray-50 animate-pulse">
+                                <td class="py-4 px-4"><div class="h-4 bg-gray-100 rounded w-3/4"></div></td>
+                                <td class="py-4 px-4 text-right"><div class="h-4 bg-gray-100 rounded w-1/2 ml-auto"></div></td>
+                                <td class="py-4 px-4 text-right"><div class="h-4 bg-gray-100 rounded w-1/4 ml-auto"></div></td>
+                            </tr>
+                            <tr class="border-b border-gray-50 animate-pulse">
+                                <td class="py-4 px-4"><div class="h-4 bg-gray-100 rounded w-full"></div></td>
+                                <td class="py-4 px-4 text-right"><div class="h-4 bg-gray-100 rounded w-1/3 ml-auto"></div></td>
+                                <td class="py-4 px-4 text-right"><div class="h-4 bg-gray-100 rounded w-1/6 ml-auto"></div></td>
+                            </tr>
+                            <tr class="border-b border-gray-50 animate-pulse">
+                                <td class="py-4 px-4"><div class="h-4 bg-gray-100 rounded w-2/3"></div></td>
+                                <td class="py-4 px-4 text-right"><div class="h-4 bg-gray-100 rounded w-1/2 ml-auto"></div></td>
+                                <td class="py-4 px-4 text-right"><div class="h-4 bg-gray-100 rounded w-1/4 ml-auto"></div></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 订阅数对比图表卡片 -->
+            <div class="bento-card gradient-bg p-6 shadow-sm md:col-span-1 lg:col-span-1">
+                <p class="text-sm uppercase tracking-widest text-gray-500 mb-1">COMPARISON</p>
+                <h2 class="text-2xl font-bold mb-4">订阅数对比</h2>
+                <div class="h-96 relative chart-container">
+                    <canvas id="subscriptionChart"></canvas>
+                    <div id="subscriptionChartLoader" class="absolute inset-0 flex items-center justify-center text-gray-500 bg-white bg-opacity-75 rounded-lg">
+                        <i class="fa-solid fa-circle-notch fa-spin mr-2"></i>
+                        图表加载中...
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 历史数据图表卡片 -->
+            <div class="bento-card bg-white border border-gray-100 p-6 shadow-sm md:col-span-2 lg:col-span-1">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <p class="text-sm uppercase tracking-widest text-gray-500 mb-1">HISTORICAL DATA</p>
+                        <h2 class="text-2xl font-bold">历史趋势</h2>
+                    </div>
+                    <div class="text-xs text-gray-400">
+                        <span id="historyDateRange">最近数据</span>
+                    </div>
+                </div>
+                <div class="h-96 relative chart-container">
+                    <canvas id="historyChart"></canvas>
+                    <div id="historyChartLoader" class="absolute inset-0 flex items-center justify-center text-gray-500 bg-white bg-opacity-75 rounded-lg">
+                        <i class="fa-solid fa-circle-notch fa-spin mr-2"></i>
+                        图表加载中...
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 历史记录表格卡片 -->
+            <div class="bento-card bg-white border border-gray-100 p-6 shadow-sm md:col-span-2 lg:col-span-3">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <p class="text-sm uppercase tracking-widest text-gray-500 mb-1">HISTORY RECORDS</p>
+                        <h2 class="text-2xl font-bold">历史记录</h2>
+                    </div>
+                </div>
+                <div class="history-table-container">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full bg-white history-table">
+                            <thead>
+                                <tr>
+                                    <th class="border-r border-gray-100 sticky top-0 bg-white z-10">日期时间</th>
+                                    <th class="border-r border-gray-100 sticky top-0 bg-white z-10">不开玩笑</th>
+                                    <th class="border-r border-gray-100 sticky top-0 bg-white z-10">无聊斋</th>
+                                    <th class="border-r border-gray-100 sticky top-0 bg-white z-10">基本无害</th>
+                                    <th class="border-r border-gray-100 sticky top-0 bg-white z-10">三个火呛手</th>
+                                    <th class="border-r border-gray-100 sticky top-0 bg-white z-10">正经叭叭</th>
+                                    <th class="border-r border-gray-100 sticky top-0 bg-white z-10">谐星聊天会</th>
+                                    <th class="border-r border-gray-100 sticky top-0 bg-white z-10">文化有限</th>
+                                    <th class="sticky top-0 bg-white z-10">屠龙之术</th>
+                                </tr>
+                            </thead>
+                            <tbody id="historyTable">
+                                <tr>
+                                    <td colspan="9" class="py-4 px-4 text-center text-gray-500">
+                                        <i class="fa-solid fa-circle-notch fa-spin mr-2"></i>
+                                        加载中...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="text-center text-sm text-gray-400 py-6">
+            <p>PODCAST SUBSCRIPTION TRACKER · <span id="currentYear">2023</span></p>
+        </footer>
+    </div>
+
+    <!-- 通知提示框 -->
+    <div id="notification" class="fixed bottom-4 right-4 bg-black text-white px-6 py-3 rounded-xl shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 ease-in-out hidden max-w-md">
+        <p id="notificationText" class="text-sm"></p>
+    </div>
+
+    <script>
+        // 设置当前年份
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+        
+        // 监听历史数据更新
+        document.addEventListener('DOMContentLoaded', function() {
+            // 设置历史日期范围
+            const updateHistoryDateRange = function(historyData) {
+                if (historyData && historyData.length >= 2) {
+                    const oldestDate = new Date(historyData[0].timestamp);
+                    const newestDate = new Date(historyData[historyData.length - 1].timestamp);
+                    
+                    const formatDate = (date) => {
+                        return `${date.getFullYear()}-${(date.getMonth()+1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`;
+                    };
+                    
+                    document.getElementById('historyDateRange').textContent = 
+                        `${formatDate(oldestDate)} 至 ${formatDate(newestDate)}`;
+                }
+            };
+            
+            // 监听历史数据更新
+            const originalUpdateHistoryTable = window.updateHistoryTable;
+            if (typeof originalUpdateHistoryTable === 'function') {
+                window.updateHistoryTable = function(historyData, podcastMapping) {
+                    originalUpdateHistoryTable(historyData, podcastMapping);
+                    updateHistoryDateRange(historyData);
+                };
+            }
+            
+            // 添加清除记录按钮功能
+            document.getElementById('clearButton').addEventListener('click', function() {
+                if (confirm('确定要清除所有缓存数据吗？此操作将删除所有本地存储的播客订阅数据。')) {
+                    // 清除本地存储
+                    localStorage.clear();
+                    
+                    // 显示通知
+                    showNotification('所有缓存数据已清除');
+                    
+                    // 重置表格和图表
+                    document.getElementById('podcastTable').innerHTML = `
+                        <tr class="border-b border-gray-50 animate-pulse">
+                            <td class="py-4 px-4"><div class="h-4 bg-gray-100 rounded w-3/4"></div></td>
+                            <td class="py-4 px-4 text-right"><div class="h-4 bg-gray-100 rounded w-1/2 ml-auto"></div></td>
+                            <td class="py-4 px-4 text-right"><div class="h-4 bg-gray-100 rounded w-1/4 ml-auto"></div></td>
+                        </tr>
+                        <tr class="border-b border-gray-50 animate-pulse">
+                            <td class="py-4 px-4"><div class="h-4 bg-gray-100 rounded w-full"></div></td>
+                            <td class="py-4 px-4 text-right"><div class="h-4 bg-gray-100 rounded w-1/3 ml-auto"></div></td>
+                            <td class="py-4 px-4 text-right"><div class="h-4 bg-gray-100 rounded w-1/6 ml-auto"></div></td>
+                        </tr>
+                        <tr class="border-b border-gray-50 animate-pulse">
+                            <td class="py-4 px-4"><div class="h-4 bg-gray-100 rounded w-2/3"></div></td>
+                            <td class="py-4 px-4 text-right"><div class="h-4 bg-gray-100 rounded w-1/2 ml-auto"></div></td>
+                            <td class="py-4 px-4 text-right"><div class="h-4 bg-gray-100 rounded w-1/4 ml-auto"></div></td>
+                        </tr>
+                    `;
+                    
+                    document.getElementById('historyTable').innerHTML = `
+                        <tr>
+                            <td colspan="9" class="py-4 px-4 text-center text-gray-500">
+                                <i class="fa-solid fa-circle-notch fa-spin mr-2"></i>
+                                加载中...
+                            </td>
+                        </tr>
+                    `;
+                    
+                    // 重置最后更新时间
+                    document.getElementById('lastUpdated').innerHTML = '最后更新时间: <span class="font-mono">无数据</span>';
+                    
+                    // 重置日期范围
+                    document.getElementById('historyDateRange').textContent = '最近数据';
+                    
+                    // 显示图表加载状态
+                    document.getElementById('subscriptionChartLoader').classList.remove('hidden');
+                    document.getElementById('historyChartLoader').classList.remove('hidden');
+                    
+                    // 如果有重新加载页面的函数，调用它
+                    if (typeof initializeApp === 'function') {
+                        initializeApp();
+                    } else {
+                        // 如果没有初始化函数，则刷新页面
+                        setTimeout(() => {
+                            location.reload();
+                        }, 1000);
+                    }
+                }
+            });
+            
+            // 通知显示函数
+            function showNotification(message) {
+                const notification = document.getElementById('notification');
+                const notificationText = document.getElementById('notificationText');
+                
+                notificationText.textContent = message;
+                notification.classList.remove('hidden', 'translate-y-20', 'opacity-0');
+                
+                setTimeout(() => {
+                    notification.classList.add('translate-y-20', 'opacity-0');
+                    setTimeout(() => {
+                        notification.classList.add('hidden');
+                    }, 300);
+                }, 3000);
+            }
+            
+            // 将通知函数添加到全局作用域，以便其他脚本可以使用
+            window.showNotification = showNotification;
+        });
+    </script>
+
+    <script src="dataManager.js"></script>
+    <script src="chart.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
+
