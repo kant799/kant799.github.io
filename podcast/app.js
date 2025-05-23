@@ -190,9 +190,9 @@ function updatePodcastTable(podcasts, previousData, podcastMapping) {
                 <tr class="border-b border-gray-200 hover:bg-gray-50 transition-colors duration-150">
                     <td class="py-3 px-4 text-sm">${imageHtml}<span class="align-middle">${podcastLinkHtml}</span></td>
                     <td class="py-3 px-4 text-center text-sm font-medium text-gray-800">${podcast.subscriptionCount.toLocaleString('zh-CN')}</td>
-                    <td class="py-3 px-4 text-center text-sm font-medium text-gray-800">${podcast.episodeCount || '<span class="text-gray-400">-</span>'}</td>
-                    <td class="py-3 px-4 text-center text-sm font-medium text-gray-800">${formattedDate}</td>
                     <td class="py-3 px-4 text-center text-sm font-medium ${trendClass}">${trendText}</td>
+                    <td class="py-3 px-4 text-center text-sm font-medium text-gray-800">${formattedDate}</td>
+                    <td class="py-3 px-4 text-center text-sm font-medium text-gray-800">${podcast.episodeCount || '<span class="text-gray-400">-</span>'}</td>
                 </tr>
             `;
         });

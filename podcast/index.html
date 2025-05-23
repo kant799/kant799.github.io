@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>播客订阅追踪</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script>
@@ -159,32 +159,6 @@
             }
         }
         
-        .custom-cursor {
-            position: fixed;
-            width: 30px;
-            height: 30px;
-            border: 2px solid #4D6BFE;
-            border-radius: 50%;
-            pointer-events: none;
-            transform: translate(-50%, -50%);
-            z-index: 9999;
-            transition: width 0.2s, height 0.2s, background-color 0.2s, transform 0.1s;
-        }
-        
-        .custom-cursor.hover {
-            width: 40px;
-            height: 40px;
-            background-color: rgba(77, 107, 254, 0.1);
-            border-color: #4D6BFE;
-        }
-        
-        .custom-cursor.active {
-            width: 25px;
-            height: 25px;
-            background-color: rgba(77, 107, 254, 0.3);
-            border-color: #4D6BFE;
-        }
-        
         /* 对于按钮和可点击元素，添加悬停效果 */
         button, a, .copy-column-btn, .bento-card {
             transition: transform 0.2s, box-shadow 0.2s;
@@ -236,9 +210,9 @@
                             <tr class="border-b border-gray-100">
                                 <th class="py-3 px-4 text-left text-sm font-medium text-gray-500">播客</th>
                                 <th class="py-3 px-4 text-center text-sm font-medium text-gray-500">订阅人数</th>
-                                <th class="py-3 px-4 text-center text-sm font-medium text-gray-500">总集数</th>
-                                <th class="py-3 px-4 text-center text-sm font-medium text-gray-500">最近更新</th>
                                 <th class="py-3 px-4 text-center text-sm font-medium text-gray-500">订阅变化</th>
+                                <th class="py-3 px-4 text-center text-sm font-medium text-gray-500">最近更新</th>
+                                <th class="py-3 px-4 text-center text-sm font-medium text-gray-500">总集数</th>
                             </tr>
                         </thead>
                         <tbody id="podcastTable">
@@ -246,16 +220,16 @@
                             <tr class="border-b border-gray-50 animate-pulse">
                                 <td class="py-4 px-4"><div class="h-4 bg-gray-100 rounded w-3/4"></div></td>
                                 <td class="py-4 px-4 text-center"><div class="h-4 bg-gray-100 rounded w-1/2 mx-auto"></div></td>
-                                <td class="py-4 px-4 text-center"><div class="h-4 bg-gray-100 rounded w-1/3 mx-auto"></div></td>
-                                <td class="py-4 px-4 text-center"><div class="h-4 bg-gray-100 rounded w-2/3 mx-auto"></div></td>
                                 <td class="py-4 px-4 text-center"><div class="h-4 bg-gray-100 rounded w-1/4 mx-auto"></div></td>
+                                <td class="py-4 px-4 text-center"><div class="h-4 bg-gray-100 rounded w-2/3 mx-auto"></div></td>
+                                <td class="py-4 px-4 text-center"><div class="h-4 bg-gray-100 rounded w-1/3 mx-auto"></div></td>
                             </tr>
                             <tr class="border-b border-gray-50 animate-pulse">
                                 <td class="py-4 px-4"><div class="h-4 bg-gray-100 rounded w-full"></div></td>
                                 <td class="py-4 px-4 text-center"><div class="h-4 bg-gray-100 rounded w-1/3 mx-auto"></div></td>
-                                <td class="py-4 px-4 text-center"><div class="h-4 bg-gray-100 rounded w-1/2 mx-auto"></div></td>
-                                <td class="py-4 px-4 text-center"><div class="h-4 bg-gray-100 rounded w-3/4 mx-auto"></div></td>
                                 <td class="py-4 px-4 text-center"><div class="h-4 bg-gray-100 rounded w-1/6 mx-auto"></div></td>
+                                <td class="py-4 px-4 text-center"><div class="h-4 bg-gray-100 rounded w-3/4 mx-auto"></div></td>
+                                <td class="py-4 px-4 text-center"><div class="h-4 bg-gray-100 rounded w-1/2 mx-auto"></div></td>
                             </tr>
                             <tr class="border-b border-gray-50 animate-pulse">
                                 <td class="py-4 px-4"><div class="h-4 bg-gray-100 rounded w-2/3"></div></td>
@@ -520,7 +494,7 @@
             
             // 添加清除记录按钮功能
             document.getElementById('clearButton').addEventListener('click', function() {
-                if (confirm('确定要清除所有缓存数据吗？此操作将删除所有本地存储的播客订阅数据。')) {
+                if (confirm('确定要清除所有缓存数据吗？此操作将删除所有本地存储的播客renderPodcastTable数据。')) {
                     // 清除本地存储
                     localStorage.clear();
                     
@@ -597,316 +571,7 @@
             window.showNotification = showNotification;
         });
     </script>
-
-    <script src="podcastData.js"></script> // 新增这一行
-    <script src="dataManager.js"></script>
-    <script src="chart.js"></script>
-    <script src="app.js"></script>
-</body>
-</html>
-
-<style>
-    /* 播客图片样式 */
-    .podcast-image {
-        width: 24px;
-        height: 24px;
-        object-fit: cover;
-        border: 1px solid rgba(0, 0, 0, 0.1);
-    }
-</style>
-<script>
-    // 添加复制列数据功能
-    document.addEventListener('DOMContentLoaded', function() {
-        document.querySelectorAll('.copy-column-btn').forEach(button => {
-            button.addEventListener('click', function() {
-                const columnIndex = parseInt(this.dataset.column);
-                const table = document.querySelector('.history-table');
-                const rows = Array.from(table.querySelectorAll('tbody tr'));
-                
-                // 获取列数据（跳过标题行）
-                let columnData = rows.map(row => {
-                    const cell = row.cells[columnIndex];
-                    return cell ? cell.textContent.trim() : '';
-                }).filter(text => text !== '' && text !== '-');
-                
-                // 添加列标题
-                const columnTitle = table.querySelector(`thead th:nth-child(${columnIndex + 1}) span`).textContent;
-                columnData.unshift(columnTitle);
-                
-                // 使用换行符连接数据，这样粘贴到Excel时每个数据会占一个单元格
-                const textToCopy = columnData.join('\n');
-                
-                navigator.clipboard.writeText(textToCopy).then(() => {
-                    // 显示复制成功提示
-                    showNotification(`已复制"${columnTitle}"列数据，可直接粘贴到Excel中`);
-                    
-                    // 添加复制成功动画效果
-                    const icon = this.querySelector('i');
-                    icon.classList.remove('fa-copy');
-                    icon.classList.add('fa-check');
-                    this.classList.add('text-green-500');
-                    
-                    setTimeout(() => {
-                        icon.classList.remove('fa-check');
-                        icon.classList.add('fa-copy');
-                        this.classList.remove('text-green-500');
-                    }, 1000);
-                }).catch(err => {
-                    showNotification('复制失败，请重试');
-                });
-            });
-        });
-    });
-</script>
-<style>
-        /* 移动端表格优化 */
-        @media (max-width: 768px) {
-            /* 表格容器横向滚动 */
-            .overflow-x-auto {
-                -webkit-overflow-scrolling: touch;
-            }
-            
-            /* 表格单元格样式调整 */
-            .min-w-full th,
-            .min-w-full td {
-                white-space: nowrap;
-                padding: 0.5rem 0.25rem;
-                font-size: 0.75rem;
-            }
-            
-            /* 播客图片在移动端缩小 */
-            .podcast-image {
-                width: 20px;
-                height: 20px;
-            }
-            
-            /* 确保表格不会被压缩 */
-            .min-w-full {
-                width: 100% !important;
-                table-layout: fixed;
-                min-width: 600px; /* 确保表格有最小宽度 */
-            }
-            
-            /* 历史表格优化 */
-            .history-table {
-                min-width: 800px; /* 历史表格更宽，需要更大的最小宽度 */
-            }
-            
-            /* 表格容器样式 */
-            .overflow-x-auto {
-                position: relative;
-                width: 100%;
-                overflow-x: auto;
-                -webkit-overflow-scrolling: touch;
-            }
-            
-            /* 移除滑动提示 */
-            .overflow-x-auto::after {
-                content: ""; /* 移除提示内容 */
-                position: absolute;
-                bottom: -20px;
-                left: 50%;
-                transform: translateX(-50%);
-                font-size: 0.7rem;
-                color: #9CA3AF;
-                white-space: nowrap;
-                opacity: 0.8;
-                pointer-events: none;
-            }
-        }
-        
-        /* 确保图片在所有设备上都有合适的大小 */
-        .podcast-image {
-            width: 24px;
-            height: 24px;
-            object-fit: cover;
-        }
-</style>
-</script>
-</html>
-
-<style>
-    /* 播客图片样式 */
-    .podcast-image {
-        width: 24px;
-        height: 24px;
-        object-fit: cover;
-        border: 1px solid rgba(0, 0, 0, 0.1);
-    }
-</style>
-<script>
-    // 添加复制列数据功能
-    document.addEventListener('DOMContentLoaded', function() {
-        document.querySelectorAll('.copy-column-btn').forEach(button => {
-            button.addEventListener('click', function() {
-                const columnIndex = parseInt(this.dataset.column);
-                const table = document.querySelector('.history-table');
-                const rows = Array.from(table.querySelectorAll('tbody tr'));
-                
-                // 获取列数据（跳过标题行）
-                let columnData = rows.map(row => {
-                    const cell = row.cells[columnIndex];
-                    return cell ? cell.textContent.trim() : '';
-                }).filter(text => text !== '' && text !== '-');
-                
-                // 添加列标题
-                const columnTitle = table.querySelector(`thead th:nth-child(${columnIndex + 1}) span`).textContent;
-                columnData.unshift(columnTitle);
-                
-                // 使用换行符连接数据，这样粘贴到Excel时每个数据会占一个单元格
-                const textToCopy = columnData.join('\n');
-                
-                navigator.clipboard.writeText(textToCopy).then(() => {
-                    // 显示复制成功提示
-                    showNotification(`已复制"${columnTitle}"列数据，可直接粘贴到Excel中`);
-                    
-                    // 添加复制成功动画效果
-                    const icon = this.querySelector('i');
-                    icon.classList.remove('fa-copy');
-                    icon.classList.add('fa-check');
-                    this.classList.add('text-green-500');
-                    
-                    setTimeout(() => {
-                        icon.classList.remove('fa-check');
-                        icon.classList.add('fa-copy');
-                        this.classList.remove('text-green-500');
-                    }, 1000);
-                }).catch(err => {
-                    showNotification('复制失败，请重试');
-                });
-            });
-        });
-    });
-</script>
-</html>
-<style>
-        /* 移动端卡片布局和间距 */
-        @media (max-width: 768px) {
-            .bento-card {
-                padding: 1rem;
-                border-radius: 16px;
-            }
-            
-            .container {
-                padding-left: 0.75rem;
-                padding-right: 0.75rem;
-            }
-            
-            .grid {
-                gap: 0.75rem;
-            }
-            
-            h1 {
-                font-size: 2rem;
-                line-height: 1.2;
-            }
-            
-            h2 {
-                font-size: 1.25rem;
-            }
-            
-            .chart-container {
-                height: 250px !important;
-            }
-        }
-</style>
-</html>
-<style>
-        /* 移动端按钮和交互元素 */
-        @media (max-width: 768px) {
-            button {
-                padding: 0.5rem 0.75rem;
-                font-size: 0.75rem;
-            }
-            
-            #clearButton, #refreshButton {
-                padding: 0.5rem 0.75rem;
-            }
-            
-            #clearButton i, #refreshButton i {
-                margin-right: 0.25rem;
-            }
-            
-            /* 在非常小的屏幕上隐藏按钮文字，只显示图标 */
-            @media (max-width: 360px) {
-                #clearButton span, #refreshButton span {
-                    display: none;
-                }
-                
-                #clearButton i, #refreshButton i {
-                    margin-right: 0;
-                }
-            }
-        }
-</style>
-</html>
-<style>
-        /* 移动端表格优化 */
-        @media (max-width: 768px) {
-            /* 表格容器横向滚动 */
-            .overflow-x-auto {
-                -webkit-overflow-scrolling: touch;
-            }
-            
-            /* 表格单元格样式调整 */
-            .min-w-full th,
-            .min-w-full td {
-                white-space: nowrap;
-                padding: 0.5rem 0.25rem;
-                font-size: 0.75rem;
-            }
-            
-            /* 播客图片在移动端缩小 */
-            .podcast-image {
-                width: 20px;
-                height: 20px;
-            }
-            
-            /* 确保表格不会被压缩 */
-            .min-w-full {
-                width: 100% !important;
-                table-layout: fixed;
-                min-width: 600px; /* 确保表格有最小宽度 */
-            }
-            
-            /* 历史表格优化 */
-            .history-table {
-                min-width: 800px; /* 历史表格更宽，需要更大的最小宽度 */
-            }
-            
-            /* 表格容器样式 */
-            .overflow-x-auto {
-                position: relative;
-                width: 100%;
-                overflow-x: auto;
-                -webkit-overflow-scrolling: touch;
-            }
-            
-            /* 移除滑动提示 */
-            .overflow-x-auto::after {
-                content: ""; /* 移除提示内容 */
-                position: absolute;
-                bottom: -20px;
-                left: 50%;
-                transform: translateX(-50%);
-                font-size: 0.7rem;
-                color: #9CA3AF;
-                white-space: nowrap;
-                opacity: 0.8;
-                pointer-events: none;
-            }
-        }
-        
-        /* 确保图片在所有设备上都有合适的大小 */
-        .podcast-image {
-            width: 24px;
-            height: 24px;
-            object-fit: cover;
-        }
-</style>
-</html>
-</html>
-<style>
+    <style>
         /* 播客图片样式 */
         .podcast-image {
             width: 24px;
@@ -914,2089 +579,296 @@
             object-fit: cover;
             border: 1px solid rgba(0, 0, 0, 0.1);
         }
-</style>
-<script>
-    // 添加复制列数据功能
-    document.addEventListener('DOMContentLoaded', function() {
-        document.querySelectorAll('.copy-column-btn').forEach(button => {
-            button.addEventListener('click', function() {
-                const columnIndex = parseInt(this.dataset.column);
-                const table = document.querySelector('.history-table');
-                const rows = Array.from(table.querySelectorAll('tbody tr'));
-                
-                // 获取列数据（跳过标题行）
-                let columnData = rows.map(row => {
-                    const cell = row.cells[columnIndex];
-                    return cell ? cell.textContent.trim() : '';
-                }).filter(text => text !== '' && text !== '-');
-                
-                // 添加列标题
-                const columnTitle = table.querySelector(`thead th:nth-child(${columnIndex + 1}) span`).textContent;
-                columnData.unshift(columnTitle);
-                
-                // 使用换行符连接数据，这样粘贴到Excel时每个数据会占一个单元格
-                const textToCopy = columnData.join('\n');
-                
-                navigator.clipboard.writeText(textToCopy).then(() => {
-                    // 显示复制成功提示
-                    showNotification(`已复制"${columnTitle}"列数据，可直接粘贴到Excel中`);
+    </style>
+    <script>
+        // 添加复制列数据功能
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.copy-column-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const columnIndex = parseInt(this.dataset.column);
+                    const table = document.querySelector('.history-table');
+                    const rows = Array.from(table.querySelectorAll('tbody tr'));
                     
-                    // 添加复制成功动画效果
-                    const icon = this.querySelector('i');
-                    icon.classList.remove('fa-copy');
-                    icon.classList.add('fa-check');
-                    this.classList.add('text-green-500');
+                    // 获取列数据（跳过标题行）
+                    let columnData = rows.map(row => {
+                        const cell = row.cells[columnIndex];
+                        return cell ? cell.textContent.trim() : '';
+                    }).filter(text => text !== '' && text !== '-');
                     
-                    setTimeout(() => {
-                        icon.classList.remove('fa-check');
-                        icon.classList.add('fa-copy');
-                        this.classList.remove('text-green-500');
-                    }, 1000);
-                }).catch(err => {
-                    showNotification('复制失败，请重试');
+                    // 添加列标题
+                    const columnTitle = table.querySelector(`thead th:nth-child(${columnIndex + 1}) span`).textContent;
+                    columnData.unshift(columnTitle);
+                    
+                    // 使用换行符连接数据，这样粘贴到Excel时每个数据会占一个单元格
+                    const textToCopy = columnData.join('\n');
+                    
+                    navigator.clipboard.writeText(textToCopy).then(() => {
+                        showNotification(`已复制"${columnTitle}"列数据，可直接粘贴到Excel中`);
+                        // 替换为✓
+                        const icon = this.querySelector('i');
+                        icon.outerHTML = '<span class="text-green-500 text-lg">✔</span>';
+                        const btn = this;
+                        setTimeout(() => {
+                            // 恢复为复制图标
+                            const span = btn.querySelector('span');
+                            if (span) {
+                                span.outerHTML = '<i class="fa-regular fa-copy"></i>';
+                            }
+                            btn.classList.remove('text-green-500');
+                        }, 1000);
+                    }).catch(err => {
+                        showNotification('复制失败，请重试');
+                    });
                 });
             });
         });
-    });
-</script>
-</html>
-<style>
-        /* 移动端卡片布局和间距 */
-        @media (max-width: 768px) {
-            .bento-card {
-                padding: 1rem;
-                border-radius: 16px;
+    </script>
+    <style>
+            /* 移动端表格优化 */
+            @media (max-width: 768px) {
+                /* 表格容器横向滚动 */
+                .overflow-x-auto {
+                    -webkit-overflow-scrolling: touch;
+                }
+                
+                /* 表格单元格样式调整 */
+                .min-w-full th,
+                .min-w-full td {
+                    white-space: nowrap;
+                    padding: 0.5rem 0.25rem;
+                    font-size: 0.75rem;
+                }
+                
+                /* 播客图片在移动端缩小 */
+                .podcast-image {
+                    width: 20px;
+                    height: 20px;
+                }
+                
+                /* 确保表格不会被压缩 */
+                .min-w-full {
+                    width: 100% !important;
+                    table-layout: fixed;
+                    min-width: 600px; /* 确保表格有最小宽度 */
+                }
+                
+                /* 历史表格优化 */
+                .history-table {
+                    min-width: 800px; /* 历史表格更宽，需要更大的最小宽度 */
+                }
+                
+                /* 表格容器样式 */
+                .overflow-x-auto {
+                    position: relative;
+                    width: 100%;
+                    overflow-x: auto;
+                    -webkit-overflow-scrolling: touch;
+                }
+                
+                /* 移除滑动提示 */
+                .overflow-x-auto::after {
+                    content: ""; /* 移除提示内容 */
+                    position: absolute;
+                    bottom: -20px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    font-size: 0.7rem;
+                    color: #9CA3AF;
+                    white-space: nowrap;
+                    opacity: 0.8;
+                    pointer-events: none;
+                }
             }
             
-            .container {
-                padding-left: 0.75rem;
-                padding-right: 0.75rem;
+            /* 确保图片在所有设备上都有合适的大小 */
+            .podcast-image {
+                width: 24px;
+                height: 24px;
+                object-fit: cover;
             }
-            
-            .grid {
-                gap: 0.75rem;
-            }
-            
-            h1 {
-                font-size: 2rem;
-                line-height: 1.2;
-            }
-            
-            h2 {
-                font-size: 1.25rem;
-            }
-            
-            .chart-container {
-                height: 250px !important;
-            }
+    </style>
+    </script>
+    
+    <style>
+        /* 播客图片样式 */
+        .podcast-image {
+            width: 24px;
+            height: 24px;
+            object-fit: cover;
+            border: 1px solid rgba(0, 0, 0, 0.1);
         }
-</style>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
-</html>
+    </style>
+    <script>
+        // 添加复制列数据功能
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.copy-column-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const columnIndex = parseInt(this.dataset.column);
+                    const table = document.querySelector('.history-table');
+                    const rows = Array.from(table.querySelectorAll('tbody tr'));
+                    
+                    // 获取列数据（跳过标题行）
+                    let columnData = rows.map(row => {
+                        const cell = row.cells[columnIndex];
+                        return cell ? cell.textContent.trim() : '';
+                    }).filter(text => text !== '' && text !== '-');
+                    
+                    // 添加列标题
+                    const columnTitle = table.querySelector(`thead th:nth-child(${columnIndex + 1}) span`).textContent;
+                    columnData.unshift(columnTitle);
+                    
+                    // 使用换行符连接数据，这样粘贴到Excel时每个数据会占一个单元格
+                    const textToCopy = columnData.join('\n');
+                    
+                    navigator.clipboard.writeText(textToCopy).then(() => {
+                        // 显示复制成功提示
+                        showNotification(`已复制"${columnTitle}"列数据，可直接粘贴到Excel中`);
+                        
+                        // 添加复制成功动画效果
+                        const icon = this.querySelector('i');
+                        icon.classList.remove('fa-copy');
+                        icon.classList.add('fa-check');
+                        this.classList.add('text-green-500');
+                        
+                        setTimeout(() => {
+                            icon.classList.remove('fa-check');
+                            icon.classList.add('fa-copy');
+                            this.classList.remove('text-green-500');
+                        }, 1000);
+                    }).catch(err => {
+                        showNotification('复制失败，请重试');
+                    });
+                });
+            });
+        });
+    </script>
+    <style>
+            /* 移动端卡片布局和间距 */
+            @media (max-width: 768px) {
+                .bento-card {
+                    padding: 1rem;
+                    border-radius: 16px;
+                }
+                
+                .container {
+                    padding-left: 0.75rem;
+                    padding-right: 0.75rem;
+                }
+                
+                .grid {
+                    gap: 0.75rem;
+                }
+                
+                h1 {
+                    font-size: 2rem;
+                    line-height: 1.2;
+                }
+                
+                h2 {
+                    font-size: 1.25rem;
+                }
+                
+                .chart-container {
+                    height: 250px !important;
+                }
+            }
+    </style>
+    <style>
+            /* 移动端按钮和交互元素 */
+            @media (max-width: 768px) {
+                button {
+                    padding: 0.5rem 0.75rem;
+                    font-size: 0.75rem;
+                }
+                
+                #clearButton, #refreshButton {
+                    padding: 0.5rem 0.75rem;
+                }
+                
+                #clearButton i, #refreshButton i {
+                    margin-right: 0.25rem;
+                }
+                
+                /* 在非常小的屏幕上隐藏按钮文字，只显示图标 */
+                @media (max-width: 360px) {
+                    #clearButton span, #refreshButton span {
+                        display: none;
+                    }
+                    
+                    #clearButton i, #refreshButton i {
+                        margin-right: 0;
+                    }
+                }
+            }
+    </style>
+    <style>
+            /* 移动端表格优化 */
+            @media (max-width: 768px) {
+                /* 表格容器横向滚动 */
+                .overflow-x-auto {
+                    -webkit-overflow-scrolling: touch;
+                }
+                
+                /* 表格单元格样式调整 */
+                .min-w-full th,
+                .min-w-full td {
+                    white-space: nowrap;
+                    padding: 0.5rem 0.25rem;
+                    font-size: 0.75rem;
+                }
+                
+                /* 播客图片在移动端缩小 */
+                .podcast-image {
+                    width: 20px;
+                    height: 20px;
+                }
+                
+                /* 确保表格不会被压缩 */
+                .min-w-full {
+                    width: 100% !important;
+                    table-layout: fixed;
+                    min-width: 600px; /* 确保表格有最小宽度 */
+                }
+                
+                /* 历史表格优化 */
+                .history-table {
+                    min-width: 800px; /* 历史表格更宽，需要更大的最小宽度 */
+                }
+                
+                /* 表格容器样式 */
+                .overflow-x-auto {
+                    position: relative;
+                    width: 100%;
+                    overflow-x: auto;
+                    -webkit-overflow-scrolling: touch;
+                }
+                
+                /* 移除滑动提示 */
+                .overflow-x-auto::after {
+                    content: ""; /* 移除提示内容 */
+                    position: absolute;
+                    bottom: -20px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    font-size: 0.7rem;
+                    color: #9CA3AF;
+                    white-space: nowrap;
+                    opacity: 0.8;
+                    pointer-events: none;
+                }
+            }
+            
+            /* 确保图片在所有设备上都有合适的大小 */
+            .podcast-image {
+                width: 24px;
+                height: 24px;
+                object-fit: cover;
+            }
+    </style>
 
+    <script src="podcastData.js"></script> 
+    <script src="dataManager.js"></script>
+    <script src="chart.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
