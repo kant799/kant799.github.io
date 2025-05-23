@@ -603,18 +603,20 @@
                     const textToCopy = columnData.join('\n');
                     
                     navigator.clipboard.writeText(textToCopy).then(() => {
-                        showNotification(`已复制"${columnTitle}"列数据，可直接粘贴到Excel中`);
-                        // 替换为✓
+                        // 确保columnTitle变量已定义且不为空
+                        const columnTitle = this.querySelector('span').textContent.trim() || '数据';
+                        showNotification(`已成功复制"${columnTitle}"列数据`);                       
+            
+                        // 添加复制成功动画效果
                         const icon = this.querySelector('i');
-                        icon.outerHTML = '<span class="text-green-500 text-lg">✔</span>';
-                        const btn = this;
+                        icon.classList.remove('fa-copy');
+                        icon.classList.add('fa-open');
+                        this.classList.add('text-green-500');
+                        
                         setTimeout(() => {
-                            // 恢复为复制图标
-                            const span = btn.querySelector('span');
-                            if (span) {
-                                span.outerHTML = '<i class="fa-regular fa-copy"></i>';
-                            }
-                            btn.classList.remove('text-green-500');
+                            icon.classList.remove('fa-open');
+                            icon.classList.add('fa-copy');
+                            this.classList.remove('text-green-500');
                         }, 1000);
                     }).catch(err => {
                         showNotification('复制失败，请重试');
@@ -727,11 +729,11 @@
                         // 添加复制成功动画效果
                         const icon = this.querySelector('i');
                         icon.classList.remove('fa-copy');
-                        icon.classList.add('fa-check');
+                        icon.classList.add('fa-check-circle');
                         this.classList.add('text-green-500');
                         
                         setTimeout(() => {
-                            icon.classList.remove('fa-check');
+                            icon.classList.remove('fa-check-circle');
                             icon.classList.add('fa-copy');
                             this.classList.remove('text-green-500');
                         }, 1000);
