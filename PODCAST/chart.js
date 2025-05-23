@@ -1,3 +1,67 @@
+// 定义全局颜色映射，确保所有图表使用相同的颜色
+const PODCAST_COLORS = {
+    backgroundColor: [
+        'rgba(54, 162, 235, 0.7)', // 蓝色
+        'rgba(255, 99, 132, 0.7)',  // 红色
+        'rgba(255, 206, 86, 0.7)',  // 黄色
+        'rgba(75, 192, 192, 0.7)',   // 青色
+        'rgba(153, 102, 255, 0.7)', // 紫色
+        'rgba(255, 159, 64, 0.7)',   // 橙色
+        'rgba(201, 203, 207, 0.7)',  // 灰色
+        'rgba(54, 235, 162, 0.7)'    // 绿色
+    ],
+    borderColor: [
+        'rgba(54, 162, 235, 1)',
+        'rgba(255, 99, 132, 1)',
+        'rgba(255, 206, 86, 1)',
+        'rgba(75, 192, 192, 1)',
+        'rgba(153, 102, 255, 1)',
+        'rgba(255, 159, 64, 1)',
+        'rgba(201, 203, 207, 1)',
+        'rgba(54, 235, 162, 1)'
+    ],
+    // 为历史图表定义对应的线条颜色
+    lineColors: [
+        {bg: 'rgba(54, 162, 235, 0.2)', border: 'rgb(54, 162, 235)'},
+        {bg: 'rgba(255, 99, 132, 0.2)', border: 'rgb(255, 99, 132)'},
+        {bg: 'rgba(255, 206, 86, 0.2)', border: 'rgb(255, 206, 86)'},
+        {bg: 'rgba(75, 192, 192, 0.2)', border: 'rgb(75, 192, 192)'},
+        {bg: 'rgba(153, 102, 255, 0.2)', border: 'rgb(153, 102, 255)'},
+        {bg: 'rgba(255, 159, 64, 0.2)', border: 'rgb(255, 159, 64)'},
+        {bg: 'rgba(201, 203, 207, 0.2)', border: 'rgb(201, 203, 207)'},
+        {bg: 'rgba(54, 235, 162, 0.2)', border: 'rgb(54, 235, 162)'}
+    ]
+};
+
+// 为特定播客定义特殊颜色
+const SPECIAL_PODCAST_COLORS = {
+    "不开玩笑": {
+        backgroundColor: 'rgba(255, 225, 3, 0.7)', // 用于柱状图背景
+        borderColor: 'rgba(255, 225, 3, 1)',     // 用于柱状图边框
+        lineColor: {                             // 用于折线图
+            bg: 'rgba(255, 225, 3, 0.2)',        // 折线图填充背景
+            border: 'rgb(255, 225, 3)'           // 折线图线条颜色
+        }
+    },
+    "文化有限": {
+        backgroundColor: 'rgba(0, 0, 0, 0.7)', // 用于柱状图背景
+        borderColor: 'rgb(0, 0, 0)',     // 用于柱状图边框
+        lineColor: {                             // 用于折线图
+            bg: 'rgba(0, 0, 0, 0.2)',        // 折线图填充背景
+            border: 'rgb(0, 0, 0)'           // 折线图线条颜色
+        }
+    }
+    // 如果需要，可以在这里为其他播客添加特殊颜色
+};
+
+// 获取播客的颜色索引
+function getPodcastColorIndex(podcastTitle, dataManager) {
+    // 获取所有播客标题的有序列表
+    const podcastTitles = Object.keys(dataManager.PODCAST_MAPPING);
+    // 返回播客在列表中的索引（用于颜色映射）
+    return podcastTitles.indexOf(podcastTitle);
+}
+
 // 更新当前订阅对比图表
 function updateSubscriptionChart(podcasts, dataManager) {
     const ctx = document.getElementById('subscriptionChart').getContext('2d');
@@ -22,6 +86,23 @@ function updateSubscriptionChart(podcasts, dataManager) {
 
     const labels = sortedPodcasts.map(podcast => podcast.title);
     const data = sortedPodcasts.map(podcast => podcast.subscriptionCount);
+    
+    // 为每个播客分配一致的颜色
+    const backgroundColors = sortedPodcasts.map(podcast => {
+        if (SPECIAL_PODCAST_COLORS[podcast.title]) {
+            return SPECIAL_PODCAST_COLORS[podcast.title].backgroundColor;
+        }
+        const colorIndex = getPodcastColorIndex(podcast.title, dataManager) % PODCAST_COLORS.backgroundColor.length;
+        return PODCAST_COLORS.backgroundColor[colorIndex];
+    });
+    
+    const borderColors = sortedPodcasts.map(podcast => {
+        if (SPECIAL_PODCAST_COLORS[podcast.title]) {
+            return SPECIAL_PODCAST_COLORS[podcast.title].borderColor;
+        }
+        const colorIndex = getPodcastColorIndex(podcast.title, dataManager) % PODCAST_COLORS.borderColor.length;
+        return PODCAST_COLORS.borderColor[colorIndex];
+    });
 
     window.subscriptionChart = new Chart(ctx, {
         type: 'bar',
@@ -30,16 +111,8 @@ function updateSubscriptionChart(podcasts, dataManager) {
             datasets: [{
                 label: '订阅数',
                 data: data,
-                backgroundColor: [
-                    'rgba(54, 162, 235, 0.7)', 'rgba(255, 99, 132, 0.7)',
-                    'rgba(255, 206, 86, 0.7)', 'rgba(75, 192, 192, 0.7)',
-                    'rgba(153, 102, 255, 0.7)', 'rgba(255, 159, 64, 0.7)'
-                ],
-                borderColor: [
-                    'rgba(54, 162, 235, 1)', 'rgba(255, 99, 132, 1)',
-                    'rgba(255, 206, 86, 1)', 'rgba(75, 192, 192, 1)',
-                    'rgba(153, 102, 255, 1)', 'rgba(255, 159, 64, 1)'
-                ],
+                backgroundColor: backgroundColors,
+                borderColor: borderColors,
                 borderWidth: 1
             }]
         },
@@ -95,16 +168,6 @@ function updateHistoryChart(historyData, dataManager) {
     const podcastTitlesInOrder = Object.keys(dataManager.PODCAST_MAPPING); // Titles in defined order
     const podcastIdMap = dataManager.PODCAST_MAPPING; // Title -> ID
 
-    const colors = [
-        {bg: 'rgba(54, 162, 235, 0.2)', border: 'rgb(54, 162, 235)'},
-        {bg: 'rgba(255, 99, 132, 0.2)', border: 'rgb(255, 99, 132)'},
-        {bg: 'rgba(255, 206, 86, 0.2)', border: 'rgb(255, 206, 86)'},
-        {bg: 'rgba(75, 192, 192, 0.2)', border: 'rgb(75, 192, 192)'},
-        {bg: 'rgba(153, 102, 255, 0.2)', border: 'rgb(153, 102, 255)'},
-        {bg: 'rgba(255, 159, 64, 0.2)', border: 'rgb(255, 159, 64)'}
-    ];
-    let colorIndex = 0;
-
     podcastTitlesInOrder.forEach(title => {
         const id = podcastIdMap[title];
         const podcastDataPoints = recentHistory.map(record => {
@@ -114,16 +177,24 @@ function updateHistoryChart(historyData, dataManager) {
 
         // Only add dataset if there is some data for this podcast in the history slice
         if (podcastDataPoints.some(value => value !== null)) {
+            let color;
+            if (SPECIAL_PODCAST_COLORS[title]) {
+                color = SPECIAL_PODCAST_COLORS[title].lineColor;
+            } else {
+                // 使用与订阅对比图表相同的颜色索引
+                const colorIndex = getPodcastColorIndex(title, dataManager) % PODCAST_COLORS.lineColors.length;
+                color = PODCAST_COLORS.lineColors[colorIndex];
+            }
+            
             datasets.push({
                 label: title,
                 data: podcastDataPoints,
-                borderColor: colors[colorIndex % colors.length].border,
-                backgroundColor: colors[colorIndex % colors.length].bg, // Optional for line chart fill
-                fill: false, // Set to true or 'origin' if you want area chart style
-                tension: 0.1, // Smoothens the line
+                borderColor: color.border,
+                backgroundColor: color.bg,
+                fill: false,
+                tension: 0.1,
                 borderWidth: 2
             });
-            colorIndex++;
         }
     });
     
@@ -132,7 +203,6 @@ function updateHistoryChart(historyData, dataManager) {
         loader.style.display = 'flex';
         return;
     }
-
 
     window.historyChart = new Chart(ctx, {
         type: 'line',

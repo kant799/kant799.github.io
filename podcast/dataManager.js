@@ -1,15 +1,16 @@
 // 数据管理类
+// 导入 podcastData.js 中的函数
 class DataManager {
     constructor() {
         this.podcastSources = [
-            { title: "不开玩笑", id: "681dc93cb7c8a9962c3fb0e6", url: "https://www.xiaoyuzhoufm.com/_next/data/ukNZu6IpYNggYjnOGPzVW/episode/681dc93cb7c8a9962c3fb0e6.json?id=681dc93cb7c8a9962c3fb0e6" },
-            { title: "无聊斋", id: "682a0676a5412dad8cd29bcc", url: "https://www.xiaoyuzhoufm.com/_next/data/ukNZu6IpYNggYjnOGPzVW/episode/682a0676a5412dad8cd29bcc.json?id=682a0676a5412dad8cd29bcc" },
-            { title: "基本无害", id: "6828c15d457b22ce0d318955", url: "https://www.xiaoyuzhoufm.com/_next/data/ukNZu6IpYNggYjnOGPzVW/episode/6828c15d457b22ce0d318955.json?id=6828c15d457b22ce0d318955" },
-            { title: "三个火呛手", id: "6824bac11ced30a23159f50b", url: "https://www.xiaoyuzhoufm.com/_next/data/ukNZu6IpYNggYjnOGPzVW/episode/6824bac11ced30a23159f50b.json?id=6824bac11ced30a23159f50b" },
-            { title: "正经叭叭", id: "682b4b04457b22ce0d807186", url: "https://www.xiaoyuzhoufm.com/_next/data/ukNZu6IpYNggYjnOGPzVW/episode/682b4b04457b22ce0d807186.json?id=682b4b04457b22ce0d807186" },
-            { title: "谐星聊天会", id: "681b2a3ddb57cd35f7fe2463", url: "https://www.xiaoyuzhoufm.com/_next/data/ukNZu6IpYNggYjnOGPzVW/episode/681b2a3ddb57cd35f7fe2463.json?id=681b2a3ddb57cd35f7fe2463" },
-            { title: "文化有限", id: "682bb8b1d231129fe32c3ba0", url: "https://www.xiaoyuzhoufm.com/_next/data/ukNZu6IpYNggYjnOGPzVW/episode/682bb8b1d231129fe32c3ba0.json?id=682bb8b1d231129fe32c3ba0" },
-            { title: "屠龙之术", id: "682adff0457b22ce0d6baf3b", url: "https://www.xiaoyuzhoufm.com/_next/data/ukNZu6IpYNggYjnOGPzVW/episode/682adff0457b22ce0d6baf3b.json?id=682adff0457b22ce0d6baf3b" }
+            { title: "不开玩笑", id: "61791d921989541784257779", url: "https://www.xiaoyuzhoufm.com/_next/data/ukNZu6IpYNggYjnOGPzVW/podcast/61791d921989541784257779.json?id=61791d921989541784257779" },
+            { title: "无聊斋", id: "5e280fac418a84a0461fb129", url: "https://www.xiaoyuzhoufm.com/_next/data/ukNZu6IpYNggYjnOGPzVW/podcast/5e280fac418a84a0461fb129.json?id=5e280fac418a84a0461fb129" },
+            { title: "基本无害", id: "5eae66d1418a84a046472b4d", url: "https://www.xiaoyuzhoufm.com/_next/data/ukNZu6IpYNggYjnOGPzVW/podcast/5eae66d1418a84a046472b4d.json?id=5eae66d1418a84a046472b4d" },
+            { title: "三个火呛手", id: "642ea4a1f54371d8b2d75168", url: "https://www.xiaoyuzhoufm.com/_next/data/ukNZu6IpYNggYjnOGPzVW/podcast/642ea4a1f54371d8b2d75168.json?id=642ea4a1f54371d8b2d75168" },
+            { title: "正经叭叭", id: "60e43cecc4e7c8188c2f92a4", url: "https://www.xiaoyuzhoufm.com/_next/data/ukNZu6IpYNggYjnOGPzVW/podcast/60e43cecc4e7c8188c2f92a4.json?id=60e43cecc4e7c8188c2f92a4" },
+            { title: "谐星聊天会", id: "5e280fa7418a84a0461f912b", url: "https://www.xiaoyuzhoufm.com/_next/data/ukNZu6IpYNggYjnOGPzVW/podcast/5e280fa7418a84a0461f912b.json?id=5e280fa7418a84a0461f912b" },
+            { title: "文化有限", id: "5e4515bd418a84a046e2b11a", url: "https://www.xiaoyuzhoufm.com/_next/data/ukNZu6IpYNggYjnOGPzVW/podcast/5e4515bd418a84a046e2b11a.json?id=5e4515bd418a84a046e2b11a" },
+            { title: "屠龙之术", id: "6507bc165c88d2412626b401", url: "https://www.xiaoyuzhoufm.com/_next/data/ukNZu6IpYNggYjnOGPzVW/podcast/6507bc165c88d2412626b401.json?id=6507bc165c88d2412626b401" }
         ];
         
         this.PODCAST_MAPPING = Object.fromEntries(this.podcastSources.map(p => [p.title, p.id]));
@@ -26,21 +27,43 @@ class DataManager {
             fetch(source.url)
                 .then(response => {
                     if (!response.ok) {
-                        const error = new Error(`HTTP error! status: ${response.status} for ${source.title}`);
-                        error.response = response; // Attach response for further inspection if needed
-                        error.isHttpError = true; // Custom flag
+                        // Create a custom error object to pass along HTTP status
+                        const error = new Error(`HTTP error! status: ${response.status}`);
+                        error.isHttpError = true;
+                        error.response = response; // Attach the response for more details if needed
                         throw error;
                     }
                     return response.json();
                 })
                 .then(data => {
-                    if (data && data.pageProps && data.pageProps.episode &&
-                        data.pageProps.episode.podcast && typeof data.pageProps.episode.podcast.subscriptionCount === 'number') {
-                        return {
-                            id: source.id,
-                            title: source.title,
-                            subscriptionCount: data.pageProps.episode.podcast.subscriptionCount
-                        };
+                    if (data && data.pageProps && data.pageProps.podcast) {
+                        const podcastInfo = data.pageProps.podcast;
+                        if (podcastInfo.subscriptionCount !== undefined && podcastInfo.pid) {
+                            const subscriptionCount = podcastInfo.subscriptionCount;
+                            // Ensure title consistency using the mapping first
+                            const title = this.PODCAST_ID_TO_TITLE_MAPPING[source.id] || podcastInfo.title || "未知播客";
+                            
+                            let picUrl = null;
+                            if (podcastInfo.image && podcastInfo.image.picUrl) {
+                                picUrl = podcastInfo.image.picUrl;
+                            }
+
+                            // 获取集数和最新更新日期
+                            const episodeCount = podcastInfo.episodeCount || 0;
+                            const latestEpisodePubDate = podcastInfo.latestEpisodePubDate || null;
+
+                            return {
+                                id: source.id, // Use the ID from podcastSources for consistency
+                                title: title,
+                                subscriptionCount: subscriptionCount,
+                                picUrl: picUrl, // Add the fetched picUrl
+                                episodeCount: episodeCount, // 添加集数
+                                latestEpisodePubDate: latestEpisodePubDate // 添加最新更新日期
+                            };
+                        } else {
+                            console.warn(`从 ${source.title} 的响应中找不到订阅数据或pid。URL: ${source.url}`, data);
+                            throw new Error(`数据格式不正确 (缺少 subscriptionCount 或 pid) for ${source.title}`);
+                        }
                     } else {
                         console.warn(`从 ${source.title} 的响应中找不到订阅数据或数据格式不正确。URL: ${source.url}`, data);
                         throw new Error(`数据格式不正确 for ${source.title}`);
@@ -160,4 +183,28 @@ class DataManager {
             }
         }
     }
+    
+    // getPodcastImageUrl(podcastId) { // REMOVE THIS METHOD
+    //     try {
+    //         // 确保 getOriginalJsonById 函数在全局作用域中可用
+    //         if (typeof getOriginalJsonById !== 'function') {
+    //             console.error('getOriginalJsonById 函数未定义，请确保 podcastData.js 已正确加载');
+    //             return null;
+    //         }
+            
+    //         // 从podcastData.js获取原始JSON数据
+    //         const jsonData = getOriginalJsonById(podcastId);
+    //         if (jsonData) {
+    //             const data = JSON.parse(jsonData);
+    //             if (data && data.pageProps && data.pageProps.podcast && 
+    //                 data.pageProps.podcast.image && data.pageProps.podcast.image.picUrl) {
+    //                 return data.pageProps.podcast.image.picUrl;
+    //             }
+    //         }
+    //         return null; // 如果找不到图片URL，返回null
+    //     } catch (error) {
+    //         console.error(`获取播客图片URL时出错:`, error);
+    //         return null;
+    //     }
+    // }
 }

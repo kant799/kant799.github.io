@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', async () => {
     const dataManager = new DataManager(); // Instantiated once
+    window.dataManager = dataManager; // 使dataManager全局可访问
 
     const refreshButton = document.getElementById('refreshButton');
     const refreshButtonText = document.getElementById('refreshButtonText');
@@ -86,7 +87,7 @@ function updateAllViews(dataManager) {
         updateSubscriptionChart(currentData.podcasts, dataManager); // Pass dataManager for consistent title mapping
     } else {
         // No current data, display empty/error states
-        document.getElementById('lastUpdated').textContent = '最后更新时间: 暂无实时数据';
+        document.getElementById('lastUpdated').textContent = '上次更新时间: 暂无实时数据';
         document.getElementById('podcastTable').innerHTML =
             `<tr><td colspan="3" class="py-4 px-4 text-center text-gray-500">未能加载播客数据。请检查网络连接或CORS设置，或稍后重试。</td></tr>`;
         updateSubscriptionChart([], dataManager); // Clear chart or show 'no data'
@@ -102,14 +103,14 @@ function updateAllViews(dataManager) {
 function updateLastUpdatedTime(timestamp) {
     const date = new Date(timestamp);
     const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}`;
-    document.getElementById('lastUpdated').textContent = `最后更新时间: ${formattedDate}`;
+    document.getElementById('lastUpdated').textContent = `上次更新时间: ${formattedDate}`;
 }
 
 function updatePodcastTable(podcasts, previousData, podcastMapping) {
     let tableHTML = '';
 
     if (!podcasts || podcasts.length === 0) {
-        tableHTML = `<tr><td colspan="3" class="py-4 px-4 text-center text-gray-500">暂无当前播客数据</td></tr>`;
+        tableHTML = `<tr><td colspan="5" class="py-4 px-4 text-center text-gray-500">暂无当前播客数据</td></tr>`;
     } else {
         // 创建播客数组并按订阅数量降序排序
         const sortedPodcasts = [...podcasts].sort((a, b) => b.subscriptionCount - a.subscriptionCount);
@@ -142,10 +143,55 @@ function updatePodcastTable(podcasts, previousData, podcastMapping) {
                 trendClass = 'text-gray-400';
             }
 
+            // 获取播客图片URL - 直接从 podcast 对象获取
+            const imageUrl = podcast.picUrl;
+            const imageHtml = imageUrl ? 
+                `<img src="${imageUrl}" alt="${podcast.title}" class="podcast-image mr-2 inline-block align-middle rounded-full">` : 
+                '';
+                
+            // 格式化最新更新日期
+            let formattedDate = '<span class="text-gray-400">-</span>';
+            if (podcast.latestEpisodePubDate) {
+                const date = new Date(podcast.latestEpisodePubDate);
+                if (!isNaN(date.getTime())) {
+                    // 基本日期格式 MM-DD
+                    const basicDate = `${(date.getMonth()+1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`;
+                    
+                    // 计算与当前日期的差距（天数）
+                    const now = new Date();
+                    const diffTime = now.getTime() - date.getTime();
+                    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+                    
+                    // 根据天数差距显示不同的文本
+                    let relativeText = '';
+                    if (diffDays === 0) {
+                        relativeText = '<span class="text-xs text-gray-400">（今天）</span>';
+                    } else if (diffDays === 1) {
+                        relativeText = '<span class="text-xs text-gray-400">（1天前）</span>';
+                    } else if (diffDays < 30) {
+                        relativeText = `<span class="text-xs text-gray-400">（${diffDays}天前）</span>`;
+                    } else {
+                        // 超过30天只显示日期，不显示相对时间
+                        relativeText = '';
+                    }
+                    
+                    formattedDate = `${basicDate}${relativeText}`;
+                }
+            }
+
+            // 创建播客名称的超链接，并添加图标
+            const podcastUrl = `https://www.xiaoyuzhoufm.com/podcast/${podcast.id}`;
+            const podcastLinkHtml = `<a href="${podcastUrl}" target="_blank" class="text-gray-800 hover:text-highlight transition-colors group inline-flex items-center">
+                                       ${podcast.title}
+                                       <i class="fa-solid fa-arrow-up-right-from-square fa-xs ml-1.5 text-gray-400 group-hover:text-highlight transition-colors duration-150"></i>
+                                   </a>`;
+
             tableHTML += `
                 <tr class="border-b border-gray-200 hover:bg-gray-50 transition-colors duration-150">
-                    <td class="py-3 px-4 text-sm text-gray-800">${podcast.title}</td>
+                    <td class="py-3 px-4 text-sm">${imageHtml}<span class="align-middle">${podcastLinkHtml}</span></td>
                     <td class="py-3 px-4 text-center text-sm font-medium text-gray-800">${podcast.subscriptionCount.toLocaleString('zh-CN')}</td>
+                    <td class="py-3 px-4 text-center text-sm font-medium text-gray-800">${podcast.episodeCount || '<span class="text-gray-400">-</span>'}</td>
+                    <td class="py-3 px-4 text-center text-sm font-medium text-gray-800">${formattedDate}</td>
                     <td class="py-3 px-4 text-center text-sm font-medium ${trendClass}">${trendText}</td>
                 </tr>
             `;
@@ -169,8 +215,8 @@ function updateHistoryTable(historyData, podcastMapping) {
     podcastTitles.forEach(title => {
         const id = podcastMapping[title];
         // 获取最新的数据记录（如果存在）
-        const latestRecord = recentHistory[0];
-        if (latestRecord) {
+        const latestRecord = recentHistory[0]; // This is the most recent historical snapshot
+        if (latestRecord && latestRecord.podcasts) {
             const podcast = latestRecord.podcasts.find(p => p.id === id);
             podcastsWithLatestData.push({
                 title: title,
@@ -190,30 +236,42 @@ function updateHistoryTable(historyData, podcastMapping) {
     podcastsWithLatestData.sort((a, b) => b.latestCount - a.latestCount);
     
     let tableHTML = '';
+    const currentDataManagerData = window.dataManager.getCurrentData(); // Get current data once
 
     // 为每个播客创建一行（已排序）
-    podcastsWithLatestData.forEach(podcastData => {
-        const title = podcastData.title;
-        const id = podcastData.id;
-        tableHTML += `<tr class="border-b border-gray-200 hover:bg-gray-50 transition-colors duration-150">
-            <td class="py-3 px-4 text-sm text-gray-800">${title}</td>`;
+    podcastsWithLatestData.forEach(podcastEntry => { // Renamed from podcastData to avoid confusion
+        const title = podcastEntry.title;
+        const id = podcastEntry.id;
         
-        // 添加每个时间点的数据
-        recentHistory.forEach(record => {
-            const podcast = record.podcasts.find(p => p.id === id);
-            if (podcast) {
-                tableHTML += `<td class="py-3 px-4 text-sm text-gray-800 text-right">${podcast.subscriptionCount.toLocaleString('zh-CN')}</td>`;
-            } else {
-                tableHTML += `<td class="py-3 px-4 text-sm text-gray-400 text-right">-</td>`;
+        // 获取播客图片URL - 从当前最新数据中查找
+        let imageUrl = null;
+        if (currentDataManagerData && currentDataManagerData.podcasts) {
+            const currentPodcastInfo = currentDataManagerData.podcasts.find(p => p.id === id);
+            if (currentPodcastInfo && currentPodcastInfo.picUrl) {
+                imageUrl = currentPodcastInfo.picUrl;
             }
-        });
-
-        // 补充空列，确保每行都有10列
-        const remainingCols = 9 - recentHistory.length;
-        for (let i = 0; i < remainingCols; i++) {
-            tableHTML += `<td class="py-3 px-4 text-sm text-gray-400 text-right">-</td>`;
         }
-
+        const imageHtml = imageUrl ? 
+            `<img src="${imageUrl}" alt="${title}" class="podcast-image mr-2 inline-block align-middle rounded-full">` : 
+            '';
+            
+        tableHTML += `<tr class="border-b border-gray-200 hover:bg-gray-50 transition-colors duration-150">
+            <td class="py-3 px-4 text-sm text-gray-800">${imageHtml}<span class="align-middle">${title}</span></td>`;
+        
+        // 为每个历史记录（列）填充数据
+        for (let i = 0; i < 9; i++) {
+            let cellData = '<span class="text-gray-400">-</span>';
+            if (i < recentHistory.length) {
+                const record = recentHistory[i]; // recentHistory is reversed, so 0 is latest
+                if (record && record.podcasts) {
+                    const podcastInRecord = record.podcasts.find(p => p.id === id);
+                    if (podcastInRecord) {
+                        cellData = podcastInRecord.subscriptionCount.toLocaleString('zh-CN');
+                    }
+                }
+            }
+            tableHTML += `<td class="py-3 px-4 text-center text-sm text-gray-700">${cellData}</td>`;
+        }
         tableHTML += `</tr>`;
     });
 
