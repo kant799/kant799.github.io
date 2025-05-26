@@ -3,14 +3,14 @@
 class DataManager {
     constructor() {
         this.podcastSources = [
-            { title: "不开玩笑", id: "61791d921989541784257779", url: "https://www.xiaoyuzhoufm.com/_next/data/ukNZu6IpYNggYjnOGPzVW/podcast/61791d921989541784257779.json?id=61791d921989541784257779" },
-            { title: "无聊斋", id: "5e280fac418a84a0461fb129", url: "https://www.xiaoyuzhoufm.com/_next/data/ukNZu6IpYNggYjnOGPzVW/podcast/5e280fac418a84a0461fb129.json?id=5e280fac418a84a0461fb129" },
-            { title: "基本无害", id: "5eae66d1418a84a046472b4d", url: "https://www.xiaoyuzhoufm.com/_next/data/ukNZu6IpYNggYjnOGPzVW/podcast/5eae66d1418a84a046472b4d.json?id=5eae66d1418a84a046472b4d" },
-            { title: "三个火呛手", id: "642ea4a1f54371d8b2d75168", url: "https://www.xiaoyuzhoufm.com/_next/data/ukNZu6IpYNggYjnOGPzVW/podcast/642ea4a1f54371d8b2d75168.json?id=642ea4a1f54371d8b2d75168" },
-            { title: "正经叭叭", id: "60e43cecc4e7c8188c2f92a4", url: "https://www.xiaoyuzhoufm.com/_next/data/ukNZu6IpYNggYjnOGPzVW/podcast/60e43cecc4e7c8188c2f92a4.json?id=60e43cecc4e7c8188c2f92a4" },
-            { title: "谐星聊天会", id: "5e280fa7418a84a0461f912b", url: "https://www.xiaoyuzhoufm.com/_next/data/ukNZu6IpYNggYjnOGPzVW/podcast/5e280fa7418a84a0461f912b.json?id=5e280fa7418a84a0461f912b" },
-            { title: "文化有限", id: "5e4515bd418a84a046e2b11a", url: "https://www.xiaoyuzhoufm.com/_next/data/ukNZu6IpYNggYjnOGPzVW/podcast/5e4515bd418a84a046e2b11a.json?id=5e4515bd418a84a046e2b11a" },
-            { title: "屠龙之术", id: "6507bc165c88d2412626b401", url: "https://www.xiaoyuzhoufm.com/_next/data/ukNZu6IpYNggYjnOGPzVW/podcast/6507bc165c88d2412626b401.json?id=6507bc165c88d2412626b401" }
+            { title: "不开玩笑", id: "61791d921989541784257779", url: "https://www.xiaoyuzhoufm.com/_next/data/5Pvt_oGntgdyBD_XgwBaB/podcast/61791d921989541784257779.json?id=61791d921989541784257779" },
+            { title: "无聊斋", id: "5e280fac418a84a0461fb129", url: "https://www.xiaoyuzhoufm.com/_next/data/5Pvt_oGntgdyBD_XgwBaB/podcast/5e280fac418a84a0461fb129.json?id=5e280fac418a84a0461fb129" },
+            { title: "基本无害", id: "5eae66d1418a84a046472b4d", url: "https://www.xiaoyuzhoufm.com/_next/data/5Pvt_oGntgdyBD_XgwBaB/podcast/5eae66d1418a84a046472b4d.json?id=5eae66d1418a84a046472b4d" },
+            { title: "三个火呛手", id: "642ea4a1f54371d8b2d75168", url: "https://www.xiaoyuzhoufm.com/_next/data/5Pvt_oGntgdyBD_XgwBaB/podcast/642ea4a1f54371d8b2d75168.json?id=642ea4a1f54371d8b2d75168" },
+            { title: "正经叭叭", id: "60e43cecc4e7c8188c2f92a4", url: "https://www.xiaoyuzhoufm.com/_next/data/5Pvt_oGntgdyBD_XgwBaB/podcast/60e43cecc4e7c8188c2f92a4.json?id=60e43cecc4e7c8188c2f92a4" },
+            { title: "谐星聊天会", id: "5e280fa7418a84a0461f912b", url: "https://www.xiaoyuzhoufm.com/_next/data/5Pvt_oGntgdyBD_XgwBaB/podcast/5e280fa7418a84a0461f912b.json?id=5e280fa7418a84a0461f912b" },  
+            { title: "文化有限", id: "5e4515bd418a84a046e2b11a", url: "https://www.xiaoyuzhoufm.com/_next/data/5Pvt_oGntgdyBD_XgwBaB/podcast/5e4515bd418a84a046e2b11a.json?id=5e4515bd418a84a046e2b11a" },
+            { title: "屠龙之术", id: "6507bc165c88d2412626b401", url: "https://www.xiaoyuzhoufm.com/_next/data/5Pvt_oGntgdyBD_XgwBaB/podcast/6507bc165c88d2412626b401.json?id=6507bc165c88d2412626b401" }
         ];
         
         this.PODCAST_MAPPING = Object.fromEntries(this.podcastSources.map(p => [p.title, p.id]));
