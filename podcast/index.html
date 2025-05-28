@@ -24,10 +24,11 @@
                         '8xl': '6rem',
                         '9xl': '8rem',
                     },
-                    gridTemplateColumns: {
-                        'bento': 'repeat(auto-fit, minmax(300px, 1fr))',
-                        'bento-lg': 'repeat(auto-fit, minmax(400px, 1fr))',
-                    },
+                    // 移除以下Bento Grid配置
+                    // gridTemplateColumns: {
+                    //     'bento': 'repeat(auto-fit, minmax(300px, 1fr))',
+                    //     'bento-lg': 'repeat(auto-fit, minmax(400px, 1fr))',
+                    // },
                     height: {
                         '128': '32rem',
                     }
@@ -115,7 +116,7 @@
         
         /* 历史记录表格容器 */
         .history-table-container {
-            max-height: 400px;
+             /* max-height: 400px;*/
             overflow-y: auto;
         }
         
@@ -163,14 +164,26 @@
         button, a, .copy-column-btn, .bento-card {
             transition: transform 0.2s, box-shadow 0.2s;
         }
+        * {
+            -webkit-user-select: none; /* Safari */
+            -moz-user-select: none; /* Firefox */
+            -ms-user-select: none; /* IE10+/Edge */
+            user-select: none; /* Standard */
+        }
+        
+        /* 防止所有文字换行 */
+        body, h1, h2, h3, h4, h5, h6, p, span, a, button, th, td, div {
+            white-space: nowrap;
+        }
     </style>
 </head>
 <body class="bg-[#F5F5F5] text-black min-h-screen">
     <!-- 自定义鼠标指针元素 -->
     <div class="custom-cursor"></div>
+
     
     <div class="container mx-auto px-4 py-4 md:py-8 max-w-[1920px]">
-        <header class="mb-6 md:mb-12 flex flex-col md:flex-row justify-between items-center">
+        <header class="mb-6 md:mb-12 flex flex-col md:flex-row justify-between items-center ">
             <div class="w-full text-center md:text-left">
                 <h1 class="text-3xl md:text-5xl lg:text-6xl font-bold mb-1 md:mb-2">播客订阅追踪</h1>
                 <p class="text-xs md:text-sm uppercase tracking-widest text-gray-500">PODCAST SUBSCRIPTION TRACKER</p>
@@ -191,194 +204,238 @@
             </div>
         </header>
 
-        <!-- Bento Grid 布局 - 所有内容整合到一个网格中 -->
-        <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-6 mb-12">
-            <!-- 订阅数据表格卡片 -->
-            <div class="bento-card bg-white border border-gray-100 p-6 shadow-sm md:col-span-2 lg:col-span-2">
-                <div class="flex justify-between items-center mb-6">
-                    <div>
-                        <p class="text-sm uppercase tracking-widest text-gray-500 mb-1">CURRENT DATA</p>
-                        <h2 class="text-2xl font-bold">当前订阅数据</h2>
-                    </div>
-                    <div class="text-xs text-gray-400 uppercase">
-                        按订阅量排序
-                    </div>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="min-w-full bg-white">
-                        <thead>
-                            <tr class="border-b border-gray-100">
-                                <th class="py-3 px-4 text-left text-sm font-medium text-gray-500">播客</th>
-                                <th class="py-3 px-4 text-center text-sm font-medium text-gray-500">订阅人数</th>
-                                <th class="py-3 px-4 text-center text-sm font-medium text-gray-500">订阅变化</th>
-                                <th class="py-3 px-4 text-center text-sm font-medium text-gray-500">最近更新</th>
-                                <th class="py-3 px-4 text-center text-sm font-medium text-gray-500">总集数</th>
-                            </tr>
-                        </thead>
-                        <tbody id="podcastTable">
-                            <!-- Skeleton Loader Rows -->
-                            <tr class="border-b border-gray-50 animate-pulse">
-                                <td class="py-4 px-4"><div class="h-4 bg-gray-100 rounded w-3/4"></div></td>
-                                <td class="py-4 px-4 text-center"><div class="h-4 bg-gray-100 rounded w-1/2 mx-auto"></div></td>
-                                <td class="py-4 px-4 text-center"><div class="h-4 bg-gray-100 rounded w-1/4 mx-auto"></div></td>
-                                <td class="py-4 px-4 text-center"><div class="h-4 bg-gray-100 rounded w-2/3 mx-auto"></div></td>
-                                <td class="py-4 px-4 text-center"><div class="h-4 bg-gray-100 rounded w-1/3 mx-auto"></div></td>
-                            </tr>
-                            <tr class="border-b border-gray-50 animate-pulse">
-                                <td class="py-4 px-4"><div class="h-4 bg-gray-100 rounded w-full"></div></td>
-                                <td class="py-4 px-4 text-center"><div class="h-4 bg-gray-100 rounded w-1/3 mx-auto"></div></td>
-                                <td class="py-4 px-4 text-center"><div class="h-4 bg-gray-100 rounded w-1/6 mx-auto"></div></td>
-                                <td class="py-4 px-4 text-center"><div class="h-4 bg-gray-100 rounded w-3/4 mx-auto"></div></td>
-                                <td class="py-4 px-4 text-center"><div class="h-4 bg-gray-100 rounded w-1/2 mx-auto"></div></td>
-                            </tr>
-                            <tr class="border-b border-gray-50 animate-pulse">
-                                <td class="py-4 px-4"><div class="h-4 bg-gray-100 rounded w-2/3"></div></td>
-                                <td class="py-4 px-4 text-center"><div class="h-4 bg-gray-100 rounded w-1/2 mx-auto"></div></td>
-                                <td class="py-4 px-4 text-center"><div class="h-4 bg-gray-100 rounded w-1/4 mx-auto"></div></td>
-                                <td class="py-4 px-4 text-center"><div class="h-4 bg-gray-100 rounded w-1/2 mx-auto"></div></td>
-                                <td class="py-4 px-4 text-center"><div class="h-4 bg-gray-100 rounded w-1/4 mx-auto"></div></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+        
+        <!-- 新增顶部导航栏 -->
+        <div class="flex justify-center bg-white rounded-full p-2 mb-6 max-w-screen-sm mx-auto shadow-lg">
+            <div class="flex space-x-1">
+                <button class="tab-button active flex items-center px-4 py-2 text-sm font-medium text-highlight bg-highlight-light rounded-full transition-all duration-300" data-tab="subscription-data">
+                    <i class="fa-solid fa-house mr-2"></i>
+                    <span>订阅数据</span>
+                </button>
+                <button class="tab-button flex items-center px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700 rounded-full transition-all duration-300" data-tab="subscription-comparison">
+                    <i class="fa-solid fa-chart-bar mr-2"></i>
+                    <span>订阅对比</span>
+                </button>
+                <button class="tab-button flex items-center px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700 rounded-full transition-all duration-300" data-tab="history-records">
+                    <i class="fa-solid fa-clock-rotate-left mr-2"></i>
+                    <span>历史记录</span>
+                </button>
+                <button class="tab-button flex items-center px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700 rounded-full transition-all duration-300" data-tab="historical-trend">
+                    <i class="fa-solid fa-chart-line mr-2"></i>
+                    <span>历史趋势</span>
+                </button>
             </div>
+        </div>
 
-            <!-- 订阅数对比图表卡片 -->
-            <div class="bento-card gradient-bg p-6 shadow-sm md:col-span-1 lg:col-span-1">
-                <p class="text-sm uppercase tracking-widest text-gray-500 mb-1">COMPARISON</p>
-                <h2 class="text-2xl font-bold mb-4">订阅数对比</h2>
-                <div class="h-96 relative chart-container">
-                    <canvas id="subscriptionChart"></canvas>
-                    <div id="subscriptionChartLoader" class="absolute inset-0 flex items-center justify-center text-gray-500 bg-white bg-opacity-75 rounded-lg">
-                        <i class="fa-solid fa-circle-notch fa-spin mr-2"></i>
-                        图表加载中...
+        <!-- 修改主内容区域布局 -->
+        <div class="container mx-auto px-4 max-w-[1920px]">
+            <!-- Tab内容区域 -->
+            <div class="mt-4">
+                <!-- 订阅数据 Tab -->
+                <div id="subscription-data" class="tab-content block">
+                    <!-- 订阅数据表格卡片 -->
+                    <div class="bg-white border border-gray-100 p-6 shadow-sm mb-6 rounded-3xl">
+                        <div class="flex justify-between items-center mb-6">
+                            <div>
+                                <p class="text-sm uppercase tracking-widest text-gray-500 mb-1">CURRENT DATA</p>
+                                <h2 class="text-2xl font-bold">当前订阅数据</h2>
+                            </div>
+                            <div class="text-xs text-gray-400 uppercase">
+                                按订阅量排序
+                            </div>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full bg-white">
+                                <thead>
+                                    <tr class="border-b border-gray-100">
+                                        <th class="py-3 px-4 text-left text-sm font-medium text-gray-500">播客</th>
+                                        <th class="py-3 px-4 text-center text-sm font-medium text-gray-500">
+                                            <div class="flex items-center justify-center space-x-2">
+                                                <span>订阅人数</span>
+                                                <button class="copy-column-btn text-gray-400 hover:text-highlight transition-colors" data-column="1" title="复制此列数据">
+                                                    <i class="fa-regular fa-copy"></i>
+                                                </button>
+                                            </div>
+                                        </th>
+                                        <th class="py-3 px-4 text-center text-sm font-medium text-gray-500">订阅变化</th>
+                                        <th class="py-3 px-4 text-center text-sm font-medium text-gray-500">最近更新</th>
+                                        <th class="py-3 px-4 text-center text-sm font-medium text-gray-500">总集数</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="podcastTable">
+                                    <!-- Skeleton Loader Rows -->
+                                    <tr class="border-b border-gray-50 animate-pulse">
+                                        <td class="py-4 px-4"><div class="h-4 bg-gray-100 rounded w-3/4"></div></td>
+                                        <td class="py-4 px-4 text-center"><div class="h-4 bg-gray-100 rounded w-1/2 mx-auto"></div></td>
+                                        <td class="py-4 px-4 text-center"><div class="h-4 bg-gray-100 rounded w-1/4 mx-auto"></div></td>
+                                        <td class="py-4 px-4 text-center"><div class="h-4 bg-gray-100 rounded w-2/3 mx-auto"></div></td>
+                                        <td class="py-4 px-4 text-center"><div class="h-4 bg-gray-100 rounded w-1/3 mx-auto"></div></td>
+                                    </tr>
+                                    <tr class="border-b border-gray-50 animate-pulse">
+                                        <td class="py-4 px-4"><div class="h-4 bg-gray-100 rounded w-full"></div></td>
+                                        <td class="py-4 px-4 text-center"><div class="h-4 bg-gray-100 rounded w-1/3 mx-auto"></div></td>
+                                        <td class="py-4 px-4 text-center"><div class="h-4 bg-gray-100 rounded w-1/6 mx-auto"></div></td>
+                                        <td class="py-4 px-4 text-center"><div class="h-4 bg-gray-100 rounded w-3/4 mx-auto"></div></td>
+                                        <td class="py-4 px-4 text-center"><div class="h-4 bg-gray-100 rounded w-1/2 mx-auto"></div></td>
+                                    </tr>
+                                    <tr class="border-b border-gray-50 animate-pulse">
+                                        <td class="py-4 px-4"><div class="h-4 bg-gray-100 rounded w-2/3"></div></td>
+                                        <td class="py-4 px-4 text-center"><div class="h-4 bg-gray-100 rounded w-1/2 mx-auto"></div></td>
+                                        <td class="py-4 px-4 text-center"><div class="h-4 bg-gray-100 rounded w-1/4 mx-auto"></div></td>
+                                        <td class="py-4 px-4 text-center"><div class="h-4 bg-gray-100 rounded w-1/2 mx-auto"></div></td>
+                                        <td class="py-4 px-4 text-center"><div class="h-4 bg-gray-100 rounded w-1/4 mx-auto"></div></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 订阅对比 Tab -->
+                <div id="subscription-comparison" class="tab-content hidden">
+                    <!-- 订阅数对比图表卡片 -->
+                    <div class="gradient-bg p-6 shadow-sm mb-6 rounded-3xl">
+                        <p class="text-sm uppercase tracking-widest text-gray-500 mb-1">COMPARISON</p>
+                        <h2 class="text-2xl font-bold mb-4">订阅数对比</h2>
+                        <div class="h-[60vh] relative chart-container">
+                            <canvas id="subscriptionChart"></canvas>
+                            <div id="subscriptionChartLoader" class="absolute inset-0 flex items-center justify-center text-gray-500 bg-white bg-opacity-75 rounded-lg">
+                                <i class="fa-solid fa-circle-notch fa-spin mr-2"></i>
+                                图表加载中...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 历史记录 Tab -->
+                <div id="history-records" class="tab-content hidden">
+                    <!-- 历史记录表格卡片 -->
+                    <div class="bg-white border border-gray-100 p-6 shadow-sm mb-6 rounded-3xl">
+                        <div class="flex justify-between items-center mb-6">
+                            <div>
+                                <p class="text-sm uppercase tracking-widest text-gray-500 mb-1">HISTORY RECORDS</p>
+                                <h2 class="text-2xl font-bold">历史记录</h2>
+                            </div>
+                        </div>
+                        <div class="history-table-container">
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full bg-white history-table">
+                                    <thead>
+                                        <tr>
+                                            <th class="border-r border-gray-100 sticky top-0 bg-white z-10">
+                                                播客名称
+                                            </th>
+                                            <th class="border-r border-gray-100 sticky top-0 bg-white z-10">
+                                                <div class="flex items-center justify-center space-x-2">
+                                                    <span>最新</span>
+                                                    <button class="copy-column-btn text-gray-400 hover:text-highlight transition-colors" data-column="1" title="复制此列数据">
+                                                        <i class="fa-regular fa-copy"></i>
+                                                    </button>
+                                                </div>
+                                            </th>
+                                            <th class="border-r border-gray-100 sticky top-0 bg-white z-10">
+                                                <div class="flex items-center justify-center space-x-2">
+                                                    <span>前1次</span>
+                                                    <button class="copy-column-btn text-gray-400 hover:text-highlight transition-colors" data-column="2" title="复制此列数据">
+                                                        <i class="fa-regular fa-copy"></i>
+                                                    </button>
+                                                </div>
+                                            </th>
+                                            <th class="border-r border-gray-100 sticky top-0 bg-white z-10">
+                                                <div class="flex items-center justify-center space-x-2">
+                                                    <span>前2次</span>
+                                                    <button class="copy-column-btn text-gray-400 hover:text-highlight transition-colors" data-column="3" title="复制此列数据">
+                                                        <i class="fa-regular fa-copy"></i>
+                                                    </button>
+                                                </div>
+                                            </th>
+                                            <th class="border-r border-gray-100 sticky top-0 bg-white z-10">
+                                                <div class="flex items-center justify-center space-x-2">
+                                                    <span>前3次</span>
+                                                    <button class="copy-column-btn text-gray-400 hover:text-highlight transition-colors" data-column="4" title="复制此列数据">
+                                                        <i class="fa-regular fa-copy"></i>
+                                                    </button>
+                                                </div>
+                                            </th>
+                                            <th class="border-r border-gray-100 sticky top-0 bg-white z-10">
+                                                <div class="flex items-center justify-center space-x-2">
+                                                    <span>前4次</span>
+                                                    <button class="copy-column-btn text-gray-400 hover:text-highlight transition-colors" data-column="5" title="复制此列数据">
+                                                        <i class="fa-regular fa-copy"></i>
+                                                    </button>
+                                                </div>
+                                            </th>
+                                            <th class="border-r border-gray-100 sticky top-0 bg-white z-10">
+                                                <div class="flex items-center justify-center space-x-2">
+                                                    <span>前5次</span>
+                                                    <button class="copy-column-btn text-gray-400 hover:text-highlight transition-colors" data-column="6" title="复制此列数据">
+                                                        <i class="fa-regular fa-copy"></i>
+                                                    </button>
+                                                </div>
+                                            </th>
+                                            <th class="border-r border-gray-100 sticky top-0 bg-white z-10">
+                                                <div class="flex items-center justify-center space-x-2">
+                                                    <span>前6次</span>
+                                                    <button class="copy-column-btn text-gray-400 hover:text-highlight transition-colors" data-column="7" title="复制此列数据">
+                                                        <i class="fa-regular fa-copy"></i>
+                                                    </button>
+                                                </div>
+                                            </th>
+                                            <th class="border-r border-gray-100 sticky top-0 bg-white z-10">
+                                                <div class="flex items-center justify-center space-x-2">
+                                                    <span>前7次</span>
+                                                    <button class="copy-column-btn text-gray-400 hover:text-highlight transition-colors" data-column="8" title="复制此列数据">
+                                                        <i class="fa-regular fa-copy"></i>
+                                                    </button>
+                                                </div>
+                                            </th>
+                                            <th class="sticky top-0 bg-white z-10">
+                                                <div class="flex items-center justify-center space-x-2">
+                                                    <span>前8次</span>
+                                                    <button class="copy-column-btn text-gray-400 hover:text-highlight transition-colors" data-column="9" title="复制此列数据">
+                                                        <i class="fa-regular fa-copy"></i>
+                                                    </button>
+                                                </div>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="historyTable">
+                                        <tr>
+                                            <td colspan="10" class="py-4 px-4 text-center text-gray-500">
+                                                <i class="fa-solid fa-circle-notch fa-spin mr-2"></i>
+                                                加载中...
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 历史趋势 Tab -->
+                <div id="historical-trend" class="tab-content hidden">
+                    <!-- 历史数据图表卡片 -->
+                    <div class="bg-white border border-gray-100 p-6 shadow-sm mb-6 rounded-3xl">
+                        <div class="flex justify-between items-center mb-6">
+                            <div>
+                                <p class="text-sm uppercase tracking-widest text-gray-500 mb-1">HISTORICAL DATA</p>
+                                <h2 class="text-2xl font-bold">历史趋势</h2>
+                            </div>
+                            <div class="text-xs text-gray-400">
+                                <span id="historyDateRange">最近数据</span>
+                            </div>
+                        </div>
+                        <div class="h-[60vh] relative chart-container">  <!--  修改此处 -->
+                            <canvas id="historyChart"></canvas>
+                            <div id="historyChartLoader" class="absolute inset-0 flex items-center justify-center text-gray-500 bg-white bg-opacity-75 rounded-lg">
+                                <i class="fa-solid fa-circle-notch fa-spin mr-2"></i>
+                                图表加载中...
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-            
-            <!-- 历史记录表格卡片 -->
-            <div class="bento-card bg-white border border-gray-100 p-6 shadow-sm md:col-span-2 lg:col-span-2">
-                <div class="flex justify-between items-center mb-6">
-                    <div>
-                        <p class="text-sm uppercase tracking-widest text-gray-500 mb-1">HISTORY RECORDS</p>
-                        <h2 class="text-2xl font-bold">历史记录</h2>
-                    </div>
-                </div>
-                <div class="history-table-container">
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full bg-white history-table">
-                            <thead>
-                                <tr>
-                                    <th class="border-r border-gray-100 sticky top-0 bg-white z-10">
-                                        播客名称
-                                    </th>
-                                    <th class="border-r border-gray-100 sticky top-0 bg-white z-10">
-                                        <div class="flex items-center justify-center space-x-2">
-                                            <span>最新</span>
-                                            <button class="copy-column-btn text-gray-400 hover:text-highlight transition-colors" data-column="1" title="复制此列数据">
-                                                <i class="fa-regular fa-copy"></i>
-                                            </button>
-                                        </div>
-                                    </th>
-                                    <th class="border-r border-gray-100 sticky top-0 bg-white z-10">
-                                        <div class="flex items-center justify-center space-x-2">
-                                            <span>前1次</span>
-                                            <button class="copy-column-btn text-gray-400 hover:text-highlight transition-colors" data-column="2" title="复制此列数据">
-                                                <i class="fa-regular fa-copy"></i>
-                                            </button>
-                                        </div>
-                                    </th>
-                                    <th class="border-r border-gray-100 sticky top-0 bg-white z-10">
-                                        <div class="flex items-center justify-center space-x-2">
-                                            <span>前2次</span>
-                                            <button class="copy-column-btn text-gray-400 hover:text-highlight transition-colors" data-column="3" title="复制此列数据">
-                                                <i class="fa-regular fa-copy"></i>
-                                            </button>
-                                        </div>
-                                    </th>
-                                    <th class="border-r border-gray-100 sticky top-0 bg-white z-10">
-                                        <div class="flex items-center justify-center space-x-2">
-                                            <span>前3次</span>
-                                            <button class="copy-column-btn text-gray-400 hover:text-highlight transition-colors" data-column="4" title="复制此列数据">
-                                                <i class="fa-regular fa-copy"></i>
-                                            </button>
-                                        </div>
-                                    </th>
-                                    <th class="border-r border-gray-100 sticky top-0 bg-white z-10">
-                                        <div class="flex items-center justify-center space-x-2">
-                                            <span>前4次</span>
-                                            <button class="copy-column-btn text-gray-400 hover:text-highlight transition-colors" data-column="5" title="复制此列数据">
-                                                <i class="fa-regular fa-copy"></i>
-                                            </button>
-                                        </div>
-                                    </th>
-                                    <th class="border-r border-gray-100 sticky top-0 bg-white z-10">
-                                        <div class="flex items-center justify-center space-x-2">
-                                            <span>前5次</span>
-                                            <button class="copy-column-btn text-gray-400 hover:text-highlight transition-colors" data-column="6" title="复制此列数据">
-                                                <i class="fa-regular fa-copy"></i>
-                                            </button>
-                                        </div>
-                                    </th>
-                                    <th class="border-r border-gray-100 sticky top-0 bg-white z-10">
-                                        <div class="flex items-center justify-center space-x-2">
-                                            <span>前6次</span>
-                                            <button class="copy-column-btn text-gray-400 hover:text-highlight transition-colors" data-column="7" title="复制此列数据">
-                                                <i class="fa-regular fa-copy"></i>
-                                            </button>
-                                        </div>
-                                    </th>
-                                    <th class="border-r border-gray-100 sticky top-0 bg-white z-10">
-                                        <div class="flex items-center justify-center space-x-2">
-                                            <span>前7次</span>
-                                            <button class="copy-column-btn text-gray-400 hover:text-highlight transition-colors" data-column="8" title="复制此列数据">
-                                                <i class="fa-regular fa-copy"></i>
-                                            </button>
-                                        </div>
-                                    </th>
-                                    <th class="sticky top-0 bg-white z-10">
-                                        <div class="flex items-center justify-center space-x-2">
-                                            <span>前8次</span>
-                                            <button class="copy-column-btn text-gray-400 hover:text-highlight transition-colors" data-column="9" title="复制此列数据">
-                                                <i class="fa-regular fa-copy"></i>
-                                            </button>
-                                        </div>
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody id="historyTable">
-                                <tr>
-                                    <td colspan="10" class="py-4 px-4 text-center text-gray-500">
-                                        <i class="fa-solid fa-circle-notch fa-spin mr-2"></i>
-                                        加载中...
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- 历史数据图表卡片 -->
-            <div class="bento-card bg-white border border-gray-100 p-6 shadow-sm md:col-span-1 lg:col-span-1">
-                <div class="flex justify-between items-center mb-6">
-                    <div>
-                        <p class="text-sm uppercase tracking-widest text-gray-500 mb-1">HISTORICAL DATA</p>
-                        <h2 class="text-2xl font-bold">历史趋势</h2>
-                    </div>
-                    <div class="text-xs text-gray-400">
-                        <span id="historyDateRange">最近数据</span>
-                    </div>
-                </div>
-                <div class="h-96 relative chart-container">
-                    <canvas id="historyChart"></canvas>
-                    <div id="historyChartLoader" class="absolute inset-0 flex items-center justify-center text-gray-500 bg-white bg-opacity-75 rounded-lg">
-                        <i class="fa-solid fa-circle-notch fa-spin mr-2"></i>
-                        图表加载中...
-                    </div>
-                </div>
-            </div>
-            
         </div>
 
         <footer class="text-center text-sm text-gray-400 py-6">
@@ -625,130 +682,776 @@
             });
         });
     </script>
-    <style>
-            /* 移动端卡片布局和间距 */
-            @media (max-width: 768px) {
-                .bento-card {
-                    padding: 1rem;
-                    border-radius: 16px;
-                }
-                
-                .container {
-                    padding-left: 0.75rem;
-                    padding-right: 0.75rem;
-                }
-                
-                .grid {
-                    gap: 0.75rem;
-                }
-                
-                h1 {
-                    font-size: 2rem;
-                    line-height: 1.2;
-                }
-                
-                h2 {
-                    font-size: 1.25rem;
-                }
-                
-                .chart-container {
-                    height: 250px !important;
-                }
-            }
-    </style>
-    <style>
-            /* 移动端按钮和交互元素 */
-            @media (max-width: 768px) {
-                button {
-                    padding: 0.5rem 0.75rem;
-                    font-size: 0.75rem;
-                }
-                
-                #clearButton, #refreshButton {
-                    padding: 0.5rem 0.75rem;
-                }
-                
-                #clearButton i, #refreshButton i {
-                    margin-right: 0.25rem;
-                }
-                
-                /* 在非常小的屏幕上隐藏按钮文字，只显示图标 */
-                @media (max-width: 360px) {
-                    #clearButton span, #refreshButton span {
-                        display: none;
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const tabButtons = document.querySelectorAll('.tab-button');
+            const tabContents = document.querySelectorAll('.tab-content');
+            const breakpoint = 640; // Tailwind's 'sm' breakpoint
+
+            function updateTabButtonTextVisibility() {
+                const screenWidth = window.innerWidth;
+                tabButtons.forEach(button => {
+                    const textSpan = button.querySelector('span'); // Assuming text is in a span
+                    if (textSpan) {
+                        if (screenWidth < breakpoint) {
+                            if (!button.classList.contains('active')) {
+                                textSpan.classList.add('hidden');
+                            } else {
+                                textSpan.classList.remove('hidden');
+                            }
+                        } else {
+                            textSpan.classList.remove('hidden');
+                        }
                     }
-                    
-                    #clearButton i, #refreshButton i {
-                        margin-right: 0;
-                    }
-                }
+                });
             }
-    </style>
-    <style>
-            /* 移动端表格优化 */
-            @media (max-width: 768px) {
-                /* 表格容器横向滚动 */
-                .overflow-x-auto {
-                    -webkit-overflow-scrolling: touch;
-                }
-                
-                /* 表格单元格样式调整 */
-                .min-w-full th,
-                .min-w-full td {
-                    white-space: nowrap;
-                    padding: 0.5rem 0.25rem;
-                    font-size: 0.75rem;
-                }
-                
-                /* 播客图片在移动端缩小 */
-                .podcast-image {
-                    width: 20px;
-                    height: 20px;
-                }
-                
-                /* 确保表格不会被压缩 */
-                .min-w-full {
-                    width: 100% !important;
-                    table-layout: fixed;
-                    min-width: 600px; /* 确保表格有最小宽度 */
-                }
-                
-                /* 历史表格优化 */
-                .history-table {
-                    min-width: 800px; /* 历史表格更宽，需要更大的最小宽度 */
-                }
-                
-                /* 表格容器样式 */
-                .overflow-x-auto {
-                    position: relative;
-                    width: 100%;
-                    overflow-x: auto;
-                    -webkit-overflow-scrolling: touch;
-                }
-                
-                /* 移除滑动提示 */
-                .overflow-x-auto::after {
-                    content: ""; /* 移除提示内容 */
-                    position: absolute;
-                    bottom: -20px;
-                    left: 50%;
-                    transform: translateX(-50%);
-                    font-size: 0.7rem;
-                    color: #9CA3AF;
-                    white-space: nowrap;
-                    opacity: 0.8;
-                    pointer-events: none;
-                }
+
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    // Remove active class from all buttons and add inactive classes
+                    tabButtons.forEach(btn => {
+                        btn.classList.remove('active', 'bg-highlight-light', 'text-highlight');
+                        btn.classList.add('text-gray-500', 'hover:text-gray-700');
+                    });
+
+                    // Add active class to the clicked button and remove inactive classes
+                    button.classList.add('active', 'bg-highlight-light', 'text-highlight');
+                    button.classList.remove('text-gray-500', 'hover:text-gray-700');
+
+                    // Hide all tab contents and show the target content
+                    const targetTab = button.getAttribute('data-tab');
+                    tabContents.forEach(content => {
+                        content.classList.add('hidden');
+                        content.classList.remove('block');
+                    });
+                    document.getElementById(targetTab).classList.add('block');
+                    document.getElementById(targetTab).classList.remove('hidden');
+
+                    // Update text visibility after click, especially for the newly active tab
+                    updateTabButtonTextVisibility();
+                });
+            });
+
+            // Optional: Activate the first tab on initial load if none are active
+            const activeTab = document.querySelector('.tab-button.active');
+            if (!activeTab && tabButtons.length > 0) {
+                tabButtons[0].click(); // This will also trigger updateTabButtonTextVisibility via the click handler
+            } else {
+                 // Initial check if a tab is already active on load
+                updateTabButtonTextVisibility();
+            }
+
+            // Listen for window resize events
+            window.addEventListener('resize', updateTabButtonTextVisibility);
+        });
+    </script>
+    <script src="podcastData.js"></script> 
+    <script src="dataManager.js"></script>
+    <script src="chart.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
+<style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .bento-card {
+            animation: fadeIn 0.5s ease-out forwards;
+            opacity: 0;
+            border-radius: 24px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .bento-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        }
+        
+        .bento-card:nth-child(1) { animation-delay: 0.1s; }
+        .bento-card:nth-child(2) { animation-delay: 0.2s; }
+        .bento-card:nth-child(3) { animation-delay: 0.3s; }
+        .bento-card:nth-child(4) { animation-delay: 0.4s; }
+        .bento-card:nth-child(5) { animation-delay: 0.5s; }
+        .bento-card:nth-child(6) { animation-delay: 0.6s; }
+        
+        .trend-up { color: #10B981; }
+        .trend-down { color: #EF4444; }
+        .trend-neutral { color: #9CA3AF; }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, rgba(77, 107, 254, 0.05) 0%, rgba(77, 107, 254, 0.2) 100%);
+        }
+        
+        .chart-container canvas {
+            max-height: 100%;
+            width: 100%;
+        }
+        
+        /* 自定义滚动条 */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: rgba(77, 107, 254, 0.3);
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(77, 107, 254, 0.5);
+        }
+        
+        /* 表格样式 */
+        .history-table th, .history-table td {
+            padding: 0.75rem 1rem;
+            text-align: center;
+        }
+        
+        .history-table th {
+            font-weight: 600;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        
+        .history-table td {
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .history-table tr:hover {
+            background-color: rgba(77, 107, 254, 0.03);
+        }
+        
+        /* 历史记录表格容器 */
+        .history-table-container {
+             /* max-height: 400px;*/
+            overflow-y: auto;
+        }
+        
+        /* 自定义鼠标指针样式 */
+        @media (hover: hover) and (pointer: fine) {
+            * {
+                cursor: none !important;
             }
             
-            /* 确保图片在所有设备上都有合适的大小 */
-            .podcast-image {
-                width: 24px;
-                height: 24px;
-                object-fit: cover;
+            .custom-cursor {
+                position: fixed;
+                width: 30px;
+                height: 30px;
+                border: 2px solid #4D6BFE;
+                border-radius: 50%;
+                pointer-events: none;
+                transform: translate(-50%, -50%);
+                z-index: 9999;
+                transition: width 0.2s, height 0.2s, background-color 0.2s, transform 0.1s;
             }
+            
+            .custom-cursor.hover {
+                width: 40px;
+                height: 40px;
+                background-color: rgba(77, 107, 254, 0.1);
+                border-color: #4D6BFE;
+            }
+            
+            .custom-cursor.active {
+                width: 25px;
+                height: 25px;
+                background-color: rgba(77, 107, 254, 0.3);
+                border-color: #4D6BFE;
+            }
+        }
+        
+        /* 对于移动设备，隐藏自定义鼠标指针 */
+        @media (hover: none) or (pointer: coarse) {
+            .custom-cursor {
+                display: none !important;
+            }
+        }
+        
+        /* 对于按钮和可点击元素，添加悬停效果 */
+        button, a, .copy-column-btn, .bento-card {
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        * {
+            -webkit-user-select: none; /* Safari */
+            -moz-user-select: none; /* Firefox */
+            -ms-user-select: none; /* IE10+/Edge */
+            user-select: none; /* Standard */
+        }
+        
+        /* 防止所有文字换行 */
+        body, h1, h2, h3, h4, h5, h6, p, span, a, button, th, td, div {
+            white-space: nowrap;
+        }
     </style>
+</body>
+</html>
+<script>
+        // 添加复制列数据功能
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.copy-column-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const columnIndex = parseInt(this.dataset.column);
+                    const table = document.querySelector('.history-table');
+                    const rows = Array.from(table.querySelectorAll('tbody tr'));
+                    
+                    // 获取列数据（跳过标题行）
+                    let columnData = rows.map(row => {
+                        const cell = row.cells[columnIndex];
+                        return cell ? cell.textContent.trim() : '';
+                    }).filter(text => text !== '' && text !== '-');
+                    
+                    // 添加列标题
+                    const columnTitle = table.querySelector(`thead th:nth-child(${columnIndex + 1}) span`).textContent;
+                    columnData.unshift(columnTitle);
+                    
+                    // 使用换行符连接数据，这样粘贴到Excel时每个数据会占一个单元格
+                    const textToCopy = columnData.join('\n');
+                    
+                    navigator.clipboard.writeText(textToCopy).then(() => {
+                        // 显示复制成功提示
+                        showNotification(`已复制"${columnTitle}"列数据，可直接粘贴到Excel中`);
+                        
+                        // 添加复制成功动画效果
+                        const icon = this.querySelector('i');
+                        icon.classList.remove('fa-copy');
+                        icon.classList.add('fa-check-circle');
+                        this.classList.add('text-green-500');
+                        
+                        setTimeout(() => {
+                            icon.classList.remove('fa-check-circle');
+                            icon.classList.add('fa-copy');
+                            this.classList.remove('text-green-500');
+                        }, 1000);
+                    }).catch(err => {
+                        showNotification('复制失败，请重试');
+                    });
+                });
+            });
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const tabButtons = document.querySelectorAll('.tab-button');
+            const tabContents = document.querySelectorAll('.tab-content');
+            const breakpoint = 640; // Tailwind's 'sm' breakpoint
 
+            function updateTabButtonTextVisibility() {
+                const screenWidth = window.innerWidth;
+                tabButtons.forEach(button => {
+                    const textSpan = button.querySelector('span'); // Assuming text is in a span
+                    if (textSpan) {
+                        if (screenWidth < breakpoint) {
+                            if (!button.classList.contains('active')) {
+                                textSpan.classList.add('hidden');
+                            } else {
+                                textSpan.classList.remove('hidden');
+                            }
+                        } else {
+                            textSpan.classList.remove('hidden');
+                        }
+                    }
+                });
+            }
+
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    // Remove active class from all buttons and add inactive classes
+                    tabButtons.forEach(btn => {
+                        btn.classList.remove('active', 'bg-highlight-light', 'text-highlight');
+                        btn.classList.add('text-gray-500', 'hover:text-gray-700');
+                    });
+
+                    // Add active class to the clicked button and remove inactive classes
+                    button.classList.add('active', 'bg-highlight-light', 'text-highlight');
+                    button.classList.remove('text-gray-500', 'hover:text-gray-700');
+
+                    // Hide all tab contents and show the target content
+                    const targetTab = button.getAttribute('data-tab');
+                    tabContents.forEach(content => {
+                        content.classList.add('hidden');
+                        content.classList.remove('block');
+                    });
+                    document.getElementById(targetTab).classList.add('block');
+                    document.getElementById(targetTab).classList.remove('hidden');
+
+                    // Update text visibility after click, especially for the newly active tab
+                    updateTabButtonTextVisibility();
+                });
+            });
+
+            // Optional: Activate the first tab on initial load if none are active
+            const activeTab = document.querySelector('.tab-button.active');
+            if (!activeTab && tabButtons.length > 0) {
+                tabButtons[0].click(); // This will also trigger updateTabButtonTextVisibility via the click handler
+            } else {
+                 // Initial check if a tab is already active on load
+                updateTabButtonTextVisibility();
+            }
+
+            // Listen for window resize events
+            window.addEventListener('resize', updateTabButtonTextVisibility);
+        });
+    </script>
+    <script src="podcastData.js"></script> 
+    <script src="dataManager.js"></script>
+    <script src="chart.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
+<script>
+        // 添加复制列数据功能
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.copy-column-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const columnIndex = parseInt(this.dataset.column);
+                    const table = document.querySelector('.history-table');
+                    const rows = Array.from(table.querySelectorAll('tbody tr'));
+                    
+                    // 获取列数据（跳过标题行）
+                    let columnData = rows.map(row => {
+                        const cell = row.cells[columnIndex];
+                        return cell ? cell.textContent.trim() : '';
+                    }).filter(text => text !== '' && text !== '-');
+                    
+                    // 添加列标题
+                    const columnTitle = table.querySelector(`thead th:nth-child(${columnIndex + 1}) span`).textContent;
+                    columnData.unshift(columnTitle);
+                    
+                    // 使用换行符连接数据，这样粘贴到Excel时每个数据会占一个单元格
+                    const textToCopy = columnData.join('\n');
+                    
+                    navigator.clipboard.writeText(textToCopy).then(() => {
+                        // 显示复制成功提示
+                        showNotification(`已复制"${columnTitle}"列数据，可直接粘贴到Excel中`);
+                        
+                        // 添加复制成功动画效果
+                        const icon = this.querySelector('i');
+                        icon.classList.remove('fa-copy');
+                        icon.classList.add('fa-check-circle');
+                        this.classList.add('text-green-500');
+                        
+                        setTimeout(() => {
+                            icon.classList.remove('fa-check-circle');
+                            icon.classList.add('fa-copy');
+                            this.classList.remove('text-green-500');
+                        }, 1000);
+                    }).catch(err => {
+                        showNotification('复制失败，请重试');
+                    });
+                });
+            });
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const tabButtons = document.querySelectorAll('.tab-button');
+            const tabContents = document.querySelectorAll('.tab-content');
+            const breakpoint = 640; // Tailwind's 'sm' breakpoint
+
+            function updateTabButtonTextVisibility() {
+                const screenWidth = window.innerWidth;
+                tabButtons.forEach(button => {
+                    const textSpan = button.querySelector('span'); // Assuming text is in a span
+                    if (textSpan) {
+                        if (screenWidth < breakpoint) {
+                            if (!button.classList.contains('active')) {
+                                textSpan.classList.add('hidden');
+                            } else {
+                                textSpan.classList.remove('hidden');
+                            }
+                        } else {
+                            textSpan.classList.remove('hidden');
+                        }
+                    }
+                });
+            }
+
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    // Remove active class from all buttons and add inactive classes
+                    tabButtons.forEach(btn => {
+                        btn.classList.remove('active', 'bg-highlight-light', 'text-highlight');
+                        btn.classList.add('text-gray-500', 'hover:text-gray-700');
+                    });
+
+                    // Add active class to the clicked button and remove inactive classes
+                    button.classList.add('active', 'bg-highlight-light', 'text-highlight');
+                    button.classList.remove('text-gray-500', 'hover:text-gray-700');
+
+                    // Hide all tab contents and show the target content
+                    const targetTab = button.getAttribute('data-tab');
+                    tabContents.forEach(content => {
+                        content.classList.add('hidden');
+                        content.classList.remove('block');
+                    });
+                    document.getElementById(targetTab).classList.add('block');
+                    document.getElementById(targetTab).classList.remove('hidden');
+
+                    // Update text visibility after click, especially for the newly active tab
+                    updateTabButtonTextVisibility();
+                });
+            });
+
+            // Optional: Activate the first tab on initial load if none are active
+            const activeTab = document.querySelector('.tab-button.active');
+            if (!activeTab && tabButtons.length > 0) {
+                tabButtons[0].click(); // This will also trigger updateTabButtonTextVisibility via the click handler
+            } else {
+                 // Initial check if a tab is already active on load
+                updateTabButtonTextVisibility();
+            }
+
+            // Listen for window resize events
+            window.addEventListener('resize', updateTabButtonTextVisibility);
+        });
+    </script>
+    <script src="podcastData.js"></script> 
+    <script src="dataManager.js"></script>
+    <script src="chart.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
+<script>
+        // 添加复制列数据功能
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.copy-column-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const columnIndex = parseInt(this.dataset.column);
+                    const table = document.querySelector('.history-table');
+                    const rows = Array.from(table.querySelectorAll('tbody tr'));
+                    
+                    // 获取列数据（跳过标题行）
+                    let columnData = rows.map(row => {
+                        const cell = row.cells[columnIndex];
+                        return cell ? cell.textContent.trim() : '';
+                    }).filter(text => text !== '' && text !== '-');
+                    
+                    // 添加列标题
+                    const columnTitle = table.querySelector(`thead th:nth-child(${columnIndex + 1}) span`).textContent;
+                    columnData.unshift(columnTitle);
+                    
+                    // 使用换行符连接数据，这样粘贴到Excel时每个数据会占一个单元格
+                    const textToCopy = columnData.join('\n');
+                    
+                    navigator.clipboard.writeText(textToCopy).then(() => {
+                        // 显示复制成功提示
+                        showNotification(`已复制"${columnTitle}"列数据，可直接粘贴到Excel中`);
+                        
+                        // 添加复制成功动画效果
+                        const icon = this.querySelector('i');
+                        icon.classList.remove('fa-copy');
+                        icon.classList.add('fa-check-circle');
+                        this.classList.add('text-green-500');
+                        
+                        setTimeout(() => {
+                            icon.classList.remove('fa-check-circle');
+                            icon.classList.add('fa-copy');
+                            this.classList.remove('text-green-500');
+                        }, 1000);
+                    }).catch(err => {
+                        showNotification('复制失败，请重试');
+                    });
+                });
+            });
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const tabButtons = document.querySelectorAll('.tab-button');
+            const tabContents = document.querySelectorAll('.tab-content');
+            const breakpoint = 640; // Tailwind's 'sm' breakpoint
+
+            function updateTabButtonTextVisibility() {
+                const screenWidth = window.innerWidth;
+                tabButtons.forEach(button => {
+                    const textSpan = button.querySelector('span'); // Assuming text is in a span
+                    if (textSpan) {
+                        if (screenWidth < breakpoint) {
+                            if (!button.classList.contains('active')) {
+                                textSpan.classList.add('hidden');
+                            } else {
+                                textSpan.classList.remove('hidden');
+                            }
+                        } else {
+                            textSpan.classList.remove('hidden');
+                        }
+                    }
+                });
+            }
+
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    // Remove active class from all buttons and add inactive classes
+                    tabButtons.forEach(btn => {
+                        btn.classList.remove('active', 'bg-highlight-light', 'text-highlight');
+                        btn.classList.add('text-gray-500', 'hover:text-gray-700');
+                    });
+
+                    // Add active class to the clicked button and remove inactive classes
+                    button.classList.add('active', 'bg-highlight-light', 'text-highlight');
+                    button.classList.remove('text-gray-500', 'hover:text-gray-700');
+
+                    // Hide all tab contents and show the target content
+                    const targetTab = button.getAttribute('data-tab');
+                    tabContents.forEach(content => {
+                        content.classList.add('hidden');
+                        content.classList.remove('block');
+                    });
+                    document.getElementById(targetTab).classList.add('block');
+                    document.getElementById(targetTab).classList.remove('hidden');
+
+                    // Update text visibility after click, especially for the newly active tab
+                    updateTabButtonTextVisibility();
+                });
+            });
+
+            // Optional: Activate the first tab on initial load if none are active
+            const activeTab = document.querySelector('.tab-button.active');
+            if (!activeTab && tabButtons.length > 0) {
+                tabButtons[0].click(); // This will also trigger updateTabButtonTextVisibility via the click handler
+            } else {
+                 // Initial check if a tab is already active on load
+                updateTabButtonTextVisibility();
+            }
+
+            // Listen for window resize events
+            window.addEventListener('resize', updateTabButtonTextVisibility);
+        });
+    </script>
+    <script src="podcastData.js"></script> 
+    <script src="dataManager.js"></script>
+    <script src="chart.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
+<script>
+        // 添加复制列数据功能
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.copy-column-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const columnIndex = parseInt(this.dataset.column);
+                    const table = document.querySelector('.history-table');
+                    const rows = Array.from(table.querySelectorAll('tbody tr'));
+                    
+                    // 获取列数据（跳过标题行）
+                    let columnData = rows.map(row => {
+                        const cell = row.cells[columnIndex];
+                        return cell ? cell.textContent.trim() : '';
+                    }).filter(text => text !== '' && text !== '-');
+                    
+                    // 添加列标题
+                    const columnTitle = table.querySelector(`thead th:nth-child(${columnIndex + 1}) span`).textContent;
+                    columnData.unshift(columnTitle);
+                    
+                    // 使用换行符连接数据，这样粘贴到Excel时每个数据会占一个单元格
+                    const textToCopy = columnData.join('\n');
+                    
+                    navigator.clipboard.writeText(textToCopy).then(() => {
+                        // 显示复制成功提示
+                        showNotification(`已复制"${columnTitle}"列数据，可直接粘贴到Excel中`);
+                        
+                        // 添加复制成功动画效果
+                        const icon = this.querySelector('i');
+                        icon.classList.remove('fa-copy');
+                        icon.classList.add('fa-check-circle');
+                        this.classList.add('text-green-500');
+                        
+                        setTimeout(() => {
+                            icon.classList.remove('fa-check-circle');
+                            icon.classList.add('fa-copy');
+                            this.classList.remove('text-green-500');
+                        }, 1000);
+                    }).catch(err => {
+                        showNotification('复制失败，请重试');
+                    });
+                });
+            });
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const tabButtons = document.querySelectorAll('.tab-button');
+            const tabContents = document.querySelectorAll('.tab-content');
+            const breakpoint = 640; // Tailwind's 'sm' breakpoint
+
+            function updateTabButtonTextVisibility() {
+                const screenWidth = window.innerWidth;
+                tabButtons.forEach(button => {
+                    const textSpan = button.querySelector('span'); // Assuming text is in a span
+                    if (textSpan) {
+                        if (screenWidth < breakpoint) {
+                            if (!button.classList.contains('active')) {
+                                textSpan.classList.add('hidden');
+                            } else {
+                                textSpan.classList.remove('hidden');
+                            }
+                        } else {
+                            textSpan.classList.remove('hidden');
+                        }
+                    }
+                });
+            }
+
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    // Remove active class from all buttons and add inactive classes
+                    tabButtons.forEach(btn => {
+                        btn.classList.remove('active', 'bg-highlight-light', 'text-highlight');
+                        btn.classList.add('text-gray-500', 'hover:text-gray-700');
+                    });
+
+                    // Add active class to the clicked button and remove inactive classes
+                    button.classList.add('active', 'bg-highlight-light', 'text-highlight');
+                    button.classList.remove('text-gray-500', 'hover:text-gray-700');
+
+                    // Hide all tab contents and show the target content
+                    const targetTab = button.getAttribute('data-tab');
+                    tabContents.forEach(content => {
+                        content.classList.add('hidden');
+                        content.classList.remove('block');
+                    });
+                    document.getElementById(targetTab).classList.add('block');
+                    document.getElementById(targetTab).classList.remove('hidden');
+
+                    // Update text visibility after click, especially for the newly active tab
+                    updateTabButtonTextVisibility();
+                });
+            });
+
+            // Optional: Activate the first tab on initial load if none are active
+            const activeTab = document.querySelector('.tab-button.active');
+            if (!activeTab && tabButtons.length > 0) {
+                tabButtons[0].click(); // This will also trigger updateTabButtonTextVisibility via the click handler
+            } else {
+                 // Initial check if a tab is already active on load
+                updateTabButtonTextVisibility();
+            }
+
+            // Listen for window resize events
+            window.addEventListener('resize', updateTabButtonTextVisibility);
+        });
+    </script>
+    <script src="podcastData.js"></script> 
+    <script src="dataManager.js"></script>
+    <script src="chart.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
+<script>
+        // 添加复制列数据功能
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.copy-column-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const columnIndex = parseInt(this.dataset.column);
+                    const table = document.querySelector('.history-table');
+                    const rows = Array.from(table.querySelectorAll('tbody tr'));
+                    
+                    // 获取列数据（跳过标题行）
+                    let columnData = rows.map(row => {
+                        const cell = row.cells[columnIndex];
+                        return cell ? cell.textContent.trim() : '';
+                    }).filter(text => text !== '' && text !== '-');
+                    
+                    // 添加列标题
+                    const columnTitle = table.querySelector(`thead th:nth-child(${columnIndex + 1}) span`).textContent;
+                    columnData.unshift(columnTitle);
+                    
+                    // 使用换行符连接数据，这样粘贴到Excel时每个数据会占一个单元格
+                    const textToCopy = columnData.join('\n');
+                    
+                    navigator.clipboard.writeText(textToCopy).then(() => {
+                        // 显示复制成功提示
+                        showNotification(`已复制"${columnTitle}"列数据，可直接粘贴到Excel中`);
+                        
+                        // 添加复制成功动画效果
+                        const icon = this.querySelector('i');
+                        icon.classList.remove('fa-copy');
+                        icon.classList.add('fa-check-circle');
+                        this.classList.add('text-green-500');
+                        
+                        setTimeout(() => {
+                            icon.classList.remove('fa-check-circle');
+                            icon.classList.add('fa-copy');
+                            this.classList.remove('text-green-500');
+                        }, 1000);
+                    }).catch(err => {
+                        showNotification('复制失败，请重试');
+                    });
+                });
+            });
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const tabButtons = document.querySelectorAll('.tab-button');
+            const tabContents = document.querySelectorAll('.tab-content');
+            const breakpoint = 640; // Tailwind's 'sm' breakpoint
+
+            function updateTabButtonTextVisibility() {
+                const screenWidth = window.innerWidth;
+                tabButtons.forEach(button => {
+                    const textSpan = button.querySelector('span'); // Assuming text is in a span
+                    if (textSpan) {
+                        if (screenWidth < breakpoint) {
+                            if (!button.classList.contains('active')) {
+                                textSpan.classList.add('hidden');
+                            } else {
+                                textSpan.classList.remove('hidden');
+                            }
+                        } else {
+                            textSpan.classList.remove('hidden');
+                        }
+                    }
+                });
+            }
+
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    // Remove active class from all buttons and add inactive classes
+                    tabButtons.forEach(btn => {
+                        btn.classList.remove('active', 'bg-highlight-light', 'text-highlight');
+                        btn.classList.add('text-gray-500', 'hover:text-gray-700');
+                    });
+
+                    // Add active class to the clicked button and remove inactive classes
+                    button.classList.add('active', 'bg-highlight-light', 'text-highlight');
+                    button.classList.remove('text-gray-500', 'hover:text-gray-700');
+
+                    // Hide all tab contents and show the target content
+                    const targetTab = button.getAttribute('data-tab');
+                    tabContents.forEach(content => {
+                        content.classList.add('hidden');
+                        content.classList.remove('block');
+                    });
+                    document.getElementById(targetTab).classList.add('block');
+                    document.getElementById(targetTab).classList.remove('hidden');
+
+                    // Update text visibility after click, especially for the newly active tab
+                    updateTabButtonTextVisibility();
+                });
+            });
+
+            // Optional: Activate the first tab on initial load if none are active
+            const activeTab = document.querySelector('.tab-button.active');
+            if (!activeTab && tabButtons.length > 0) {
+                tabButtons[0].click(); // This will also trigger updateTabButtonTextVisibility via the click handler
+            } else {
+                 // Initial check if a tab is already active on load
+                updateTabButtonTextVisibility();
+            }
+
+            // Listen for window resize events
+            window.addEventListener('resize', updateTabButtonTextVisibility);
+        });
+    </script>
     <script src="podcastData.js"></script> 
     <script src="dataManager.js"></script>
     <script src="chart.js"></script>

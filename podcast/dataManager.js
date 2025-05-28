@@ -2,16 +2,28 @@
 // 导入 podcastData.js 中的函数
 class DataManager {
     constructor() {
+        const BASE_URL = "https://www.xiaoyuzhoufm.com/_next/data/5Pvt_oGntgdyBD_XgwBaB/podcast";
+        
         this.podcastSources = [
-            { title: "不开玩笑", id: "61791d921989541784257779", url: "https://www.xiaoyuzhoufm.com/_next/data/5Pvt_oGntgdyBD_XgwBaB/podcast/61791d921989541784257779.json?id=61791d921989541784257779" },
-            { title: "无聊斋", id: "5e280fac418a84a0461fb129", url: "https://www.xiaoyuzhoufm.com/_next/data/5Pvt_oGntgdyBD_XgwBaB/podcast/5e280fac418a84a0461fb129.json?id=5e280fac418a84a0461fb129" },
-            { title: "基本无害", id: "5eae66d1418a84a046472b4d", url: "https://www.xiaoyuzhoufm.com/_next/data/5Pvt_oGntgdyBD_XgwBaB/podcast/5eae66d1418a84a046472b4d.json?id=5eae66d1418a84a046472b4d" },
-            { title: "三个火呛手", id: "642ea4a1f54371d8b2d75168", url: "https://www.xiaoyuzhoufm.com/_next/data/5Pvt_oGntgdyBD_XgwBaB/podcast/642ea4a1f54371d8b2d75168.json?id=642ea4a1f54371d8b2d75168" },
-            { title: "正经叭叭", id: "60e43cecc4e7c8188c2f92a4", url: "https://www.xiaoyuzhoufm.com/_next/data/5Pvt_oGntgdyBD_XgwBaB/podcast/60e43cecc4e7c8188c2f92a4.json?id=60e43cecc4e7c8188c2f92a4" },
-            { title: "谐星聊天会", id: "5e280fa7418a84a0461f912b", url: "https://www.xiaoyuzhoufm.com/_next/data/5Pvt_oGntgdyBD_XgwBaB/podcast/5e280fa7418a84a0461f912b.json?id=5e280fa7418a84a0461f912b" },  
-            { title: "文化有限", id: "5e4515bd418a84a046e2b11a", url: "https://www.xiaoyuzhoufm.com/_next/data/5Pvt_oGntgdyBD_XgwBaB/podcast/5e4515bd418a84a046e2b11a.json?id=5e4515bd418a84a046e2b11a" },
-            { title: "屠龙之术", id: "6507bc165c88d2412626b401", url: "https://www.xiaoyuzhoufm.com/_next/data/5Pvt_oGntgdyBD_XgwBaB/podcast/6507bc165c88d2412626b401.json?id=6507bc165c88d2412626b401" }
-        ];
+            { title: "不开玩笑", id: "61791d921989541784257779" },
+            { title: "无聊斋", id: "5e280fac418a84a0461fb129" },
+            { title: "基本无害", id: "5eae66d1418a84a046472b4d" },
+            { title: "三个火呛手", id: "642ea4a1f54371d8b2d75168" },
+            { title: "正经叭叭", id: "60e43cecc4e7c8188c2f92a4" },
+            { title: "谐星聊天会", id: "5e280fa7418a84a0461f912b" },
+            { title: "文化有限", id: "5e4515bd418a84a046e2b11a" },
+            { title: "天才捕手", id: "5e77133b418a84a0469fc305" },
+            { title: "屠龙之术", id: "6507bc165c88d2412626b401" },
+            { title: "声动早咖啡", id: "60de7c003dd577b40d5a40f3" },
+            { title: "真相壁炉", id: "644b64c1306513184c9fce34" },
+            { title: "都在酒里了", id: "643d5699ea2628837e622346" },
+            { title: "异地登录", id: "64d2907719368bd65de5902e" },
+            { title: "A座B座", id: "66a2678ae29aab785c2ec367" },
+            { title: "怡楽播客", id: "5e80c228418a84a046b99208" }
+        ].map(p => ({
+            ...p,
+            url: `${BASE_URL}/${p.id}.json?id=${p.id}`
+        }));
         
         this.PODCAST_MAPPING = Object.fromEntries(this.podcastSources.map(p => [p.title, p.id]));
         this.PODCAST_ID_TO_TITLE_MAPPING = Object.fromEntries(this.podcastSources.map(p => [p.id, p.title]));
@@ -52,13 +64,20 @@ class DataManager {
                             const episodeCount = podcastInfo.episodeCount || 0;
                             const latestEpisodePubDate = podcastInfo.latestEpisodePubDate || null;
 
+                            // 获取 color.original 色值
+                            let originalColor = null;
+                            if (podcastInfo.color && podcastInfo.color.original) {
+                                originalColor = podcastInfo.color.original;
+                            }
+
                             return {
                                 id: source.id, // Use the ID from podcastSources for consistency
                                 title: title,
                                 subscriptionCount: subscriptionCount,
                                 picUrl: picUrl, // Add the fetched picUrl
                                 episodeCount: episodeCount, // 添加集数
-                                latestEpisodePubDate: latestEpisodePubDate // 添加最新更新日期
+                                latestEpisodePubDate: latestEpisodePubDate, // 添加最新更新日期
+                                originalColor: originalColor // 添加原始色值
                             };
                         } else {
                             console.warn(`从 ${source.title} 的响应中找不到订阅数据或pid。URL: ${source.url}`, data);

@@ -165,14 +165,14 @@ function updatePodcastTable(podcasts, previousData, podcastMapping) {
                     // 根据天数差距显示不同的文本
                     let relativeText = '';
                     if (diffDays === 0) {
-                        relativeText = '<span class="text-xs text-gray-400">（今天）</span>';
+                        relativeText = '<span class="text-xs text-lime-400">（今天）</span>';
                     } else if (diffDays === 1) {
-                        relativeText = '<span class="text-xs text-gray-400">（1天前）</span>';
+                        relativeText = '<span class="text-xs text-sky-400">（1天前）</span>';
                     } else if (diffDays < 30) {
                         relativeText = `<span class="text-xs text-gray-400">（${diffDays}天前）</span>`;
                     } else {
-                        // 超过30天只显示日期，不显示相对时间
-                        relativeText = '';
+                        // 超过30天显示"已鸽X天"，并将天数设置为红色
+                        relativeText = `<span class="text-xs text-rose-400">（已鸽${diffDays}天）</span>`;
                     }
                     
                     formattedDate = `${basicDate}${relativeText}`;
