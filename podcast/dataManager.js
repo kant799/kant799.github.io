@@ -2,7 +2,7 @@
 // 导入 podcastData.js 中的函数
 class DataManager {
     constructor() {
-        const BASE_URL = "https://www.xiaoyuzhoufm.com/_next/data/5Pvt_oGntgdyBD_XgwBaB/podcast";
+        const BASE_URL = "https://www.xiaoyuzhoufm.com/_next/data/-9risitLRH3Fem5avtsBW/podcast";
         
         this.podcastSources = [
             { title: "不开玩笑", id: "61791d921989541784257779" },
