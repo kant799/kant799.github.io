@@ -1,93 +1,242 @@
 <!DOCTYPE html>
-<html lang="zh-CN" class="scroll-smooth">
+<html lang="zh">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>阿蓝的好奇心</title>
-    <link href="https://cdn.staticfile.org/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
-    <link href="https://cdn.staticfile.org/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <title>Nothing Here</title>
     <style>
-        .project-card {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .project-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
-        }
-
-        @keyframes gradientAnimation {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }  
-            100% { background-position: 0% 50%; }
-        }
-
-        .animated-gradient {
-            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
-            background-size: 400% 400%;
-            animation: gradientAnimation 15s ease infinite;  
-        }
-
-        @keyframes borderAnimation {
-            0% { border-color: #ffb6c1; }
-            25% { border-color: #add8e6; }
-            50% { border-color: #98cbfb; }
-            75% { border-color: #e6e6fa; }
-            100% { border-color: #ffb6c1; }
-        }
-
-        .animated-border-card {
-            border: 3px solid transparent; /* Initial transparent border */
-            animation: borderAnimation 4s linear infinite;  
-        }
-        
-        .text-gradient {
-            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
-            background-size: 400% 400%;
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            animation: gradientAnimation 15s ease infinite;
-        }
+        body { margin: 0; padding: 0; overflow: hidden; }
+        canvas { display: block; }
     </style>
 </head>
-<body class="bg-gray-50 transition-colors duration-300 min-h-screen pb-24" style="user-select: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none;">
-    <!-- 顶部标题 -->
-    <header class="text-center py-8 animated-gradient">
-        <h1 class="text-3xl md:text-3xl font-thin text-white tracking-widest">  
-            <i class="fas fa-compass mr-4"></i>
-            阿蓝的好奇心
-        </h1>
-    </header>
+<body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.js"></script>
+    <script>
+        // --- Configuration Constants ---
+        const TARGET_TEXT = "nothing here";
+        const FONT_SIZE = 20; // Smaller font for dense noise
+        const NOISE_CHAR_COUNT = 1500; // Number of background noise characters
+        const SCAN_BAND_HEIGHT = 25; // Halved from 50 to 25
+        const SCAN_SPEED = 5; // Increased from 2 to 5
 
-    <!-- 主要内容区 -->
-    <main class="container mx-auto px-4 py-12">
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            <!-- 项目卡片示例 -->
-            <a href="https://kant799.me/ggl" class="block" target="_blank">  
-                <div class="project-card animated-border-card bg-white rounded-xl px-6 pt-16 pb-16 shadow-lg">
-                    <h3 class="text-3xl font-bold text-center w-full text-gradient">刮刮乐</h3>
-                </div>
-            </a>
-            <a href="https://kant799.me/podcast" class="block" target="_blank">          
-                <div class="project-card animated-border-card bg-white rounded-xl px-6 pt-16 pb-16 shadow-lg">        
-                    <h3 class="text-3xl font-bold text-center w-full text-gradient">播客订阅追踪</h3>  
-                </div>
-            </a>
-            
-            <!-- 更多重复卡片... -->
-        </div>
-    </main>
+        // --- Colors ---
+        const COLOR_NOISE = [0, 86, 25]; // Darker green for noise
+        const COLOR_REVEALED = [0, 255, 70]; // Brighter green for revealed text
+        const COLOR_SCAN_GLOW = [0, 150, 50, 50]; // Faint green glow for scan band (RGBA)
 
-    <!-- 底部导航 -->
-    <footer class="border-t border-gray-200 mt-12 py-4 fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800">
-        <div class="container mx-auto px-4 text-center">
-            <a href="https://github.com/kant799/kant799.github.io" target="_blank" 
-               class="inline-flex items-center text-gray-600 hover:text-blue-600 transition-colors">
-                <i class="fab fa-github text-2xl mr-2"></i>
-            </a>
-        </div>
-    </footer>
+        // --- Global Variables ---
+        let noiseChars = [];
+        let placeholderChars = [];
+        let scanLineY = 0;
+        let allPlaceholderCharsRevealed = false; // Renamed for clarity
+        let finalFadeOutStarted = false; // New flag for final fade out
+        let scanLineShrinking = false; // New: for scan line CRT effect
+        let currentScanLineHeight = SCAN_BAND_HEIGHT; // New: for scan line CRT effect
+        let currentScanLineWidth = 0; // New: for scan line CRT effect
+        let cursorVisible = false; // New: for blinking cursor
+
+        // Pool of characters for the noise
+        const charPool = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?";
+
+        function setup() {
+            createCanvas(windowWidth, windowHeight);
+            background(0); // Solid black background
+            textFont('monospace', FONT_SIZE);
+            textAlign(CENTER, CENTER);
+            noStroke(); // No outlines for text
+
+            // --- Initialize Noise Characters ---
+            for (let i = 0; i < NOISE_CHAR_COUNT; i++) {
+                noiseChars.push(new NoiseChar(random(width), random(height)));
+            }
+
+            // --- Initialize Placeholder Characters ---
+            const textW = textWidth(TARGET_TEXT);
+            const startX = (width - textW) / 2;
+            let currentXOffset = 0;
+
+            for (let i = 0; i < TARGET_TEXT.length; i++) {
+                const char = TARGET_TEXT[i];
+                const charWidth = textWidth(char);
+                
+                // Position each character based on its width
+                const targetX = startX + currentXOffset + (charWidth / 2);
+                const targetY = height / 2 - FONT_SIZE; // Middle-up position
+
+                placeholderChars.push(new PlaceholderChar(targetX, targetY, char));
+                currentXOffset += charWidth;
+            }
+            currentScanLineWidth = width; // Initialize here after width is known
+        }
+
+        function draw() {
+            background(0); // Clear background each frame
+
+            // --- Update and Draw Noise Characters ---
+            for (let i = noiseChars.length - 1; i >= 0; i--) {
+                const nc = noiseChars[i];
+                nc.update(); // Handle subtle flicker and position change
+
+                // Only check for reveal if animation is not finished
+                if (!allPlaceholderCharsRevealed) {
+                    // Check if within scan band
+                    if (nc.y > scanLineY && nc.y < scanLineY + SCAN_BAND_HEIGHT) {
+                        // Check if this noise char is at a placeholder position
+                        for (const pc of placeholderChars) {
+                            if (pc.char !== ' ' && !pc.isRevealed) { // Only check unrevealed non-space placeholders
+                                const distance = dist(nc.x, nc.y, pc.x, pc.y);
+                                if (distance < FONT_SIZE / 2) { // If close enough to a placeholder position
+                                    pc.isRevealed = true;
+                                    break; // Found a match, no need to check other placeholders
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Start final fade out for noise chars if animation is finished
+                if (finalFadeOutStarted) {
+                    nc.startFading();
+                }
+
+                nc.show(); // Draw the noise char
+
+                // Remove faded noise chars
+                if (nc.alpha <= 0) {
+                    noiseChars.splice(i, 1);
+                }
+            }
+
+            // --- Draw Scan Line ---
+            if (!scanLineShrinking || currentScanLineHeight > 0) { // Only draw if not fully shrunk
+                fill(COLOR_SCAN_GLOW[0], COLOR_SCAN_GLOW[1], COLOR_SCAN_GLOW[2], COLOR_SCAN_GLOW[3]);
+                if (scanLineShrinking) {
+                    rect(width / 2 - currentScanLineWidth / 2, height / 2 - currentScanLineHeight / 2, currentScanLineWidth, currentScanLineHeight);
+                } else {
+                    rect(0, scanLineY, width, SCAN_BAND_HEIGHT);
+                }
+            }
 
 
+            // --- Update Scan Line Position / Animation ---
+            if (!allPlaceholderCharsRevealed) { // Scan continues until all are revealed
+                scanLineY += SCAN_SPEED;
+                if (scanLineY > height) { // Reset scan line to top
+                    scanLineY = 0;
+                }
+            } else {
+                // If all revealed, start final fade out of noise chars
+                if (!finalFadeOutStarted) {
+                    finalFadeOutStarted = true;
+                    // Initialize shrinking animation variables
+                    scanLineShrinking = true;
+                    currentScanLineHeight = SCAN_BAND_HEIGHT;
+                    currentScanLineWidth = width;
+                }
+
+                // Scan line shrinking animation
+                if (scanLineShrinking && currentScanLineHeight > 0) {
+                    currentScanLineHeight = max(0, currentScanLineHeight - 1); // Shrink height
+                    currentScanLineWidth = max(0, currentScanLineWidth - width / (SCAN_BAND_HEIGHT * 2)); // Shrink width proportionally
+                } else if (scanLineShrinking && currentScanLineHeight <= 0) {
+                    // Scan line has disappeared, start cursor
+                    cursorVisible = true;
+                }
+            }
+
+            // --- Display Revealed Placeholder Characters ---
+            for (const pc of placeholderChars) {
+                if (pc.isRevealed) {
+                    fill(COLOR_REVEALED[0], COLOR_REVEALED[1], COLOR_REVEALED[2]);
+                    text(pc.char, pc.x, pc.y);
+                }
+            }
+
+            // --- Blinking Cursor ---
+            if (cursorVisible) {
+                // Blink logic
+                if (frameCount % 30 < 15) { // Blinks every 30 frames (approx 0.5 sec on 60fps)
+                    fill(COLOR_REVEALED[0], COLOR_REVEALED[1], COLOR_REVEALED[2]); // Same color as text
+                    // Calculate cursor position: end of TARGET_TEXT
+                    const textW = textWidth(TARGET_TEXT);
+                    // Cursor X: right edge of text + small offset
+                    const cursorX = width / 2 + textW / 2 + 5;
+                    // Cursor Y: same Y as text (center-aligned)
+                    const cursorY = height / 2 - FONT_SIZE;
+                    text('|', cursorX, cursorY); // Draw '|' character
+                }
+            }
+
+            // --- Check if all placeholder characters are revealed ---
+            if (!allPlaceholderCharsRevealed) {
+                allPlaceholderCharsRevealed = placeholderChars.every(pc => pc.isRevealed || pc.char === ' ');
+            }
+        }
+
+        // --- NoiseChar Class ---
+        class NoiseChar {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.value = this.getRandomChar();
+                this.alpha = 255;
+                this.fading = false;
+            }
+
+            getRandomChar() {
+                return charPool.charAt(floor(random(charPool.length)));
+            }
+
+            update() {
+                // Subtle flicker (change value) AND random position jump
+                if (random(1) < 0.1) { // 10% chance to change char each frame
+                    this.value = this.getRandomChar();
+                    // Teleport to a new random position on the screen
+                    this.x = random(width);
+                    this.y = random(height);
+                }
+
+                if (this.fading) {
+                    this.alpha -= 5; // Fade out speed
+                }
+            }
+
+            startFading() {
+                this.fading = true;
+            }
+
+            show() {
+                fill(COLOR_NOISE[0], COLOR_NOISE[1], COLOR_NOISE[2], this.alpha);
+                text(this.value, this.x, this.y);
+            }
+        }
+
+        // --- PlaceholderChar Class ---
+        class PlaceholderChar {
+            constructor(x, y, char) {
+                this.x = x;
+                this.y = y;
+                this.char = char;
+                this.isRevealed = false;
+            }
+        }
+
+        function windowResized() {
+            resizeCanvas(windowWidth, windowHeight);
+            // Re-initialize everything on resize
+            noiseChars = [];
+            placeholderChars = [];
+            scanLineY = 0;
+            allPlaceholderCharsRevealed = false;
+            finalFadeOutStarted = false;
+            scanLineShrinking = false; // New
+            currentScanLineHeight = SCAN_BAND_HEIGHT; // New
+            currentScanLineWidth = width; // New
+            cursorVisible = false; // New
+            setup();
+        }
+    </script>
+    </script>
+    </script>
 </body>
 </html>

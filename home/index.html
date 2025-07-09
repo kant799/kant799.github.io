@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>阿蓝的好奇心</title>
+    <link href="https://cdn.staticfile.org/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdn.staticfile.org/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .project-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .project-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+        }
+
+        @keyframes gradientAnimation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }  
+            100% { background-position: 0% 50%; }
+        }
+
+        .animated-gradient {
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: gradientAnimation 15s ease infinite;  
+        }
+
+        @keyframes borderAnimation {
+            0% { border-color: #ffb6c1; }
+            25% { border-color: #add8e6; }
+            50% { border-color: #98cbfb; }
+            75% { border-color: #e6e6fa; }
+            100% { border-color: #ffb6c1; }
+        }
+
+        .animated-border-card {
+            border: 3px solid transparent; /* Initial transparent border */
+            animation: borderAnimation 4s linear infinite;  
+        }
+        
+        .text-gradient {
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: gradientAnimation 15s ease infinite;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 transition-colors duration-300 min-h-screen pb-24" style="user-select: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none;">
+    <!-- 顶部标题 -->
+    <header class="text-center py-8 animated-gradient">
+        <h1 class="text-3xl md:text-3xl font-thin text-white tracking-widest">  
+            <i class="fas fa-compass mr-4"></i>
+            阿蓝的好奇心
+        </h1>
+    </header>
+
+    <!-- 主要内容区 -->
+    <main class="container mx-auto px-4 py-12">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            <!-- 项目卡片示例 -->
+            <a href="https://kant799.me/ggl" class="block" target="_blank">  
+                <div class="project-card animated-border-card bg-white rounded-xl px-6 pt-16 pb-16 shadow-lg">
+                    <h3 class="text-3xl font-bold text-center w-full text-gradient">刮刮乐</h3>
+                </div>
+            </a>
+            <a href="https://kant799.me/podcast" class="block" target="_blank">          
+                <div class="project-card animated-border-card bg-white rounded-xl px-6 pt-16 pb-16 shadow-lg">        
+                    <h3 class="text-3xl font-bold text-center w-full text-gradient">播客订阅追踪</h3>  
+                </div>
+            </a>
+            
+            <!-- 更多重复卡片... -->
+        </div>
+    </main>
+
+    <!-- 底部导航 -->
+    <footer class="border-t border-gray-200 mt-12 py-4 fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800">
+        <div class="container mx-auto px-4 text-center">
+            <a href="https://github.com/kant799/kant799.github.io" target="_blank" 
+               class="inline-flex items-center text-gray-600 hover:text-blue-600 transition-colors">
+                <i class="fab fa-github text-2xl mr-2"></i>
+            </a>
+        </div>
+    </footer>
+
+
+</body>
+</html>
