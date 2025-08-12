@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>阿蓝咒语收藏</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts CDN -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Viewer.js CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/viewerjs/1.11.6/viewer.min.css">
+    <!-- Custom Styles -->
+    <style>
+        body {
+            font-family: 'Noto Serif SC', serif;
+        }
+        .font-poppins {
+            font-family: 'Poppins', sans-serif;
+        }
+        .saturated-text {
+            font-weight: 900;
+            letter-spacing: 1px;
+        }
+        .modal-overlay {
+            z-index: 1000;
+        }
+        .modal-content {
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        /* 隐藏滚动条但保持滚动功能 */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .markdown-content {
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+        .markdown-content h1, .markdown-content h2, .markdown-content h3 {
+            font-weight: 900;
+            margin-bottom: 1rem;
+        }
+        .markdown-content p {
+            margin-bottom: 1rem;
+        }
+        .markdown-content code {
+            background-color: #f1f5f9;
+            padding: 0.2rem 0.4rem;
+            border-radius: 0.25rem;
+            font-family: 'Poppins', sans-serif;
+        }
+        .markdown-content pre {
+            background-color: #f1f5f9;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+        }
+        
+        /* 响应式优化 */
+        @media (max-width: 768px) {
+            .container {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+            
+            .saturated-text {
+                font-size: 1.5rem;
+            }
+            
+            .modal-content {
+                margin: 1rem;
+                max-width: calc(100% - 2rem);
+            }
+            
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .category-tabs {
+                justify-content: flex-start;
+                overflow-x: auto;
+                padding-bottom: 0.5rem;
+            }
+            
+            .category-tabs::-webkit-scrollbar {
+                display: none;
+            }
+            
+            .markdown-content {
+                font-size: 1rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .p-6 {
+                padding: 1rem;
+            }
+            
+            .text-2xl {
+                font-size: 1.25rem;
+            }
+            
+            .modal-content .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow">
+        <div class="container mx-auto px-4 py-6">
+            <h1 class="text-4xl md:text-5xl saturated-text text-center">阿蓝的咒语收藏</h1>
+            <p class="font-poppins text-lg text-center text-gray-600 mt-2">精选各种提示词，提升AI使用效果</p>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- Search Bar -->
+        <div class="mb-8">
+            <div class="max-w-2xl mx-auto">
+                <div class="relative">
+                    <input type="text" id="search-input" placeholder="搜索提示词..." class="w-full px-4 py-3 pl-12 pr-4 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm">
+                    <div class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
+                        <i class="fas fa-search text-gray-400"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Category Tabs -->
+        <div class="flex flex-wrap gap-2 mb-8 justify-center category-tabs" id="category-tabs">
+            <!-- Tabs will be populated by JavaScript -->
+        </div>
+
+        <!-- Prompts Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="prompts-grid">
+            <!-- Prompt cards will be populated by JavaScript -->
+        </div>
+    </main>
+
+    <!-- Modal -->
+    <div id="prompt-modal" class="modal-overlay fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 overflow-hidden">
+        <div class="modal-content bg-white rounded-lg w-full max-w-6xl flex flex-col max-h-[90vh] overflow-hidden">
+            <div class="flex justify-between items-center border-b p-4">
+                <h2 class="text-2xl font-bold saturated-text" id="modal-title"></h2>
+                <button id="close-modal" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="p-6 flex-grow overflow-hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 h-full">
+                    <div class="flex flex-col h-full">
+                        <div class="overflow-y-auto flex-grow p-3 bg-gray-100 rounded-lg hide-scrollbar shadow-inner" style="max-height: calc(90vh - 180px);">
+                            <div class="markdown-content" id="prompt-content"></div>
+                        </div>
+                    </div>
+                    <div class="flex items-center h-full">
+                        <div class="flex flex-col items-center w-full h-full">
+                            <div  class="mb-7">
+                                <button id="copy-prompt" class="bg-blue-600 shadow-lg shadow-blue-600/50 hover:bg-blue-700 text-white font-poppins py-2 px-4 rounded items-center self-start">
+                                    <i class="fas fa-copy mr-2"></i> 复制提示词
+                                </button>
+                            </div>
+                            <img id="prompt-image" src="" alt="Prompt示例效果" class="max-w-full max-h-full rounded-lg shadow-lg cursor-pointer" style="object-fit: contain; max-height: 60vh;" onclick="openImageModal(this.src)">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/viewerjs/1.11.6/viewer.min.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

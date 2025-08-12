@@ -1,0 +1,66 @@
+{
+  "categories": [
+    {
+      "id": "web",
+      "name": "AI网页",
+      "icon": "fa-globe"
+    },
+    {
+      "id": "image",
+      "name": "AI图片",
+      "icon": "fa-image"
+    },
+    {
+      "id": "copywriting",
+      "name": "AI文案",
+      "icon": "fa-file-alt"
+    },
+    {
+      "id": "tips",
+      "name": "日常技巧",
+      "icon": "fa-lightbulb"
+    }
+  ],
+  "prompts": [
+    {
+      "id": 1,
+      "title": "文稿杂志风格展示",
+      "description": "创建专业的文稿杂志风格展示",
+      "category": "web",
+      "file": "markdown/web-portfolio.md",
+      "image": "images/web-portfolio.jpg"
+    },
+    {
+      "title": "名词解释",
+      "description": "输入一个名词，通过简单举例解释名词含义。",
+      "category": "copywriting",
+      "file": "markdown/名词解释.md",
+      "image": "images/pixpin-2025-08-12-15-14-08.png",
+      "id": 5
+    },
+    {
+      "title": "模型越狱01",
+      "description": "模型越狱初级",
+      "category": "tips",
+      "file": "markdown/模型越狱01.md",
+      "image": "",
+      "id": 6
+    },
+    {
+      "title": "模型越狱02",
+      "description": "模型越狱中级",
+      "category": "tips",
+      "file": "markdown/模型越狱02.md",
+      "image": "",
+      "id": 7
+    },
+    {
+      "title": "模型越狱03",
+      "description": "模型越狱高级",
+      "category": "tips",
+      "file": "markdown/模型越狱03.md",
+      "image": "",
+      "id": 8
+    }
+  ]
+}
