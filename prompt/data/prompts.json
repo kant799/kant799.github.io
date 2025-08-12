@@ -43,7 +43,7 @@
       "description": "模型越狱初级",
       "category": "tips",
       "file": "markdown/模型越狱01.md",
-      "image": "",
+      "image": "images/pixpin-2025-08-12-16-08-08.png",
       "id": 6
     },
     {
@@ -51,7 +51,7 @@
       "description": "模型越狱中级",
       "category": "tips",
       "file": "markdown/模型越狱02.md",
-      "image": "",
+      "image": "images/pixpin-2025-08-12-16-10-51.png",
       "id": 7
     },
     {
@@ -59,8 +59,32 @@
       "description": "模型越狱高级",
       "category": "tips",
       "file": "markdown/模型越狱03.md",
-      "image": "",
+      "image": "images/pixpin-2025-08-12-16-15-37.png",
       "id": 8
+    },
+    {
+      "title": "科技感海报丨gpt-4o-image",
+      "description": "科技风格海报、数码产品展示适用",
+      "category": "image",
+      "file": "markdown/科技感海报丨gpt-4o-image.md",
+      "image": "images/assets-task-01k0vtj8zdepxaya998tpfhpq8-1753280516-img-0.webp",
+      "id": 9
+    },
+    {
+      "title": "像素风格插图丨即梦",
+      "description": "抖音上很火的像素风格插图生成",
+      "category": "image",
+      "file": "markdown/像素风格插图丨即梦.md",
+      "image": "images/jimeng-2025-05-15.png",
+      "id": 10
+    },
+    {
+      "title": "生日祝福卡片丨gpt-4o-image",
+      "description": "制作简单、温馨的祝福卡片",
+      "category": "image",
+      "file": "markdown/生日祝福卡片丨gpt-4o-image.md",
+      "image": "images/20250812-1631-simple-compose-01k2epdh9kecmvjcafrbnwmewj.png",
+      "id": 11
     }
   ]
 }
