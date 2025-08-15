@@ -85,6 +85,14 @@
       "file": "markdown/生日祝福卡片丨gpt-4o-image.md",
       "image": "images/20250812-1631-simple-compose-01k2epdh9kecmvjcafrbnwmewj.png",
       "id": 11
+    },
+    {
+      "title": "歌词卡片",
+      "description": "提供用于分享的歌词段落、歌手、歌名，生成符合情绪的卡片用于社媒分享",
+      "category": "web",
+      "file": "markdown/歌词卡片.md",
+      "image": "images/geci.png",
+      "id": 12
     }
   ]
 }
