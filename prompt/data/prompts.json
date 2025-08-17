@@ -19,6 +19,11 @@
       "id": "tips",
       "name": "日常技巧",
       "icon": "fa-lightbulb"
+    },
+    {
+      "id": "code",
+      "name": "Code技巧",
+      "icon": "fa-code"
     }
   ],
   "prompts": [
@@ -88,11 +93,27 @@
     },
     {
       "title": "歌词卡片",
-      "description": "提供用于分享的歌词段落、歌手、歌名，生成符合情绪的卡片用于社媒分享",
+      "description": "提供歌词段落、歌手、歌名，生成卡片用于社媒分享",
       "category": "web",
       "file": "markdown/歌词卡片.md",
       "image": "images/geci.png",
       "id": 12
+    },
+    {
+      "title": "好朋友",
+      "description": "知心朋友角色扮演",
+      "category": "tips",
+      "file": "markdown/好朋友.md",
+      "image": "images/pixpin-2025-08-17-13-03-09.png",
+      "id": 13
+    },
+    {
+      "title": "代码项目功能映射",
+      "description": "为任意代码项目生成一份AI可理解的功能索引",
+      "category": "code",
+      "file": "markdown/代码项目功能映射.md",
+      "image": "images/pixpin-2025-08-17-13-38-13.png",
+      "id": 14
     }
   ]
 }

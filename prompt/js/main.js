@@ -93,6 +93,34 @@ function renderPromptCards() {
         );
     }
     
+    // 对提示词进行排序
+    filteredPrompts.sort((a, b) => {
+        // 如果是"全部"分类，按分类中最新提示词的ID来排序分类
+        if (currentCategory === 'all') {
+            // 计算每个分类的最新提示词ID
+            const categoryLatestIds = {};
+            filteredPrompts.forEach(prompt => {
+                if (!categoryLatestIds[prompt.category] || prompt.id > categoryLatestIds[prompt.category]) {
+                    categoryLatestIds[prompt.category] = prompt.id;
+                }
+            });
+            
+            // 按分类中最新提示词的ID降序排序
+            const latestIdDiff = categoryLatestIds[b.category] - categoryLatestIds[a.category];
+            if (latestIdDiff !== 0) {
+                return latestIdDiff;
+            }
+            
+            // 同一分类内按ID降序排列
+            if (a.category === b.category) {
+                return b.id - a.id;
+            }
+        }
+        
+        // 具体分类下按ID降序排列（最新的在前）
+        return b.id - a.id;
+    });
+    
     // 创建卡片
     filteredPrompts.forEach(prompt => {
         const card = document.createElement('div');
