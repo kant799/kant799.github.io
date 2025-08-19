@@ -173,21 +173,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // --- 各板块JS逻辑 ---
 
-    // 4.1 Section 1: 视差效果 (已禁用)
-    // const heroImage = document.getElementById('hero-image');
-    // document.getElementById('section1').addEventListener('mousemove', (e) => {
-    //     const { clientX, clientY, currentTarget } = e;
-    //     const { clientWidth, clientHeight } = currentTarget;
-    //     const x = (clientX / clientWidth - 0.5) * 30; // 移动幅度
-    //     const y = (clientY / clientHeight - 0.5) * 30;
-    //     gsap.to(heroImage, {
-    //         x: -x,
-    //         y: -y,
-    //         duration: 1,
-    //         ease: 'power2.out'
-    //     });
-    // });
-
     // 4.2 Section 2: 主播介绍
     const hostsContainer = document.getElementById('hosts-container');
     const hostModal = document.getElementById('host-modal');
@@ -198,8 +183,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const hostEl = document.createElement('div');
         hostEl.className = 'text-center cursor-pointer group';
         hostEl.innerHTML = `
-            <img src="${host.avatar}" alt="${host.name}" class="w-16 h-16 md:w-32 md:h-32 rounded-full object-cover mx-auto transition-transform duration-300 group-hover:scale-110">
-            <p class="mt-4 text-lg font-semibold">${host.name}</p>
+            <img src="${host.avatar}" alt="${host.name}" class="w-11 h-11 md:w-32 md:h-32 rounded-full object-cover mx-auto transition-transform duration-300 group-hover:scale-110">
+            <p class="mt-4 text-sm md:text-lg font-semibold">${host.name}</p>
         `;
         hostEl.addEventListener('click', () => openHostModal(host));
         hostsContainer.appendChild(hostEl);
@@ -315,9 +300,9 @@ document.addEventListener('DOMContentLoaded', function() {
             li.className = 'pl-4 cursor-pointer border-l-2 border-transparent hover:border-l-[#FFE200] transition-colors';
             li.dataset.id = ep.id;
             li.innerHTML = `
-                <h4 class="font-bold text-lg text-white">${ep.title}</h4>
+                <h4 class="font-bold text-base md:text-lg text-white">${ep.title}</h4>
                 <div class="flex justify-between">
-                    <a class="text-sm text-gray-500 mt-1">${ep.hosts.join(', ')}</a>
+                    <a class="text-xs md:text-sm text-gray-500 mt-1">${ep.hosts.join(', ')}</a>
                     <a class="text-xs text-[#ffe62a] mt-1">${ep.date}</a>
                 </div>
             `;
@@ -460,10 +445,10 @@ document.addEventListener('DOMContentLoaded', function() {
         linkEl.className = 'block hover:border-l-[#FFE200] border-l-2 border-l-[#1a1a1a] transition-colors opacity-0 anim-text';
         linkEl.innerHTML = `
             <div class="flex items-center pl-4">
-                <i class="${link.icon} text-2xl w-12"></i>
-                <div class=" text-left">
-                    <h3 class="font-bold text-lg">${link.name}</h3>
-                    <p class="text-sm text-gray-400 mt-1">${link.description}</p>
+                <i class="${link.icon} text-2xl w-12 flex-none"></i>
+                <div class="grow text-left">
+                    <h3 class="text-sm md:text-lg font-bold">${link.name}</h3>
+                    <p class="text-xs md:text-sm text-gray-400 mt-1">${link.description}</p>
                 </div>
             </div>
         `;

@@ -16,7 +16,7 @@ const platformLinks = [
         name: '小红书', 
         icon: 'fa-solid fa-book', 
         url: 'https://www.xiaohongshu.com/user/profile/656dde98000000001902cbe0?xhsshare=CopyLink&appuid=656dde98000000001902cbe0&apptime=1733904860&share_id=75cc4750853b433999f51ccd061c3903',
-        description: '在小红书发现更多关于不开玩笑的精彩内容，还有开放麦观看资格随机掉落。'
+        description: '在小红书发现更多不开玩笑精彩内容，还有开放麦观看资格随机掉落。'
     },
     { 
         name: '小宇宙', 

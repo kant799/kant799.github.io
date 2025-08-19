@@ -60,6 +60,7 @@
                 background-image: url('images/simple_compos916.png');
                 /* 可选：调整移动设备上的背景大小 */
                 background-size: 90% auto;
+                mask-image: linear-gradient(to bottom, transparent 0%, #000000 50%, transparent 100%);
             }
         }
         /* 主播介绍卡片随机边框样式 */
@@ -107,7 +108,7 @@
     <!-- 2.4. 常驻顶部导航栏 -->
     <header id="header" class="fixed top-0 left-0 right-0 p-6 md:p-8 z-10 flex justify-between items-center transition-opacity duration-500">
         <div id="header-logo-container" class="border-2 border-[#FFE200] rounded-full">
-            <img src="https://image.xyzcdn.net/Fob6Jspoxyx0H8W2sdKeQ7E4u93z.png@small" alt="旋转Logo" class="w-12 h-12 border border-black rounded-full animate-spin" style="animation-duration: 10s;">
+            <img src="https://image.xyzcdn.net/Fob6Jspoxyx0H8W2sdKeQ7E4u93z.png@small" alt="旋转Logo" class="w-7 h-7 md:w-12 md:h-12 border border-black rounded-full animate-spin" style="animation-duration: 10s;">
         </div>
         <nav>
             <ul id="menu" class="flex space-x-4 md:space-x-8 text-sm md:text-base">
@@ -158,7 +159,7 @@
         <div class="section" id="section1">
             <div class="hero-content-wrapper container mx-auto px-8 h-full flex flex-col lg:flex-row items-center justify-center gap-12">
                 <div class="lg:w-3/5 text-center lg:text-left">
-                    <h1 class="text-5xl md:text-7xl font-bold text-[#FFE200] mb-4 opacity-0 anim-text">不开玩笑</h1>
+                    <h1 class="text-5xl md:text-7xl font-bold text-[#FFE200] mb-4 opacity-0 anim-text mt-12">不开玩笑</h1>
                     <h2 class="text-xl md:text-2xl text-gray-400 mb-6 opacity-0 anim-text tracking-widest">Jokes Aside</h2>
                     <p class="text-base md:text-lg text-gray-300 max-w-2xl mx-auto lg:mx-0 opacity-0 anim-text">
                         一档时而开玩笑，时而不开玩笑的播客节目。
@@ -193,12 +194,12 @@
                         <img id="featured-episode-img" src="" alt="分集封面" class="w-full h-full object-cover rounded-lg shadow-2xl">
                     </div>
                     <a id="featured-episode-link" href="#" target="_blank" class="mt-8 bg-[#FFE200] text-black font-bold py-3 px-8 rounded-full text-lg hover:bg-[#F8FA7D] transition-colors">
-                        <i class="fas fa-play mr-2"></i> 前往收听
+                        <i class="fas fa-play mr-2"></i> 收听
                     </a>
                 </div>
                 <!-- 右侧索引列表 -->
                 <div class="w-full lg:w-3/5 h-full flex flex-col">
-                    <h2 class="text-4xl font-bold mb-6 text-center lg:text-left border-b-2 border-b-[#FFE200] pb-2">分集列表 / EPISODES</h2>
+                    <h2 class="text-2xl md:text-4xl font-bold mb-6 text-center lg:text-left border-b-2 border-b-[#FFE200] pb-2">分集列表 / EPISODES</h2>
                     <ul id="episode-list" class="flex-grow space-y-4 overflow-y-auto pr-4">
                         <!-- 列表项将由JS动态生成 -->
                     </ul>
