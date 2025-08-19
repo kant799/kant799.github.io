@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>不开玩笑 · JokesAside</title>
+
+    <!-- TailwindCSS Play CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts: Poppins & Noto Sans SC -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;700&family=Poppins:wght@300;400;700&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- fullPage.js -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullPage.js/4.0.20/fullpage.min.css">
+
+    <style>
+        * {
+        /* 标准语法 */
+        user-select: none;
+
+        /* 为了兼容旧版浏览器 */
+        -webkit-user-select: none; /* Safari, Chrome */
+        -moz-user-select: none;    /* Firefox */
+        -ms-user-select: none;     /* IE/Edge */
+        }
+        /* 全局字体和基础样式 */
+        html, body {
+            font-family: 'Poppins', 'Noto Sans SC', sans-serif;
+            color: #E0E0E0;
+            background-color: #1A1A1A;
+            overflow: hidden; /* 隐藏滚动条 */
+        }
+        /* fullPage.js Fading Effect (需在 fullPage.js 选项中启用) */
+        .fp-section:not .fp-auto-height .fp-completely:not(.active) {
+            opacity: 0 !important;
+            visibility: hidden !important;
+            transition: opacity 0.7s ease-in-out, visibility 0.7s ease-in-out !important;
+        }
+        .fp-section:not(.fp-auto-height).active {
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+        /* 自定义动画类 */
+        .text-glow {
+            text-shadow: 0 0 8px rgba(255, 225, 4, 0.7), 0 0 12px rgba(255, 225, 4, 0.5);
+        }
+        .saleBG {
+            background-image: url('images/simple_compos169.png'); 
+            background-size: 70% auto;
+        }
+        /* 移动端使用不同的图片 */
+        @media (max-width: 768px) {
+            .saleBG {
+                background-image: url('images/simple_compos916.png');
+                /* 可选：调整移动设备上的背景大小 */
+                background-size: 90% auto;
+            }
+        }
+        /* 主播介绍卡片随机边框样式 */
+        .border-style-1 { border: 2px dashed #9ca3af; }
+        .border-style-2 { border: 2px dotted #9ca3af; }
+        .border-style-3 { border: 3px double #9ca3af; }
+        .border-style-4 { border: 2px solid #9ca3af; border-radius: 8px; }
+    </style>
+</head>
+<body>
+    <!-- 背景装饰图标容器 -->
+    <div id="bg-icons" class="fixed inset-0 pointer-events-none z-0 opacity-5">
+        <!-- 图标将由JS动态生成 -->
+    </div>
+
+    <!-- 0. 序幕加载动画 -->
+    <div id="preloader" class="fixed inset-0 bg-[#1A1A1A] z-[100] flex flex-col justify-center items-center">
+        <img id="preloader-logo" src="https://image.xyzcdn.net/Fob6Jspoxyx0H8W2sdKeQ7E4u93z.png@small" alt="播客Logo" class="w-24 h-24 mb-8 rounded-xs">
+        <!-- 简化的SVG频谱图 -->
+        <svg width="300" height="50" viewBox="0 0 300 50" class="mb-4">
+            <rect id="waveform-fill" fill="#FFE104" width="0" height="50" mask="url(#waveform-mask)"/>
+            <mask id="waveform-mask">
+                <g fill="white">
+                    <rect x="0" y="15" width="4" height="20" /> <rect x="8" y="20" width="4" height="10" /> <rect x="16" y="10" width="4" height="30" />
+                    <rect x="24" y="5" width="4" height="40" /> <rect x="32" y="15" width="4" height="20" /> <rect x="40" y="20" width="4" height="10" />
+                    <rect x="48" y="10" width="4" height="30" /> <rect x="56" y="15" width="4" height="20" /> <rect x="64" y="20" width="4" height="10" />
+                    <rect x="72" y="5" width="4" height="40" /> <rect x="80" y="10" width="4" height="30" /> <rect x="88" y="15" width="4" height="20" />
+                    <!-- ... 更多波形 ... -->
+                     <rect x="96" y="15" width="4" height="20" /> <rect x="104" y="20" width="4" height="10" /> <rect x="112" y="10" width="4" height="30" />
+                    <rect x="120" y="5" width="4" height="40" /> <rect x="128" y="15" width="4" height="20" /> <rect x="136" y="20" width="4" height="10" />
+                    <!-- 扩展波形以覆盖完整宽度 -->
+                    <rect x="144" y="15" width="4" height="20" /> <rect x="152" y="25" width="4" height="15" /> <rect x="160" y="10" width="4" height="30" />
+                    <rect x="168" y="20" width="4" height="10" /> <rect x="176" y="5" width="4" height="40" /> <rect x="184" y="15" width="4" height="20" />
+                    <rect x="192" y="25" width="4" height="15" /> <rect x="200" y="15" width="4" height="20" /> <rect x="208" y="10" width="4" height="30" />
+                    <rect x="216" y="20" width="4" height="10" /> <rect x="224" y="15" width="4" height="20" /> <rect x="232" y="25" width="4" height="15" />
+                    <rect x="240" y="5" width="4" height="40" /> <rect x="248" y="15" width="4" height="20" /> <rect x="256" y="20" width="4" height="10" />
+                    <rect x="264" y="10" width="4" height="30" /> <rect x="272" y="25" width="4" height="15" /> <rect x="280" y="15" width="4" height="20" />
+                    <rect x="288" y="20" width="4" height="10" /> <rect x="296" y="10" width="4" height="30" />
+                </g>
+            </mask>
+        </svg>
+        <div id="progress-counter" class="text-xl text-[#FFE104] text-glow">0%</div>
+    </div>
+
+    <!-- 2.4. 常驻顶部导航栏 -->
+    <header id="header" class="fixed top-0 left-0 right-0 p-6 md:p-8 z-10 flex justify-between items-center transition-opacity duration-500">
+        <div id="header-logo-container" class="border-2 border-[#FFE200] rounded-full">
+            <img src="https://image.xyzcdn.net/Fob6Jspoxyx0H8W2sdKeQ7E4u93z.png@small" alt="旋转Logo" class="w-12 h-12 border border-black rounded-full animate-spin" style="animation-duration: 10s;">
+        </div>
+        <nav>
+            <ul id="menu" class="flex space-x-4 md:space-x-8 text-sm md:text-base">
+                <li data-menuanchor="about"><a href="#about" class="transition-colors hover:text-[#FFE200]">关于</a></li>
+                <li data-menuanchor="hosts"><a href="#hosts" class="transition-colors hover:text-[#FFE200]">主播</a></li>
+                <li data-menuanchor="episodes"><a href="#episodes" class="transition-colors hover:text-[#FFE200]">播客</a></li>
+                <li data-menuanchor="merch"><a href="#merch" class="transition-colors hover:text-[#FFE200]">周边</a></li>
+                <li data-menuanchor="platforms"><a href="#platforms" class="transition-colors hover:text-[#FFE200]">平台</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- 主播介绍卡片 Modal -->
+    <div id="host-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex justify-center items-center opacity-0 pointer-events-none transition-opacity duration-500" style="transform: translateZ(0);">
+        <div id="host-card" class="w-11/12 max-w-4xl h-auto md:h-[60vh] bg-[#1E1E1E] rounded-lg flex flex-col md:flex-row overflow-hidden relative scale-95 transition-transform duration-500" style="transform: translateZ(0);">
+            <button id="close-modal-btn" class="absolute top-4 right-4 text-2xl text-gray-400 hover:text-white z-10"><i class="fas fa-times"></i></button>
+            <div class="w-full md:w-2/5 h-64 md:h-full">
+                <img id="modal-host-img" src="" alt="主播宣传照" class="w-full h-full object-cover">
+            </div>
+            <div class="w-full md:w-3/5 p-8 relative">
+                <h3 id="modal-host-name" class="text-3xl font-bold mb-12 text-center"></h3>
+                <div id="modal-tags-container" class="w-full h-64 md:h-4/5 relative border-2 rounded-lg border-white">
+                    <!-- 标签将由JS动态生成 -->
+                </div>
+            </div>
+        </div>
+    </div>
+        
+    <!-- 周边产品介绍卡片 Modal -->
+    <div id="merch-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex justify-center items-center opacity-0 pointer-events-none transition-opacity duration-500" style="transform: translateZ(0);">
+         <div id="merch-card" class="w-11/12 max-w-4xl h-auto md:h-[60vh] bg-[#F2E324] rounded-lg flex flex-col md:flex-row overflow-hidden relative scale-95 transition-transform duration-500" style="transform: translateZ(0);">
+             <button id="close-merch-modal-btn" class="absolute top-4 right-4 text-2xl text-gray-400 hover:text-white z-10"><i class="fas fa-times"></i></button>
+            <img id="modal-merch-img" src="" alt="产品宣传照" class="h-full aspect-square object-cover">
+            <div class="w-full md:w-2/5 p-8 relative text-center">
+                <h3 id="modal-merch-name" class="text-3xl font-bold mt-4 md:mt-12 mb-4 text-black"></h3>
+                <div class="w-full h-48 md:h-3/5 relative flex items-center justify-center pt-12">
+                    <div class="flex flex-col items-center pt-2 md:pt-12">
+                        <img id="modal-merch-qr" src="" alt="购买二维码" class="w-32 h-32 object-contain rounded-full">
+                        <p class="text-gray-700 text-sm mt-2 md:mt-8">扫描二维码立即购买</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="fullpage">
+        <!-- 4.1. Section 1: 品牌核心展示 -->
+        <div class="section" id="section1">
+            <div class="hero-content-wrapper container mx-auto px-8 h-full flex flex-col lg:flex-row items-center justify-center gap-12">
+                <div class="lg:w-3/5 text-center lg:text-left">
+                    <h1 class="text-5xl md:text-7xl font-bold text-[#FFE200] mb-4 opacity-0 anim-text">不开玩笑</h1>
+                    <h2 class="text-xl md:text-2xl text-gray-400 mb-6 opacity-0 anim-text tracking-widest">Jokes Aside</h2>
+                    <p class="text-base md:text-lg text-gray-300 max-w-2xl mx-auto lg:mx-0 opacity-0 anim-text">
+                        一档时而开玩笑，时而不开玩笑的播客节目。
+                    </p>
+                </div>
+                <div class="lg:w-2/5 relative h-64 lg:h-auto w-full">
+                    <div id="hero-image-mask" class="w-full h-full lg:aspect-[3/4] opacity-0">
+                         <img id="hero-image" src="images\show.png" alt="宣传图片" class="w-full h-full object-cover rounded-lg">
+                         <div class="absolute inset-0 bg-gradient-to-r from-[#1A1A1A] from-5% via-transparent to-[#1A1A1A] to-95%"></div>
+                         <div class="absolute inset-0 bg-gradient-to-b from-[#1A1A1A] from-0% via-transparent to-[#1A1A1A] to-95%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4.2. Section 2: 主播介绍 -->
+        <div class="section" id="section2">
+            <div class="w-full h-full flex flex-col justify-center items-center p-8">
+                <h2 class="text-4xl font-bold mb-24">主播们 · HOSTS</h2>
+                <div id="hosts-container" class="flex flex-wrap justify-center gap-8 md:gap-12">
+                    <!-- 主播头像将由JS动态生成 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 4.3. Section 3: 播客分集陈列 -->
+        <div class="section" id="section3">
+            <div class="container mx-auto px-8 h-full flex flex-col lg:flex-row items-center gap-8 py-24">
+                <!-- 左侧主视觉区 -->
+                <div class="w-2/4 md:w-full lg:w-2/5 flex flex-col items-center">
+                    <div class="w-full max-w-sm aspect-square relative">
+                        <img id="featured-episode-img" src="" alt="分集封面" class="w-full h-full object-cover rounded-lg shadow-2xl">
+                    </div>
+                    <a id="featured-episode-link" href="#" target="_blank" class="mt-8 bg-[#FFE200] text-black font-bold py-3 px-8 rounded-full text-lg hover:bg-[#F8FA7D] transition-colors">
+                        <i class="fas fa-play mr-2"></i> 前往收听
+                    </a>
+                </div>
+                <!-- 右侧索引列表 -->
+                <div class="w-full lg:w-3/5 h-full flex flex-col">
+                    <h2 class="text-4xl font-bold mb-6 text-center lg:text-left border-b-2 border-b-[#FFE200] pb-2">分集列表 / EPISODES</h2>
+                    <ul id="episode-list" class="flex-grow space-y-4 overflow-y-auto pr-4">
+                        <!-- 列表项将由JS动态生成 -->
+                    </ul>
+                    <div id="episode-pagination" class="flex justify-center items-center mt-4 gap-4">
+                        <!-- 分页将由JS动态生成 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4.4. Section 4: 周边产品展示 -->
+        <div class="section" id="section4" style="overflow: hidden; position: relative;">
+            <!-- 背景层 -->
+            <div class="absolute inset-0 w-full h-full bg-cover bg-center saleBG" style="z-index: 1; pointer-events: none;">
+                <div class="absolute inset-0 bg-gradient-to-r from-[#1A1A1A] via-transparent to-[#1A1A1A]"></div>
+                <div class="absolute inset-0 bg-gradient-to-b from-[#1A1A1A] via-transparent to-[#1A1A1A]"></div>
+            </div>
+            
+            <!-- 交互式热点区域 -->
+            <div id="merch-hotspots" class="absolute inset-0 w-full h-full" style="z-index: 2;">
+                <!-- 热点将由JS动态生成 -->
+            </div>
+        </div>
+
+        <!-- 4.5. Section 5: 平台链接 -->
+        <div class="section" id="section5">
+             <div class="hero-content-wrapper container mx-auto px-8 h-full flex flex-col items-left justify-left">
+                 <div class="w-full max-w-2xl text-left">
+                    <h1 class="text-5xl md:text-7xl font-bold text-[#FFE200] mb-4 opacity-0 anim-text  pl-4">不开玩笑</h1>
+                    <h2 class="text-xl md:text-2xl text-gray-400 mb-6 opacity-0 anim-text tracking-widest pl-4">Jokes Aside</h2>
+                    
+                    <!-- 平台链接列表 -->
+                    <div class="platform-links-list space-y-6 mt-12">
+                         <!-- 平台链接将由JS动态生成 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 4.6. Section 6: 版权说明/页脚 -->
+        <div class="section fp-auto-height" id="section6">
+            <footer class="w-full h-full flex flex-col justify-center items-center p-8 text-center">
+                <div class="mb-4">
+                    <img src="https://image.xyzcdn.net/Fob6Jspoxyx0H8W2sdKeQ7E4u93z.png@small" alt="播客Logo" class="w-16 h-16 mx-auto rounded-full mb-4">
+                    <p class="text-lg font-semibold">© 不开玩笑 · Jokes Aside</p>
+                </div>
+                <div class="text-gray-400 mb-6">
+                    <p>猫头鹰喜剧出品 · All Rights Reserved.</p>
+                    <p class="text-sm mt-2">网站由 [不开玩笑听友13群 · Alan] 设计与开发</p>
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <!-- GSAP & fullPage.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullPage.js/4.0.20/fullpage.min.js"></script>
+    
+    <!-- 数据文件 -->
+    <script src="js/hostsData.js"></script>
+    <script src="js/episodesData.js"></script>
+    <script src="js/merchData.js"></script>
+    <script src="js/platformLinks.js"></script>
+    
+    <!-- 自定义脚本 -->
+    <script src="js/scripts.js"></script>
+</body>
+</html>
