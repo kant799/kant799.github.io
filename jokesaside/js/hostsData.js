@@ -64,6 +64,7 @@ const hostsData = [
     "mobileImage": "images/hosts/liurenchengmobile.jpg",
     "tags": [
       "胖子门窗",
+      "南太子",
       "资深喜剧编剧"
     ],
     "id": 6
@@ -86,7 +87,7 @@ const hostsData = [
     "mobileImage": "images/hosts/wbbmobile.jpg",
     "tags": [
       "进屋上炕主理人",
-      "不开玩笑郡主",
+      "不开玩笑长公主",
       "长白山幽默女王"
     ],
     "id": 8
