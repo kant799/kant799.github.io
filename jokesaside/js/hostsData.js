@@ -42,7 +42,8 @@ const hostsData = [
     "mobileImage": "images/hosts/tianyimobile.jpg",
     "tags": [
       "保定Idol",
-      "法国local"
+      "法国local",
+      "偶像练习生"
     ],
     "id": 4
   },
@@ -53,6 +54,7 @@ const hostsData = [
     "mobileImage": "images/hosts/lyzgezidefangxinmobile.jpg",
     "tags": [
       "双鸭山诗人",
+      "青年导演",
       "不开玩笑先皇"
     ],
     "id": 5
