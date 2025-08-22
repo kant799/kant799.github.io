@@ -1740,6 +1740,14 @@ const episodesData = [
     "link": "https://www.xiaoyuzhoufm.com/episode/689f02c5f9040f9dc35266ab",
     "date": "2025-08-15",
     "hosts": ["七友、小梁、猛哥、天一、大雄、史炎"]
+  },
+  {
+    "id": 208,
+    "title": "206.计划赶不上变化：聊聊计划和变化",
+    "cover": "https://image.xyzcdn.net/Fl94q9e1pZ3A9AjP1Pv5eqQ_9svX.png@small",
+    "link": "https://www.xiaoyuzhoufm.com/episode/68a8397f42cc2798e7e2118f",
+    "date": "2025-08-23",
+    "hosts": ["刘仁铖、赵丽娜、迟斌、陈述、啊鑫、史炎"]
   }
 ];
 
