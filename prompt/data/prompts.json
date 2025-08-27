@@ -114,6 +114,14 @@
       "file": "markdown/代码项目功能映射.md",
       "image": "images/pixpin-2025-08-17-13-38-13.png",
       "id": 14
+    },
+    {
+      "title": "小红书分步骤流程卡片",
+      "description": "一个分步骤的流程需求输出可以下载分步骤图片的展示网页",
+      "category": "web",
+      "file": "markdown/小红书分步骤流程卡片.md",
+      "image": "images/20250827154247.png",
+      "id": 15
     }
   ]
 }
