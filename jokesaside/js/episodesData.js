@@ -1756,6 +1756,14 @@ const episodesData = [
     "link": "https://www.xiaoyuzhoufm.com/episode/68b168455faf36865905efed",
     "date": "2025-08-30",
     "hosts": ["小梁、发发大王、王凯风、天一、大雄、史炎"]
+  },
+  {
+    "id": 210,
+    "title": "208.他人笑我太疯癫，偏偏我最好笑",
+    "cover": "https://image.xyzcdn.net/Fldi-WsTLnPzxaTFW0OfpvjkXtUQ.png@small",
+    "link": "https://www.xiaoyuzhoufm.com/episode/68baab7c5faf3686592d907d",
+    "date": "2025-09-06",
+    "hosts": ["小梁、张灏喆、汪德发、阿艺、猛哥、史炎"]
   }
 ];
 
