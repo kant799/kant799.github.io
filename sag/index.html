@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sprite Sheet Animator & Exporter</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        dark: { bg: '#0F1117', sidebar: '#161b22', border: '#30363d' }
+                    },
+                    screens: { 'lg': '1024px' }
+                }
+            }
+        }
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.js"></script>
+    
+    <style>
+        :root {
+            --check-color-1: #f3f4f6;
+            --check-color-2: #e5e7eb;
+            --scroll-thumb: #c1c1c1;
+        }
+        .dark {
+            --check-color-1: #1f242c;
+            --check-color-2: #161b22;
+            --scroll-thumb: #30363d;
+        }
+        body { transition: background-color 0.3s ease, color 0.3s ease; }
+        
+        /* 滚动条 */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--scroll-thumb); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #58a6ff; }
+
+        /* 棋盘格背景 */
+        .canvas-bg {
+            background-image: 
+                linear-gradient(45deg, var(--check-color-1) 25%, transparent 25%), 
+                linear-gradient(-45deg, var(--check-color-1) 25%, transparent 25%), 
+                linear-gradient(45deg, transparent 75%, var(--check-color-1) 75%), 
+                linear-gradient(-45deg, transparent 75%, var(--check-color-1) 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+            background-color: var(--check-color-2);
+        }
+
+        /* 控件样式 */
+        input[type=range] { -webkit-appearance: none; background: transparent; }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none; height: 14px; width: 14px;
+            border-radius: 50%; background: #3b82f6; cursor: pointer; margin-top: -5px; 
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%; height: 4px; cursor: pointer; background: #e5e7eb; border-radius: 2px;
+        }
+        .dark input[type=range]::-webkit-slider-runnable-track { background: #30363d; }
+        .selected-option {
+            border-color: #3b82f6 !important; background-color: rgba(59, 130, 246, 0.1) !important; color: #3b82f6 !important;
+        }
+
+        /* 响应式 Canvas 容器: 保持比例，像素风格 */
+        .responsive-canvas-container canvas {
+            max-width: 100%; max-height: 100%; width: auto; height: auto;
+            object-fit: contain;
+            image-rendering: pixelated; /* 关键：放大时保持像素清晰 */
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 加载动画 */
+        .spinner {
+            border: 3px solid rgba(59, 130, 246, 0.1); width: 32px; height: 32px; border-radius: 50%;
+            border-left-color: #3b82f6; animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="h-screen w-screen flex flex-col bg-white dark:bg-dark-bg text-gray-900 dark:text-[#E1E4E8] overflow-hidden">
+
+    <!-- Header -->
+    <header class="h-14 flex-shrink-0 border-b border-gray-200 dark:border-dark-border flex items-center justify-between px-4 lg:px-6 bg-white dark:bg-dark-sidebar z-30">
+        <div class="flex items-center gap-3">
+            <h1 class="text-lg font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-500">
+                Sprite Animator
+            </h1>
+            <p>切片 · 预览 · GIF导出</p>
+        </div>
+        <button id="themeToggleBtn" class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 transition">
+            <svg id="iconSun" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+            <svg id="iconMoon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+        </button>
+    </header>
+
+    <!-- Main Layout -->
+    <div class="flex-1 flex flex-col lg:flex-row overflow-hidden relative">
+        
+        <!-- SIDEBAR: Controls & Grid Config (Left/Bottom) -->
+        <aside class="order-2 lg:order-1 w-full lg:w-96 flex-shrink-0 flex flex-col border-t lg:border-t-0 lg:border-r border-gray-200 dark:border-dark-border bg-white dark:bg-dark-sidebar z-20 h-1/2 lg:h-full transition-all duration-300 shadow-[0_-5px_15px_rgba(0,0,0,0.05)] lg:shadow-none">
+            
+            <div class="flex-1 overflow-y-auto p-5 space-y-6">
+                
+                <!-- 1. Upload -->
+                <div id="dropZone" class="relative rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-600 hover:border-blue-500 dark:hover:border-blue-500 bg-gray-50 dark:bg-gray-800/50 transition cursor-pointer group py-3 flex flex-col items-center justify-center">
+                    <input type="file" id="fileInput" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                    <p class="text-sm font-medium text-gray-600 dark:text-gray-300 group-hover:text-blue-500">点击上传图片</p>
+                </div>
+
+                <!-- 2. Original Image & Grid Config (Moved to Sidebar) -->
+                <div class="space-y-3">
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wider">网格设置</label>
+                    
+                    <!-- Grid Preview Window -->
+                    <div class="w-full aspect-auto bg-gray-100 dark:bg-dark-bg rounded-lg border border-gray-200 dark:border-dark-border canvas-bg flex items-center justify-center overflow-hidden relative">
+                        <canvas id="gridCanvas" class="max-w-full max-h-[200px] object-contain"></canvas>
+                    </div>
+
+                    <!-- Row/Col Inputs -->
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[10px] text-gray-400 mb-1">行数 (Rows)</label>
+                            <input type="number" id="rowsInput" value="4" min="1" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded p-2 text-sm text-center font-mono focus:border-blue-500 focus:outline-none transition">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] text-gray-400 mb-1">列数 (Cols)</label>
+                            <input type="number" id="colsInput" value="4" min="1" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded p-2 text-sm text-center font-mono focus:border-blue-500 focus:outline-none transition">
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="border-gray-200 dark:border-gray-700">
+
+                <!-- 3. Animation Controls (FPS & Loop) -->
+                <div class="space-y-4">
+                    <!-- FPS -->
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="text-xs font-bold text-gray-500 uppercase tracking-wider">播放速度</label>
+                            <span id="fpsValue" class="text-xs font-mono text-blue-500">12 FPS</span>
+                        </div>
+                        <input type="range" id="fpsRange" min="1" max="60" value="12" class="w-full">
+                    </div>
+
+                    <!-- Loop Mode -->
+                    <div>
+                        <label class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 block">GIF 循环模式</label>
+                        <div class="flex rounded-lg bg-gray-100 dark:bg-gray-900 p-1">
+                            <button class="flex-1 py-1.5 text-xs font-medium rounded-md text-gray-500 dark:text-gray-400 transition selected-option" data-mode="loop" onclick="setLoopMode('loop')">循环</button>
+                            <button class="flex-1 py-1.5 text-xs font-medium rounded-md text-gray-500 dark:text-gray-400 transition" data-mode="once" onclick="setLoopMode('once')">单次</button>
+                            <button class="flex-1 py-1.5 text-xs font-medium rounded-md text-gray-500 dark:text-gray-400 transition" data-mode="delay" onclick="setLoopMode('delay')">延迟</button>
+                        </div>
+                        
+                        <!-- Delay Input -->
+                        <div id="delayInputContainer" class="hidden animate-fade-in mt-2 flex items-center gap-2 bg-gray-50 dark:bg-gray-800/50 p-2 rounded border border-gray-200 dark:border-gray-700">
+                            <span class="text-gray-500 text-xs">停留 (ms):</span>
+                            <input type="number" id="delayInput" value="1000" step="100" class="flex-1 bg-transparent border-none focus:ring-0 text-right font-mono text-sm text-blue-500">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fixed Footer -->
+            <div class="p-4 border-t border-gray-200 dark:border-dark-border bg-white dark:bg-dark-sidebar">
+                <button id="exportBtn" class="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-bold shadow-lg shadow-blue-500/20 active:scale-95 transition flex items-center justify-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                    下载 GIF
+                </button>
+            </div>
+        </aside>
+
+        <!-- MAIN STAGE: Final Animation Preview (Right/Top) -->
+        <main class="order-1 lg:order-2 flex-1 relative bg-gray-100 dark:bg-black/40 flex items-center justify-center p-4 lg:p-10 h-1/2 lg:h-full overflow-hidden group">
+            
+            <!-- Canvas Container -->
+            <div id="canvasContainer" class="responsive-canvas-container w-full h-full flex items-center justify-center transition-all duration-500 opacity-40 scale-95 grayscale relative">
+                
+                <canvas id="previewCanvas"></canvas>
+                
+                <!-- Play/Pause Overlay (Covers the canvas) -->
+                <div id="playOverlay" class="absolute inset-0 flex items-center justify-center cursor-pointer">
+                    <!-- Button only visible on pause or hover -->
+                    <button id="playPauseBtn" class="bg-white/90 dark:bg-gray-800/90 p-4 rounded-full shadow-2xl backdrop-blur transform transition-all duration-200 hover:scale-110">
+                        <svg id="iconPlay" class="w-8 h-8 hidden text-gray-800 dark:text-white ml-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" /></svg>
+                        <svg id="iconPause" class="w-8 h-8 text-gray-800 dark:text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div id="emptyState" class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-10">
+                <div class="bg-white/90 dark:bg-gray-800/90 backdrop-blur px-6 py-4 rounded-full shadow-xl border border-gray-200 dark:border-gray-700 animate-bounce">
+                    <p class="text-gray-500 dark:text-gray-300 font-medium flex items-center gap-2">
+                        <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                        请在左侧/下方上传图片
+                    </p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="fixed inset-0 z-50 hidden flex-col items-center justify-center backdrop-blur-md bg-white/70 dark:bg-black/70">
+        <div class="spinner mb-4"></div>
+        <p class="text-gray-800 dark:text-white font-bold text-lg animate-pulse">GIF 生成中...</p>
+        <p class="text-sm text-gray-500 mt-2 font-mono" id="loadingProgress">0%</p>
+    </div>
+
+    <script>
+        // --- 1. 初始化与主题 ---
+        const html = document.documentElement;
+        const themeBtn = document.getElementById('themeToggleBtn');
+        
+        function initTheme() {
+            const isDark = localStorage.theme === 'dark';
+            isDark ? html.classList.add('dark') : html.classList.remove('dark');
+            document.getElementById('iconSun').classList.toggle('hidden', !isDark);
+            document.getElementById('iconMoon').classList.toggle('hidden', isDark);
+        }
+        themeBtn.addEventListener('click', () => {
+            const isDark = html.classList.toggle('dark');
+            localStorage.theme = isDark ? 'dark' : 'light';
+            initTheme();
+        });
+        initTheme();
+
+        // --- 2. 状态管理 ---
+        const state = {
+            image: null,
+            ctxSrc: null,
+            ctxPreview: null,
+            rows: 4,
+            cols: 4,
+            fps: 12,
+            isPlaying: true,
+            loopMode: 'loop', 
+            loopDelay: 1000,
+            currentFrame: 0,
+            lastFrameTime: 0,
+            waitStartTime: null,
+            reqId: null,
+            frames: []
+        };
+
+        const dom = {
+            fileInput: document.getElementById('fileInput'),
+            dropZone: document.getElementById('dropZone'),
+            gridCanvas: document.getElementById('gridCanvas'),    // Sidebar
+            previewCanvas: document.getElementById('previewCanvas'), // Main Stage
+            canvasContainer: document.getElementById('canvasContainer'),
+            emptyState: document.getElementById('emptyState'),
+            rows: document.getElementById('rowsInput'),
+            cols: document.getElementById('colsInput'),
+            fps: document.getElementById('fpsRange'),
+            fpsVal: document.getElementById('fpsValue'),
+            playBtn: document.getElementById('playPauseBtn'),
+            playOverlay: document.getElementById('playOverlay'),
+            exportBtn: document.getElementById('exportBtn'),
+            delayContainer: document.getElementById('delayInputContainer'),
+            delayInput: document.getElementById('delayInput'),
+            loadingOverlay: document.getElementById('loadingOverlay'),
+            progress: document.getElementById('loadingProgress')
+        };
+
+        state.ctxSrc = dom.gridCanvas.getContext('2d');
+        state.ctxPreview = dom.previewCanvas.getContext('2d');
+        // 关键：禁用平滑处理，保持像素风格
+        state.ctxSrc.imageSmoothingEnabled = false;
+        state.ctxPreview.imageSmoothingEnabled = false;
+
+        // --- 3. 核心逻辑 ---
+
+        function handleFile(file) {
+            if (!file || !file.type.startsWith('image/')) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    state.image = img;
+                    // 激活 UI
+                    dom.canvasContainer.classList.remove('opacity-40', 'scale-95', 'grayscale');
+                    dom.emptyState.style.display = 'none';
+                    updateGrid();
+                    restartAnimation();
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // 绘制 Sidebar 中的原图网格
+        function updateGrid() {
+            if (!state.image) return;
+
+            const w = state.image.width;
+            const h = state.image.height;
+            
+            dom.gridCanvas.width = w;
+            dom.gridCanvas.height = h;
+
+            // 绘制原图
+            state.ctxSrc.clearRect(0, 0, w, h);
+            state.ctxSrc.drawImage(state.image, 0, 0);
+
+            state.rows = parseInt(dom.rows.value) || 1;
+            state.cols = parseInt(dom.cols.value) || 1;
+            const cellW = w / state.cols;
+            const cellH = h / state.rows;
+
+            // 线宽动态调整：因为现在预览图在侧边栏比较小，所以线宽要适当，但不能太细看不清
+            const lineWidth = Math.max(2, w / 400); 
+
+            state.ctxSrc.strokeStyle = 'rgba(59, 130, 246, 0.8)';
+            state.ctxSrc.lineWidth = lineWidth;
+            state.ctxSrc.beginPath();
+
+            for (let i = 1; i < state.cols; i++) {
+                state.ctxSrc.moveTo(i * cellW, 0);
+                state.ctxSrc.lineTo(i * cellW, h);
+            }
+            for (let i = 1; i < state.rows; i++) {
+                state.ctxSrc.moveTo(0, i * cellH);
+                state.ctxSrc.lineTo(w, i * cellH);
+            }
+            state.ctxSrc.stroke();
+
+            // 计算每一帧数据
+            state.frames = [];
+            for (let r = 0; r < state.rows; r++) {
+                for (let c = 0; c < state.cols; c++) {
+                    state.frames.push({ x: c * cellW, y: r * cellH, w: cellW, h: cellH });
+                }
+            }
+
+            // 更新主舞台 Canvas 大小
+            dom.previewCanvas.width = cellW;
+            dom.previewCanvas.height = cellH;
+        }
+
+        // 动画循环 (绘制到 Main Stage)
+        function loop(timestamp) {
+            if (!state.isPlaying || !state.image || state.frames.length === 0) {
+                state.reqId = requestAnimationFrame(loop);
+                return;
+            }
+
+            const interval = 1000 / state.fps;
+
+            // 延迟逻辑
+            if (state.waitStartTime) {
+                if (timestamp - state.waitStartTime < state.loopDelay) {
+                    state.reqId = requestAnimationFrame(loop);
+                    return; 
+                } else {
+                    state.waitStartTime = null;
+                    state.lastFrameTime = timestamp;
+                    state.currentFrame = 0;
+                }
+            }
+
+            const delta = timestamp - state.lastFrameTime;
+
+            if (delta > interval) {
+                state.lastFrameTime = timestamp - (delta % interval);
+
+                if (state.currentFrame >= state.frames.length) {
+                    if (state.loopMode === 'once') {
+                        state.isPlaying = false;
+                        state.currentFrame = state.frames.length - 1;
+                        updatePlayBtnUI();
+                        return; 
+                    } else if (state.loopMode === 'delay') {
+                        state.waitStartTime = timestamp;
+                        state.currentFrame = state.frames.length - 1;
+                    } else {
+                        state.currentFrame = 0;
+                    }
+                }
+
+                if (state.waitStartTime === null) {
+                    const frame = state.frames[state.currentFrame];
+                    if (frame) {
+                        state.ctxPreview.clearRect(0, 0, dom.previewCanvas.width, dom.previewCanvas.height);
+                        state.ctxPreview.drawImage(state.image, frame.x, frame.y, frame.w, frame.h, 0, 0, frame.w, frame.h);
+                    }
+                    if (state.loopMode !== 'delay' || state.currentFrame < state.frames.length - 1) {
+                        state.currentFrame++;
+                    } else {
+                         state.currentFrame++; 
+                    }
+                }
+            }
+            state.reqId = requestAnimationFrame(loop);
+        }
+
+        function restartAnimation() {
+            state.currentFrame = 0;
+            state.waitStartTime = null;
+            state.isPlaying = true;
+            updatePlayBtnUI();
+            if (state.reqId) cancelAnimationFrame(state.reqId);
+            state.lastFrameTime = performance.now();
+            state.reqId = requestAnimationFrame(loop);
+        }
+
+        async function exportGif() {
+            if (!state.image || state.frames.length === 0) return;
+
+            dom.loadingOverlay.classList.remove('hidden');
+            dom.loadingOverlay.classList.add('flex');
+
+            let workerBlobUrl = '';
+            try {
+                const res = await fetch('https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.worker.js');
+                const text = await res.text();
+                const blob = new Blob([text], { type: 'application/javascript' });
+                workerBlobUrl = URL.createObjectURL(blob);
+            } catch (e) {
+                alert("加载组件失败，请检查网络");
+                dom.loadingOverlay.classList.add('hidden');
+                dom.loadingOverlay.classList.remove('flex');
+                return;
+            }
+
+            const repeatSetting = state.loopMode === 'once' ? -1 : 0;
+            const gif = new GIF({
+                workers: 2,
+                quality: 1, 
+                width: state.frames[0].w,
+                height: state.frames[0].h,
+                workerScript: workerBlobUrl,
+                repeat: repeatSetting
+            });
+
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = state.frames[0].w;
+            tempCanvas.height = state.frames[0].h;
+            const ctx = tempCanvas.getContext('2d');
+            ctx.imageSmoothingEnabled = false;
+
+            const baseDelay = 1000 / state.fps;
+
+            state.frames.forEach((frame, index) => {
+                ctx.clearRect(0, 0, tempCanvas.width, tempCanvas.height);
+                ctx.drawImage(state.image, frame.x, frame.y, frame.w, frame.h, 0, 0, frame.w, frame.h);
+
+                // Alpha Thresholding 消除半透明杂边
+                const imgData = ctx.getImageData(0,0, tempCanvas.width, tempCanvas.height);
+                const data = imgData.data;
+                for(let i=0; i<data.length; i+=4) {
+                    data[i+3] = data[i+3] < 128 ? 0 : 255;
+                }
+                ctx.putImageData(imgData, 0, 0);
+
+                let frameDelay = baseDelay;
+                if (index === state.frames.length - 1 && state.loopMode === 'delay') {
+                    frameDelay += state.loopDelay;
+                }
+
+                gif.addFrame(ctx, { copy: true, delay: frameDelay });
+            });
+
+            gif.on('progress', p => dom.progress.innerText = Math.round(p*100) + '%');
+            
+            gif.on('finished', blob => {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `sprite-anim-${Date.now()}.gif`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(workerBlobUrl);
+                dom.loadingOverlay.classList.add('hidden');
+                dom.loadingOverlay.classList.remove('flex');
+            });
+
+            gif.render();
+        }
+
+        // --- 4. 交互事件 ---
+
+        window.setLoopMode = (mode) => {
+            state.loopMode = mode;
+            document.querySelectorAll('[data-mode]').forEach(btn => btn.classList.remove('selected-option'));
+            document.querySelector(`[data-mode="${mode}"]`).classList.add('selected-option');
+            
+            if (mode === 'delay') {
+                dom.delayContainer.classList.remove('hidden');
+            } else {
+                dom.delayContainer.classList.add('hidden');
+            }
+            restartAnimation();
+        };
+
+        dom.fileInput.addEventListener('change', e => handleFile(e.target.files[0]));
+        
+        ['dragenter', 'dragover'].forEach(eName => {
+            dom.dropZone.addEventListener(eName, e => { e.preventDefault(); dom.dropZone.classList.add('border-blue-500'); });
+        });
+        ['dragleave', 'drop'].forEach(eName => {
+            dom.dropZone.addEventListener(eName, e => { e.preventDefault(); dom.dropZone.classList.remove('border-blue-500'); });
+        });
+        dom.dropZone.addEventListener('drop', e => handleFile(e.dataTransfer.files[0]));
+
+        [dom.rows, dom.cols].forEach(el => el.addEventListener('input', () => { updateGrid(); restartAnimation(); }));
+        
+        dom.fps.addEventListener('input', e => { 
+            state.fps = parseInt(e.target.value); 
+            dom.fpsVal.innerText = state.fps + " FPS"; 
+        });
+
+        dom.delayInput.addEventListener('change', e => {
+            state.loopDelay = parseInt(e.target.value) || 0;
+            if (state.loopMode === 'delay') restartAnimation();
+        });
+
+        // 播放控制逻辑：处理按钮和遮罩的显隐
+        function updatePlayBtnUI() {
+            const playIcon = document.getElementById('iconPlay');
+            const pauseIcon = document.getElementById('iconPause');
+            const btn = dom.playBtn;
+
+            if (state.isPlaying) {
+                // 播放中：显示暂停图标，默认隐藏按钮（hover显示）
+                playIcon.classList.add('hidden');
+                pauseIcon.classList.remove('hidden');
+                btn.classList.add('opacity-0'); 
+            } else {
+                // 暂停中：显示播放图标，按钮常显
+                playIcon.classList.remove('hidden');
+                pauseIcon.classList.add('hidden');
+                btn.classList.remove('opacity-0');
+            }
+        }
+        
+        const togglePlay = () => {
+            if (!state.isPlaying && state.currentFrame >= state.frames.length -1 && state.loopMode === 'once') {
+                state.currentFrame = 0;
+            }
+            state.isPlaying = !state.isPlaying;
+            updatePlayBtnUI();
+        };
+
+        dom.playBtn.addEventListener('click', (e) => { e.stopPropagation(); togglePlay(); });
+        // 点击整个 Overlay 区域也可以切换播放
+        dom.playOverlay.addEventListener('click', togglePlay);
+        dom.exportBtn.addEventListener('click', exportGif);
+
+        updatePlayBtnUI();
+
+    </script>
+</body>
+</html>
