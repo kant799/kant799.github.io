@@ -3,64 +3,30 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>视频建构编码</title>
+<title>TikTok 视频分类标注工具</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
-  ::-webkit-scrollbar { width: 6px; }
+  * { box-sizing: border-box; }
+  body { overflow: hidden; }
+
+  ::-webkit-scrollbar { width: 5px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
   ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
-  @keyframes pulse-dot {
-    0%, 80%, 100% { transform: scale(0); }
-    40% { transform: scale(1); }
+  .video-row {
+    cursor: pointer; transition: all 0.15s;
+    border-left: 3px solid transparent;
   }
-  .loading-dot {
-    display: inline-block; width: 8px; height: 8px;
-    border-radius: 50%; background: #3b82f6;
-    animation: pulse-dot 1.4s infinite ease-in-out both;
-  }
-  .loading-dot:nth-child(1) { animation-delay: -0.32s; }
-  .loading-dot:nth-child(2) { animation-delay: -0.16s; }
+  .video-row:hover { background: #f1f5f9; }
+  .video-row.active { background: #eff6ff; border-left-color: #3b82f6; }
+  .video-row.done { border-left-color: #22c55e; }
+  .video-row.done.active { background: #eff6ff; border-left-color: #3b82f6; }
 
-  .settings-panel {
-    max-height: 0; overflow: hidden;
-    transition: max-height 0.3s ease-out;
-  }
-  .settings-panel.open {
-    max-height: 2000px; transition: max-height 0.5s ease-in;
-  }
-
-  .toast {
-    animation: toast-in 0.3s ease-out, toast-out 0.3s ease-in 2s forwards;
-  }
-  @keyframes toast-in {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  @keyframes toast-out {
-    from { opacity: 1; } to { opacity: 0; }
-  }
-
-  .result-item {
-    animation: fade-in 0.3s ease-out; animation-fill-mode: both;
-  }
-  @keyframes fade-in {
-    from { opacity: 0; transform: translateX(10px); }
-    to { opacity: 1; transform: translateX(0); }
-  }
-
-  /* 模式切换 Tab */
-  .mode-tab { cursor: pointer; transition: all 0.2s; }
-  .mode-tab.active {
-    color: #3b82f6; border-bottom: 2px solid #3b82f6;
-  }
-
-  /* 选项按钮 */
   .opt-btn {
     cursor: pointer; transition: all 0.15s;
     border: 1.5px solid #e5e7eb; border-radius: 10px;
-    padding: 10px 14px; background: white;
+    padding: 8px 12px; background: white;
   }
   .opt-btn:hover { border-color: #93c5fd; background: #eff6ff; }
   .opt-btn.selected {
@@ -68,173 +34,172 @@
     box-shadow: 0 0 0 1px #3b82f6;
   }
   .opt-btn.selected .opt-num { background: #3b82f6; color: white; }
+
+  .toast {
+    animation: toast-in 0.3s ease-out, toast-out 0.3s ease-in 2s forwards;
+  }
+  @keyframes toast-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes toast-out { from { opacity: 1; } to { opacity: 0; } }
+
+  /* 表格视图 */
+  .data-table { border-collapse: collapse; width: 100%; }
+  .data-table th, .data-table td {
+    border: 1px solid #e5e7eb; padding: 3px 6px;
+    font-size: 11px; text-align: center; white-space: nowrap;
+  }
+  .data-table th {
+    background: #f8fafc; color: #64748b; font-weight: 600;
+  }
+  .data-table td.filled {
+    background: #eff6ff; color: #2563eb; font-weight: 700;
+  }
+  .data-table td.empty {
+    background: #fef2f2; color: #fca5a5;
+  }
 </style>
 </head>
-<body class="bg-gray-50 min-h-screen">
+<body class="bg-gray-50 h-screen flex flex-col">
 
-<!-- 顶部标题栏 -->
-<header class="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between">
+<!-- 顶部工具栏 -->
+<header class="bg-white border-b border-gray-200 px-4 py-2.5 flex items-center justify-between shrink-0 z-20">
   <div class="flex items-center gap-3">
-    <div class="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
-      <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div class="w-7 h-7 bg-blue-500 rounded-lg flex items-center justify-center">
+      <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
       </svg>
     </div>
-    <h1 class="text-lg font-semibold text-gray-800">视频建构编码</h1>
+    <h1 class="text-sm font-semibold text-gray-800">TikTok 视频分类标注工具</h1>
+    <span id="statsBar" class="text-xs text-gray-400 ml-2"></span>
   </div>
-  <button id="settingsToggle" class="text-sm text-gray-500 hover:text-blue-500 flex items-center gap-1 transition-colors">
-    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-    </svg>
-    设置
-  </button>
+  <div class="flex items-center gap-2">
+    <label class="px-3 py-1.5 bg-blue-500 text-white rounded-lg text-xs font-medium hover:bg-blue-600 cursor-pointer transition-colors flex items-center gap-1">
+      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+      导入 CSV
+      <input id="importCsv" type="file" accept=".csv" class="hidden">
+    </label>
+    <button id="exportCsvBtn" class="px-3 py-1.5 bg-green-500 text-white rounded-lg text-xs font-medium hover:bg-green-600 transition-colors flex items-center gap-1 disabled:opacity-40 disabled:cursor-not-allowed" disabled>
+      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+      导出 CSV
+    </button>
+  </div>
 </header>
 
-<!-- 设置面板 -->
-<div id="settingsPanel" class="settings-panel bg-gray-100 border-b border-gray-200">
-  <div class="max-w-6xl mx-auto px-6 py-5">
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-      <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">API Key</label>
-        <div class="relative">
-          <input id="apiKey" type="password" placeholder="输入你的 API Key"
-            class="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
-          <button id="toggleKeyVisibility" class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-            </svg>
-          </button>
-        </div>
-        <p class="text-xs text-gray-400 mt-1">保存在浏览器本地，不会上传</p>
-      </div>
-      <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">API 端点</label>
-        <input id="apiEndpoint" type="text" value="https://api.deepseek.com/chat/completions"
-          class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
-      </div>
-      <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">模型</label>
-        <input id="modelName" type="text" value="deepseek-chat"
-          class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
-      </div>
-    </div>
-    <div class="mt-5">
-      <label class="block text-sm font-medium text-gray-700 mb-1">分类规则（编码类目对照表）</label>
-      <textarea id="rulesEditor" rows="10"
-        class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm font-mono focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-y"></textarea>
-      <div class="flex gap-2 mt-2">
-        <button id="saveRules" class="text-xs px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors">保存规则</button>
-        <button id="resetRules" class="text-xs px-3 py-1 bg-gray-200 text-gray-600 rounded hover:bg-gray-300 transition-colors">恢复默认</button>
-      </div>
-    </div>
+<!-- 空状态 -->
+<div id="emptyState" class="flex-1 flex items-center justify-center">
+  <div class="text-center">
+    <svg class="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+    </svg>
+    <p class="text-gray-500 text-sm mb-2">导入 CSV 文件开始标注</p>
+    <label class="px-5 py-2 bg-blue-500 text-white rounded-lg text-sm font-medium hover:bg-blue-600 cursor-pointer transition-colors inline-flex items-center gap-2">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+      选择 CSV 文件
+      <input id="importCsvEmpty" type="file" accept=".csv" class="hidden">
+    </label>
+    <p class="text-xs text-gray-400 mt-3">支持 UTF-8 编码的 CSV 文件</p>
   </div>
 </div>
 
-<!-- 模式切换 Tab -->
-<div class="bg-white border-b border-gray-200">
-  <div class="max-w-6xl mx-auto px-6 flex gap-6">
-    <button class="mode-tab py-3 text-sm font-medium text-gray-500 active" data-mode="manual">
-      手动标注
-    </button>
-    <button class="mode-tab py-3 text-sm font-medium text-gray-500" data-mode="ai">
-      AI 辅助
-    </button>
-  </div>
-</div>
+<!-- 三栏主布局 -->
+<div id="mainLayout" class="flex-1 hidden" style="height: 0;">
+  <div class="flex h-full">
 
-<!-- ========== 手动标注模式 ========== -->
-<main id="manualMode" class="max-w-6xl mx-auto px-6 py-6">
-  <div class="space-y-6" id="manualForm"></div>
-
-  <!-- 底部操作栏 -->
-  <div class="mt-8 bg-white rounded-xl shadow-sm border border-gray-200 p-4 sticky bottom-4 space-y-3">
-    <!-- 进度指示器 -->
-    <div class="flex items-center gap-2">
-      <span class="text-xs text-gray-500 shrink-0">进度</span>
-      <div id="progressCells" class="flex gap-1 flex-1"></div>
-      <span id="progressCount" class="text-xs text-gray-400 shrink-0">0/9</span>
-    </div>
-    <!-- 实时预览行 -->
-    <div class="flex items-center gap-2">
-      <span class="text-xs text-gray-500 shrink-0">预览</span>
-      <div id="previewRow" class="flex gap-0.5 flex-1 font-mono text-xs"></div>
-    </div>
-    <!-- 按钮区 -->
-    <div class="flex items-center justify-end gap-3 pt-1">
-      <button id="clearManualBtn" class="px-4 py-2 bg-gray-100 text-gray-600 rounded-lg text-sm hover:bg-gray-200 transition-colors">
-        清空重选
-      </button>
-      <button id="copyManualBtn" class="px-5 py-2 bg-green-500 text-white rounded-lg text-sm font-medium hover:bg-green-600 active:bg-green-700 transition-colors flex items-center gap-2">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/>
-        </svg>
-        复制为 Excel 行
-      </button>
-    </div>
-  </div>
-</main>
-
-<!-- ========== AI 辅助模式 ========== -->
-<main id="aiMode" class="max-w-6xl mx-auto px-6 py-6 hidden">
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-    <!-- 左栏：输入 -->
-    <div class="space-y-4">
-      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-        <h2 class="text-sm font-semibold text-gray-700 mb-3">视频内容描述</h2>
-        <textarea id="videoDesc" rows="12" placeholder="在此粘贴视频内容描述..."
-          class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-y"></textarea>
-        <button id="analyzeBtn"
-          class="mt-4 w-full py-2.5 bg-blue-500 text-white rounded-lg font-medium text-sm hover:bg-blue-600 active:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-          </svg>
-          <span id="analyzeText">分析</span>
-        </button>
+    <!-- 左栏：视频列表 -->
+    <div class="w-72 shrink-0 bg-white border-r border-gray-200 flex flex-col">
+      <div class="p-3 border-b border-gray-100">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-medium text-gray-600">视频列表</span>
+          <span id="listProgress" class="text-xs text-gray-400"></span>
+        </div>
+        <div class="mt-2 relative">
+          <input id="searchInput" type="text" placeholder="搜索视频 ID..." class="w-full px-2.5 py-1.5 pl-7 border border-gray-200 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+          <svg class="w-3.5 h-3.5 text-gray-400 absolute left-2.5 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        </div>
+      </div>
+      <div id="videoList" class="flex-1 overflow-y-auto"></div>
+      <div class="p-2 border-t border-gray-100 text-center">
+        <span class="text-[10px] text-gray-400">↑↓ 切换 &nbsp; Enter 保存下一行 &nbsp; Ctrl+S 保存</span>
       </div>
     </div>
-    <!-- 右栏：结果 -->
-    <div class="space-y-4">
-      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-        <h2 class="text-sm font-semibold text-gray-700 mb-3">分类结果</h2>
-        <div id="emptyState" class="text-center py-10 text-gray-400">
-          <svg class="w-12 h-12 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+
+    <!-- 中栏：视频播放器 -->
+    <div class="w-[360px] shrink-0 bg-gray-100 flex flex-col items-center justify-center relative border-r border-gray-200">
+      <div class="w-full h-full flex items-center justify-center">
+        <div id="playerEmpty" class="text-center text-gray-400">
+          <svg class="w-12 h-12 mx-auto mb-2 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
           </svg>
-          <p class="text-sm">输入描述后点击「分析」查看结果</p>
+          <p class="text-xs">选择左侧视频开始播放</p>
         </div>
-        <div id="loadingState" class="hidden text-center py-10">
-          <div class="flex justify-center gap-1.5 mb-3">
-            <span class="loading-dot"></span><span class="loading-dot"></span><span class="loading-dot"></span>
+        <div id="playerContainer" class="hidden w-full h-full relative">
+          <iframe id="tiktokPlayer" class="w-full h-full" allowfullscreen style="border:none;"></iframe>
+          <div id="iframeFallback" class="hidden absolute inset-0 flex flex-col items-center justify-center bg-gray-100">
+            <p class="text-sm text-gray-500 mb-2">视频加载失败</p>
+            <a id="fallbackLink" href="#" target="_blank" class="text-xs text-blue-500 hover:underline flex items-center gap-1">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+              在 TikTok 打开
+            </a>
           </div>
-          <p class="text-sm text-gray-500">正在分析...</p>
         </div>
-        <div id="resultList" class="hidden space-y-2"></div>
-        <div id="reasoningSection" class="hidden mt-4 pt-4 border-t border-gray-100">
-          <p class="text-xs text-gray-500 mb-1">分类依据</p>
-          <p id="reasoningText" class="text-sm text-gray-600 leading-relaxed"></p>
+      </div>
+    </div>
+
+    <!-- 右栏：标注面板 -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+      <!-- 当前视频信息 + 表格视图 -->
+      <div class="bg-white border-b border-gray-200 shrink-0">
+        <!-- 视频链接行 -->
+        <div class="px-4 py-2 flex items-center gap-2">
+          <span id="currentVideoIdx" class="text-xs font-mono text-gray-400"></span>
+          <a id="currentVideoLink" href="#" target="_blank" class="text-xs text-blue-500 hover:underline truncate flex-1"></a>
         </div>
-        <div id="actionBtns" class="hidden mt-4 flex gap-3">
-          <button id="copyAiBtn"
-            class="flex-1 py-2 bg-green-500 text-white rounded-lg text-sm font-medium hover:bg-green-600 active:bg-green-700 transition-colors flex items-center justify-center gap-2">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/>
-            </svg>
-            复制为 Excel 行
+        <!-- 表格视图 -->
+        <div id="tableView" class="px-3 pb-2 overflow-x-auto">
+          <table class="data-table">
+            <thead>
+              <tr id="tableHeader"></tr>
+            </thead>
+            <tbody>
+              <tr id="tableRow"></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 标注区域 -->
+      <div class="flex-1 overflow-y-auto px-4 py-4">
+        <div id="manualForm" class="space-y-4"></div>
+      </div>
+
+      <!-- 底部操作栏 -->
+      <div class="bg-white border-t border-gray-200 px-4 py-3 shrink-0 space-y-2">
+        <div class="flex items-center gap-2">
+          <span class="text-[10px] text-gray-400 shrink-0">进度</span>
+          <div id="progressCells" class="flex gap-0.5 flex-1"></div>
+          <span id="progressCount" class="text-[10px] text-gray-400 shrink-0">0/9</span>
+        </div>
+        <div class="flex items-center justify-between pt-1">
+          <button id="clearManualBtn" class="px-3 py-1.5 bg-gray-100 text-gray-600 rounded-lg text-xs hover:bg-gray-200 transition-colors">
+            清空重选
+          </button>
+          <button id="saveAndNextBtn" class="px-4 py-1.5 bg-green-500 text-white rounded-lg text-xs font-medium hover:bg-green-600 transition-colors flex items-center gap-1.5 disabled:opacity-40" disabled>
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            保存并下一行
           </button>
         </div>
       </div>
     </div>
+
   </div>
-</main>
+</div>
 
 <!-- Toast -->
-<div id="toastContainer" class="fixed bottom-6 right-6 z-50 space-y-2"></div>
+<div id="toastContainer" class="fixed bottom-4 right-4 z-50 space-y-2"></div>
 
 <script>
 // ============================================================
-// 编码类目完整定义（含每个选项的标签和描述）
+// 编码类目完整定义
 // ============================================================
 const CATEGORY_GROUPS = [
   {
@@ -268,28 +233,28 @@ const CATEGORY_GROUPS = [
       {
         key: '2.1', name: '叙事视角',
         options: [
-          { value: 1, label: '宏观国家叙事', desc: '强调国家层面的发展、成就与集体主义精神，语言正式' },
-          { value: 2, label: '微观个体故事', desc: '通过具体个人的经历与情感折射宏大主题，增强人情味' },
-          { value: 3, label: '事实信息导向', desc: '以客观、中立口吻快速陈述新闻事件，侧重"何事"与"何时"' },
-          { value: 4, label: '冲突/争议框架', desc: '呈现不同观点或对立立场，常见于国际议题的辩论' },
+          { value: 1, label: '宏观国家叙事', desc: '强调国家层面的发展、成就与集体主义精神' },
+          { value: 2, label: '微观个体故事', desc: '通过具体个人的经历与情感折射宏大主题' },
+          { value: 3, label: '事实信息导向', desc: '以客观、中立口吻快速陈述新闻事件' },
+          { value: 4, label: '冲突/争议框架', desc: '呈现不同观点或对立立场' },
         ]
       },
       {
         key: '2.2', name: '情感基调',
         options: [
-          { value: 1, label: '自豪/成就导向', desc: '突出中国的进步、强大与成功，激发民族自豪感' },
-          { value: 2, label: '同情/关怀导向', desc: '展现对弱势群体、受灾民众或动物的关怀，引发共情' },
-          { value: 3, label: '惊奇/趣味导向', desc: '展示奇特景观、高科技或有趣的文化现象，以吸引观看' },
+          { value: 1, label: '自豪/成就导向', desc: '突出进步、强大与成功，激发民族自豪感' },
+          { value: 2, label: '同情/关怀导向', desc: '展现对弱势群体、受灾民众或动物的关怀' },
+          { value: 3, label: '惊奇/趣味导向', desc: '展示奇特景观、高科技或有趣的文化现象' },
           { value: 4, label: '中立/客观', desc: '无明显情感色彩，平静陈述' },
         ]
       },
       {
         key: '2.3', name: '信源构成',
         options: [
-          { value: 1, label: '官方信源主导', desc: '信息主要来自政府官员、官方发布会或官方文件' },
-          { value: 2, label: '专家信源主导', desc: '援引学者、分析师、工程师等专业人士的观点' },
-          { value: 3, label: '民众信源主导', desc: '以普通民众、现场目击者或用户的经历和看法为核心' },
-          { value: 4, label: '媒体自身信源', desc: '由CGTN记者拍摄、主持人出镜报道或发表评论' },
+          { value: 1, label: '官方信源主导', desc: '政府官员、官方发布会或官方文件' },
+          { value: 2, label: '专家信源主导', desc: '学者、分析师、工程师等专业人士观点' },
+          { value: 3, label: '民众信源主导', desc: '普通民众、现场目击者或用户的经历' },
+          { value: 4, label: '媒体自身信源', desc: 'CGTN记者拍摄、主持人出镜报道或评论' },
         ]
       },
     ]
@@ -301,33 +266,33 @@ const CATEGORY_GROUPS = [
         key: '3.1', name: '视觉呈现模式',
         options: [
           { value: 1, label: '动态影像主导', desc: '以新闻现场、实景拍摄的动态画面为主' },
-          { value: 2, label: '图文卡点', desc: '将关键信息以文字、图片与音乐节奏结合，快速切换' },
-          { value: 3, label: '数据可视化/动画', desc: '使用信息图、动画、CG特效来解释复杂概念或数据' },
-          { value: 4, label: '人物出镜叙述', desc: '主持人、记者或受访者直面镜头进行讲述' },
+          { value: 2, label: '图文卡点', desc: '文字、图片与音乐节奏结合，快速切换' },
+          { value: 3, label: '数据可视化/动画', desc: '信息图、动画、CG特效来解释复杂概念' },
+          { value: 4, label: '人物出镜叙述', desc: '主持人、记者或受访者直面镜头讲述' },
         ]
       },
       {
         key: '3.2', name: '语言与字幕策略',
         options: [
-          { value: 1, label: '纯目标语言（无字幕）', desc: '如CGTN Europe使用纯英文配音且无字幕' },
-          { value: 2, label: '配音+目标语言字幕', desc: '强化信息理解，适应无声播放环境' },
-          { value: 3, label: '混合语言', desc: '英文解说中保留中文采访原声，并配以多语字幕' },
+          { value: 1, label: '纯目标语言', desc: '纯英文配音且无字幕' },
+          { value: 2, label: '配音+字幕', desc: '目标语言配音+目标语言字幕' },
+          { value: 3, label: '混合语言', desc: '英文解说保留中文原声，配多语字幕' },
           { value: 4, label: '无语言讲解', desc: '纯字幕或无字幕' },
         ]
       },
       {
-        key: '3.3', name: '背景音乐策略',
+        key: '3.3', name: '背景音乐',
         options: [
           { value: 1, label: '无背景音乐', desc: '只有原声、环境音或配音解说' },
-          { value: 2, label: '有背景音乐', desc: '有明显的音乐轨道作为背景声存在' },
+          { value: 2, label: '有背景音乐', desc: '有明显的音乐轨道作为背景' },
         ]
       },
       {
         key: '3.4', name: '技术应用',
         options: [
-          { value: 1, label: '平台热门音频', desc: '直接使用TikTok流行音乐或音效作为背景' },
-          { value: 2, label: 'AR/特效滤镜', desc: '运用增强现实或创意滤镜提升视觉吸引力' },
-          { value: 3, label: '短视频剪辑手法', desc: '快速切换、缩放、表情包插入等，创造强节奏感' },
+          { value: 1, label: '平台热门音频', desc: '使用TikTok流行音乐或音效' },
+          { value: 2, label: 'AR/特效滤镜', desc: '增强现实或创意滤镜' },
+          { value: 3, label: '短视频剪辑手法', desc: '快速切换、缩放、表情包等' },
           { value: 4, label: '无特殊技术应用', desc: '未使用上述特殊技术手段' },
         ]
       },
@@ -335,119 +300,330 @@ const CATEGORY_GROUPS = [
   },
 ];
 
-// 扁平化的类目列表（用于复制、Prompt 等）
 const CATEGORIES = [];
 CATEGORY_GROUPS.forEach(g => g.items.forEach(item => CATEGORIES.push(item)));
+const CODE_COLS = ['1.1','1.2','2.1','2.2','2.3','3.1','3.2','3.3','3.4'];
+const STAT_COLS = ['save','cmt','like','play','share'];
 
 // ============================================================
-// 默认分类规则（AI 模式用）
+// 全局状态
 // ============================================================
-const DEFAULT_RULES = `## 1. 内容主题
-### 1.1 核心议题
-1 = 政治外交：国家领导人活动、国际关系、政策宣示、主权论述等
-2 = 经济发展：中国/外国经济成就、国际贸易、基础设施建设等
-3 = 社会/文化事件：普通民众的日常生活、社会现象、文化遗产、节目庆典、美食旅游等
-4 = 科学技术：航天工程、人工智能、5G通信、医疗突破等科技成就报道
-5 = 自然生态："美丽中国"风光、野生动物保护、环保议题、气候变化等
-6 = 体育娱乐：国际体育赛事、中国体育明星、影视文化作品、中外娱乐交流
-### 1.2 地理指向
-1 = 中国中心：内容完全围绕中国国内事件或成就展开。
-2 = 中外关联：内容涉及中国与特定国家或地区的互动、合作或比较。
-3 = 目标区域本土议题：内容聚焦于账号目标区域的本地事件或议题，且不涉及中国。
-4 = 全球议题：内容聚焦于无明确中国关联的全球性事件或议题（如国际冲突、全球气候）。
-## 2. 叙事框架
-### 2.1 叙事视角
-1 = 宏观国家叙事：强调国家层面的发展、成就与集体主义精神，语言正式。
-2 = 微观个体故事：通过具体个人（如科学家、农民、艺术家）的经历与情感来折射宏大主题，增强人情味。
-3 = 事实信息导向：以客观、中立的口吻快速陈述新闻事件，侧重于"何事"与"何时"。
-4 = 冲突/争议框架：呈现不同观点或对立立场，常见于国际议题的辩论。
-### 2.2 情感基调
-1 = 自豪/成就导向：突出中国的进步、强大与成功，激发民族自豪感。
-2 = 同情/关怀导向：展现对弱势群体、受灾民众或动物的关怀，引发共情。
-3 = 惊奇/趣味导向：展示奇特景观、高科技或有趣的文化现象，以吸引观看。
-4 = 中立/客观：无明显情感色彩，平静陈述。
-### 2.3 信源构成
-1 = 官方信源主导：信息主要来自政府官员、官方发布会或官方文件。
-2 = 专家信源主导：援引学者、分析师、工程师等专业人士的观点。
-3 = 民众信源主导：以普通民众、现场目击者或用户的经历和看法为核心。
-4 = 媒体自身信源：由CGTN记者拍摄、主持人出镜报道或发表评论。
-## 3. 形式特征
-### 3.1 视觉呈现模式
-1 = 动态影像主导：以新闻现场、实景拍摄的动态画面为主。
-2 = 图文卡点：将关键信息以文字、图片形式与音乐节奏结合，快速切换。
-3 = 数据可视化/动画：使用信息图、动画、CG特效来解释复杂概念或数据。
-4 = 人物出镜叙述：主持人、记者或受访者直面镜头进行讲述。
-### 3.2 语言与字幕策略
-1 = 纯目标语言（无字幕）：如CGTN Europe账号使用纯英文配音且无字幕。
-2 = 目标语言配音+目标语言字幕：强化信息理解，适应无声播放环境。
-3 = 混合语言：如英文解说中保留中文采访原声，并配以多语字幕，营造真实感与国际化语境。
-4 = 无语言讲解：纯字幕或无字幕
-### 3.3 背景音乐策略
-1 = 无背景音乐：视频中没有任何音乐轨道，只有原声、环境音或者配音解说。
-2 = 有背景音乐：视频中有明显的音乐轨道。
-### 3.4 技术应用
-1 = 使用平台热门音频：直接使用TikTok流行音乐或音效作为背景。
-2 = 使用AR/特效滤镜：运用增强现实或创意滤镜提升视觉吸引力。
-3 = 运用典型短视频剪辑手法：如快速切换、缩放、表情包插入等，创造强节奏感。
-4 = 无特殊技术应用`;
+const $ = id => document.getElementById(id);
+
+let csvData = [];
+let csvHeaders = [];
+let currentIdx = -1;
+const manualSelections = {};
 
 // ============================================================
-// DOM 引用
+// DOM
 // ============================================================
-const $ = (id) => document.getElementById(id);
-
-const settingsToggle   = $('settingsToggle');
-const settingsPanel    = $('settingsPanel');
-const apiKeyInput      = $('apiKey');
-const toggleKeyVisBtn  = $('toggleKeyVisibility');
-const apiEndpointInput = $('apiEndpoint');
-const modelNameInput   = $('modelName');
-const rulesEditor      = $('rulesEditor');
-const saveRulesBtn     = $('saveRules');
-const resetRulesBtn    = $('resetRules');
-const videoDescInput   = $('videoDesc');
-const analyzeBtn       = $('analyzeBtn');
-const analyzeText      = $('analyzeText');
-const emptyState       = $('emptyState');
-const loadingState     = $('loadingState');
-const resultList       = $('resultList');
-const reasoningSection = $('reasoningSection');
-const reasoningText    = $('reasoningText');
-const actionBtns       = $('actionBtns');
-const copyAiBtn        = $('copyAiBtn');
-const copyManualBtn    = $('copyManualBtn');
-const clearManualBtn   = $('clearManualBtn');
 const toastContainer   = $('toastContainer');
-const manualMode       = $('manualMode');
-const aiMode           = $('aiMode');
+const emptyState       = $('emptyState');
+const mainLayout       = $('mainLayout');
+const videoList        = $('videoList');
+const listProgress     = $('listProgress');
+const searchInput      = $('searchInput');
+const statsBar         = $('statsBar');
+const currentVideoIdx  = $('currentVideoIdx');
+const currentVideoLink = $('currentVideoLink');
+const playerEmpty      = $('playerEmpty');
+const playerContainer  = $('playerContainer');
+const tiktokPlayer     = $('tiktokPlayer');
+const iframeFallback   = $('iframeFallback');
+const fallbackLink     = $('fallbackLink');
 const manualForm       = $('manualForm');
 const progressCells    = $('progressCells');
 const progressCount    = $('progressCount');
-const previewRow       = $('previewRow');
+const clearManualBtn   = $('clearManualBtn');
+const saveAndNextBtn   = $('saveAndNextBtn');
+const exportCsvBtn     = $('exportCsvBtn');
+const tableHeader      = $('tableHeader');
+const tableRow         = $('tableRow');
 
 // ============================================================
-// 手动标注：当前选中状态
+// CSV 解析
 // ============================================================
-const manualSelections = {};
+function extractVideoId(url) {
+  const m = url.match(/\/video\/(\d+)/);
+  return m ? m[1] : null;
+}
 
+function parseCSVLine(line) {
+  const result = [];
+  let current = '';
+  let inQuotes = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (ch === '"') { inQuotes = !inQuotes; }
+    else if (ch === ',' && !inQuotes) { result.push(current); current = ''; }
+    else { current += ch; }
+  }
+  result.push(current);
+  return result;
+}
+
+function parseCSV(text) {
+  const lines = [];
+  let current = '';
+  let inQuotes = false;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (ch === '"') { inQuotes = !inQuotes; }
+    else if (ch === '\n' || ch === '\r') {
+      if (ch === '\r' && text[i + 1] === '\n') i++;
+      if (current.trim()) lines.push(current);
+      current = ''; inQuotes = false;
+    } else { current += ch; }
+  }
+  if (current.trim()) lines.push(current);
+
+  if (lines.length < 2) throw new Error('CSV 文件至少需要标题行和一行数据');
+
+  const headers = parseCSVLine(lines[0]);
+  const colMap = {};
+  headers.forEach((h, i) => { colMap[h.trim()] = i; });
+  const urlCol = colMap['视频ID'] ?? colMap['视频id'] ?? colMap['video_id'] ?? 0;
+
+  const data = [];
+  for (let i = 1; i < lines.length; i++) {
+    const fields = parseCSVLine(lines[i]);
+    const url = (fields[urlCol] || '').trim();
+    if (!url) continue;
+
+    const codes = {};
+    CODE_COLS.forEach(col => {
+      const idx = colMap[col];
+      if (idx !== undefined && fields[idx] !== undefined && fields[idx].trim() !== '') {
+        codes[col] = parseInt(fields[idx].trim(), 10);
+      }
+    });
+
+    const stats = {};
+    STAT_COLS.forEach(col => {
+      const idx = colMap[col];
+      if (idx !== undefined && fields[idx] !== undefined) {
+        stats[col] = fields[idx].trim();
+      }
+    });
+
+    data.push({ url, codes, stats, fields });
+  }
+  return { headers, data };
+}
+
+// ============================================================
+// CSV 导入 / 导出
+// ============================================================
+function handleCSVImport(file) {
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const { headers, data } = parseCSV(e.target.result);
+      csvData = data;
+      csvHeaders = headers;
+      currentIdx = -1;
+      showToast(`成功导入 ${data.length} 条视频记录`, 'success');
+      emptyState.classList.add('hidden');
+      mainLayout.classList.remove('hidden');
+      exportCsvBtn.disabled = false;
+      renderVideoList();
+      updateStatsBar();
+      if (data.length > 0) selectVideo(0);
+    } catch (err) {
+      showToast('CSV 解析失败: ' + err.message, 'error');
+    }
+  };
+  reader.readAsText(file, 'UTF-8');
+}
+
+function exportCSV() {
+  if (csvData.length === 0) return;
+  const lines = [csvHeaders.join(',')];
+  csvData.forEach(row => {
+    const fields = [...(row.fields || [])];
+    CODE_COLS.forEach(col => {
+      const idx = csvHeaders.indexOf(col);
+      if (idx !== -1) fields[idx] = row.codes[col] !== undefined ? String(row.codes[col]) : '';
+    });
+    lines.push(fields.join(','));
+  });
+  const blob = new Blob(['\uFEFF' + lines.join('\n')], { type: 'text/csv;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `标注结果_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  showToast('CSV 已导出', 'success');
+}
+
+// ============================================================
+// 表格视图
+// ============================================================
+function renderTableView() {
+  if (currentIdx < 0) return;
+  const row = csvData[currentIdx];
+
+  // 表头：编码列 + 互动数据列
+  tableHeader.innerHTML = CODE_COLS.map(col =>
+    `<th>${col}</th>`
+  ).join('') + STAT_COLS.map(col =>
+    `<th>${col}</th>`
+  ).join('');
+
+  // 数据行
+  let cells = CODE_COLS.map(col => {
+    const val = row.codes[col];
+    if (val !== undefined) {
+      return `<td class="filled">${val}</td>`;
+    }
+    return `<td class="empty">-</td>`;
+  }).join('');
+
+  cells += STAT_COLS.map(col => {
+    return `<td style="color:#94a3b8">${row.stats[col] || '0'}</td>`;
+  }).join('');
+
+  tableRow.innerHTML = cells;
+}
+
+// ============================================================
+// 视频列表
+// ============================================================
+function renderVideoList(filter = '') {
+  videoList.innerHTML = '';
+  const lower = filter.toLowerCase();
+
+  csvData.forEach((row, idx) => {
+    const vid = extractVideoId(row.url) || '';
+    if (lower && !vid.includes(lower) && !row.url.toLowerCase().includes(lower)) return;
+
+    const isDone = CODE_COLS.every(col => row.codes[col] !== undefined);
+    const isActive = idx === currentIdx;
+
+    const div = document.createElement('div');
+    div.className = `video-row px-3 py-2 border-b border-gray-50 ${isActive ? 'active' : ''} ${isDone ? 'done' : ''}`;
+    div.dataset.idx = idx;
+    div.innerHTML = `
+      <div class="flex items-center gap-2">
+        <span class="w-5 h-5 rounded-full flex items-center justify-center shrink-0 text-[10px] font-medium ${isDone ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-400'}">
+          ${isDone ? '✓' : idx + 1}
+        </span>
+        <div class="min-w-0 flex-1">
+          <div class="text-[11px] text-gray-600 truncate font-mono">${vid}</div>
+          <div class="text-[10px] text-gray-400 mt-0.5">
+            ${row.stats.play ? '▶ ' + Number(row.stats.play).toLocaleString() : ''}
+            ${row.stats.like ? ' ♥ ' + Number(row.stats.like).toLocaleString() : ''}
+          </div>
+        </div>
+      </div>`;
+    div.addEventListener('click', () => selectVideo(idx));
+    videoList.appendChild(div);
+  });
+
+  const doneCount = csvData.filter(r => CODE_COLS.every(col => r.codes[col] !== undefined)).length;
+  listProgress.textContent = `${doneCount}/${csvData.length}`;
+}
+
+function updateStatsBar() {
+  const done = csvData.filter(r => CODE_COLS.every(col => r.codes[col] !== undefined)).length;
+  statsBar.textContent = `共 ${csvData.length} 条 · 已标注 ${done} 条`;
+}
+
+// ============================================================
+// 选择视频
+// ============================================================
+function selectVideo(idx) {
+  if (currentIdx >= 0) saveCurrentAnnotations();
+
+  currentIdx = idx;
+  const row = csvData[idx];
+  const vid = extractVideoId(row.url) || '';
+
+  // 列表高亮
+  videoList.querySelectorAll('.video-row').forEach(el => {
+    el.classList.toggle('active', parseInt(el.dataset.idx) === idx);
+  });
+  const activeRow = videoList.querySelector(`.video-row[data-idx="${idx}"]`);
+  if (activeRow) activeRow.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+
+  // 顶栏
+  currentVideoIdx.textContent = `#${idx + 1}`;
+  currentVideoLink.href = row.url;
+  currentVideoLink.textContent = row.url;
+
+  // 播放器
+  if (vid) {
+    playerEmpty.classList.add('hidden');
+    playerContainer.classList.remove('hidden');
+    iframeFallback.classList.add('hidden');
+    tiktokPlayer.src = `https://www.tiktok.com/embed/v2/${vid}`;
+    let loaded = false;
+    tiktokPlayer.onload = () => { loaded = true; };
+    setTimeout(() => {
+      if (!loaded) {
+        iframeFallback.classList.remove('hidden');
+        fallbackLink.href = row.url;
+      }
+    }, 8000);
+  }
+
+  // 表格视图
+  renderTableView();
+
+  // 加载标注
+  loadAnnotations(row);
+}
+
+// ============================================================
+// 标注：加载 / 保存
+// ============================================================
+function loadAnnotations(row) {
+  Object.keys(manualSelections).forEach(k => delete manualSelections[k]);
+  manualForm.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('selected'));
+
+  CODE_COLS.forEach(col => {
+    if (row.codes[col] !== undefined) manualSelections[col] = row.codes[col];
+  });
+
+  Object.entries(manualSelections).forEach(([key, val]) => {
+    const btn = manualForm.querySelector(`.opt-btn[data-key="${key}"][data-value="${val}"]`);
+    if (btn) btn.classList.add('selected');
+  });
+
+  updateProgress();
+}
+
+function saveCurrentAnnotations() {
+  if (currentIdx < 0) return;
+  const row = csvData[currentIdx];
+  CODE_COLS.forEach(col => {
+    if (manualSelections[col] !== undefined) row.codes[col] = manualSelections[col];
+  });
+  renderVideoList(searchInput.value.trim());
+  updateStatsBar();
+  renderTableView();
+}
+
+// ============================================================
+// 标注表单
+// ============================================================
 function renderManualForm() {
   manualForm.innerHTML = '';
-
   CATEGORY_GROUPS.forEach(group => {
     const section = document.createElement('div');
-    section.className = 'bg-white rounded-xl shadow-sm border border-gray-200 p-5';
-    section.innerHTML = `<h3 class="text-sm font-semibold text-gray-800 mb-4">${group.group}</h3>`;
+    section.className = 'bg-white rounded-xl shadow-sm border border-gray-200 p-4';
+    section.innerHTML = `<h3 class="text-xs font-semibold text-gray-800 mb-3">${group.group}</h3>`;
 
     group.items.forEach(cat => {
       const catDiv = document.createElement('div');
-      catDiv.className = 'mb-5 last:mb-0';
-      catDiv.innerHTML = `<div class="flex items-center gap-2 mb-3">
-        <span class="text-xs font-mono bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded">${cat.key}</span>
-        <span class="text-sm font-medium text-gray-700">${cat.name}</span>
+      catDiv.className = 'mb-4 last:mb-0';
+      catDiv.innerHTML = `<div class="flex items-center gap-2 mb-2">
+        <span class="text-[10px] font-mono bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded">${cat.key}</span>
+        <span class="text-xs font-medium text-gray-700">${cat.name}</span>
       </div>`;
 
       const btnGrid = document.createElement('div');
-      btnGrid.className = 'grid gap-2 ' + (cat.options.length <= 4 ? 'grid-cols-2' : 'grid-cols-2 md:grid-cols-3');
+      btnGrid.className = 'grid gap-1.5 ' + (cat.options.length <= 4 ? 'grid-cols-2' : 'grid-cols-2 md:grid-cols-3');
 
       cat.options.forEach(opt => {
         const btn = document.createElement('button');
@@ -456,29 +632,25 @@ function renderManualForm() {
         btn.dataset.key = cat.key;
         btn.dataset.value = opt.value;
         btn.innerHTML = `
-          <div class="flex items-start gap-2.5">
-            <span class="opt-num inline-flex items-center justify-center w-6 h-6 rounded-md bg-gray-100 text-xs font-bold text-gray-500 shrink-0 mt-0.5">${opt.value}</span>
+          <div class="flex items-start gap-2">
+            <span class="opt-num inline-flex items-center justify-center w-5 h-5 rounded-md bg-gray-100 text-[10px] font-bold text-gray-500 shrink-0 mt-0.5">${opt.value}</span>
             <div class="min-w-0">
-              <div class="text-sm font-medium text-gray-800">${opt.label}</div>
-              <div class="text-xs text-gray-400 mt-0.5 leading-relaxed">${opt.desc}</div>
+              <div class="text-xs font-medium text-gray-800">${opt.label}</div>
+              <div class="text-[10px] text-gray-400 mt-0.5 leading-relaxed">${opt.desc}</div>
             </div>
           </div>`;
-
         btn.addEventListener('click', () => {
-          // 同一类目内取消其他选中
           btnGrid.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('selected'));
           btn.classList.add('selected');
           manualSelections[cat.key] = opt.value;
           updateProgress();
         });
-
         btnGrid.appendChild(btn);
       });
 
       catDiv.appendChild(btnGrid);
       section.appendChild(catDiv);
     });
-
     manualForm.appendChild(section);
   });
 }
@@ -487,277 +659,106 @@ function updateProgress() {
   const total = CATEGORIES.length;
   const done = Object.keys(manualSelections).length;
   progressCount.textContent = `${done}/${total}`;
+  saveAndNextBtn.disabled = done < total;
 
-  // 进度单元格
   progressCells.innerHTML = CATEGORIES.map(cat => {
     const val = manualSelections[cat.key];
     const filled = val !== undefined;
-    return `<div class="flex-1 h-2 rounded-full transition-colors duration-200 ${filled ? 'bg-blue-500' : 'bg-gray-200'}"
+    return `<div class="flex-1 h-1.5 rounded-full transition-colors duration-200 ${filled ? 'bg-blue-500' : 'bg-gray-200'}"
                 title="${cat.key} ${cat.name}${filled ? ' = ' + val : '（未选）'}"></div>`;
   }).join('');
 
-  // 实时预览行
-  previewRow.innerHTML = CATEGORIES.map(cat => {
-    const val = manualSelections[cat.key];
-    const filled = val !== undefined;
-    return `<span class="inline-block px-1.5 py-0.5 rounded ${filled ? 'bg-blue-50 text-blue-600' : 'bg-gray-50 text-gray-300'}" title="${cat.key} ${cat.name}">${filled ? val : '-'}</span>`;
-  }).join('<span class="text-gray-300 px-px">│</span>');
+  // 同步更新表格视图
+  if (currentIdx >= 0) {
+    const row = csvData[currentIdx];
+    // 临时合并 manualSelections 到 row 用于渲染
+    const mergedCodes = { ...row.codes, ...manualSelections };
+    CODE_COLS.forEach((col, i) => {
+      const td = tableRow.children[i];
+      if (!td) return;
+      const val = mergedCodes[col];
+      if (val !== undefined) {
+        td.className = 'filled';
+        td.textContent = val;
+      } else {
+        td.className = 'empty';
+        td.textContent = '-';
+      }
+    });
+  }
 }
 
-// 清空
+// ============================================================
+// 操作按钮
+// ============================================================
 clearManualBtn.addEventListener('click', () => {
   Object.keys(manualSelections).forEach(k => delete manualSelections[k]);
   manualForm.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('selected'));
   updateProgress();
-  showToast('已清空所有选择', 'info');
+  showToast('已清空当前选择', 'info');
 });
 
-// 复制
-copyManualBtn.addEventListener('click', () => {
+saveAndNextBtn.addEventListener('click', () => {
   const total = CATEGORIES.length;
   const done = Object.keys(manualSelections).length;
   if (done < total) {
-    const missing = CATEGORIES.filter(c => !manualSelections[c.key]).map(c => `${c.key} ${c.name}`);
+    const missing = CATEGORIES.filter(c => !manualSelections[c.key]).map(c => c.key);
     showToast(`还有 ${total - done} 项未选择：${missing.join('、')}`, 'error');
     return;
   }
-  const row = CATEGORIES.map(c => manualSelections[c.key]).join('\t');
-  copyToClipboard(row);
-});
-
-function copyToClipboard(text) {
-  navigator.clipboard.writeText(text).then(() => {
-    showToast('已复制，可直接粘贴到 Excel', 'success');
-  }).catch(() => {
-    const ta = document.createElement('textarea');
-    ta.value = text;
-    document.body.appendChild(ta);
-    ta.select();
-    document.execCommand('copy');
-    document.body.removeChild(ta);
-    showToast('已复制到剪贴板', 'success');
-  });
-}
-
-// ============================================================
-// 模式切换
-// ============================================================
-document.querySelectorAll('.mode-tab').forEach(tab => {
-  tab.addEventListener('click', () => {
-    document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
-
-    const mode = tab.dataset.mode;
-    if (mode === 'manual') {
-      manualMode.classList.remove('hidden');
-      aiMode.classList.add('hidden');
-    } else {
-      manualMode.classList.add('hidden');
-      aiMode.classList.remove('hidden');
-    }
-  });
-});
-
-// ============================================================
-// 初始化
-// ============================================================
-function init() {
-  // 渲染手动标注表单
-  renderManualForm();
-
-  // 加载设置
-  const savedKey      = localStorage.getItem('tiktok_api_key') || '';
-  const savedEndpoint = localStorage.getItem('tiktok_api_endpoint') || 'https://api.deepseek.com/chat/completions';
-  const savedModel    = localStorage.getItem('tiktok_model') || 'deepseek-chat';
-  const savedRules    = localStorage.getItem('tiktok_rules') || DEFAULT_RULES;
-
-  apiKeyInput.value      = savedKey;
-  apiEndpointInput.value = savedEndpoint;
-  modelNameInput.value   = savedModel;
-  rulesEditor.value      = savedRules;
-
-  apiKeyInput.addEventListener('input', () => localStorage.setItem('tiktok_api_key', apiKeyInput.value.trim()));
-  apiEndpointInput.addEventListener('input', () => localStorage.setItem('tiktok_api_endpoint', apiEndpointInput.value.trim()));
-  modelNameInput.addEventListener('input', () => localStorage.setItem('tiktok_model', modelNameInput.value.trim()));
-}
-
-// ============================================================
-// 设置面板
-// ============================================================
-settingsToggle.addEventListener('click', () => settingsPanel.classList.toggle('open'));
-toggleKeyVisBtn.addEventListener('click', () => {
-  apiKeyInput.type = apiKeyInput.type === 'password' ? 'text' : 'password';
-});
-saveRulesBtn.addEventListener('click', () => {
-  localStorage.setItem('tiktok_rules', rulesEditor.value);
-  showToast('分类规则已保存', 'success');
-});
-resetRulesBtn.addEventListener('click', () => {
-  if (confirm('确定恢复默认分类规则？')) {
-    rulesEditor.value = DEFAULT_RULES;
-    localStorage.setItem('tiktok_rules', DEFAULT_RULES);
-    showToast('已恢复默认规则', 'success');
-  }
-});
-
-// ============================================================
-// AI 辅助模式：Prompt / 调用 / 结果
-// ============================================================
-function buildPrompt(description) {
-  const rules = rulesEditor.value;
-  const catList = CATEGORIES.map(c => `${c.key} ${c.name}（1-${c.options.length}）`).join('\n');
-
-  const systemPrompt = `你是一个视频内容分类助手。你需要根据用户提供的视频内容描述，按照分类规则对视频在每个二级类目上进行分类标注。
-
-## 分类规则
-${rules}
-
-## 二级类目列表
-${catList}
-
-## 输出要求
-请严格以 JSON 格式输出，不要包含任何其他文字。JSON 结构如下：
-{
-  "categories": {
-    "1.1": <编码值>,
-    "1.2": <编码值>,
-    "2.1": <编码值>,
-    "2.2": <编码值>,
-    "2.3": <编码值>,
-    "3.1": <编码值>,
-    "3.2": <编码值>,
-    "3.3": <编码值>,
-    "3.4": <编码值>
-  },
-  "reasoning": "<简要说明分类依据>"
-}`;
-
-  return { systemPrompt, userMessage: `请对以下视频内容进行分类：\n\n${description}` };
-}
-
-async function callLLM(systemPrompt, userMessage) {
-  const apiKey   = apiKeyInput.value.trim();
-  const endpoint = apiEndpointInput.value.trim();
-  const model    = modelNameInput.value.trim();
-  if (!apiKey) throw new Error('请先在设置中填写 API Key');
-
-  const response = await fetch(endpoint, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
-    body: JSON.stringify({
-      model,
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userMessage },
-      ],
-      temperature: 0.3,
-      max_tokens: 2048,
-    }),
-  });
-
-  if (!response.ok) {
-    const errBody = await response.text();
-    throw new Error(`API 请求失败 (${response.status}): ${errBody}`);
-  }
-
-  const data = await response.json();
-  const content = data.choices?.[0]?.message?.content;
-  if (!content) throw new Error('API 返回内容为空');
-  return parseLLMResponse(content);
-}
-
-function parseLLMResponse(raw) {
-  let jsonStr = raw.trim();
-  const m = jsonStr.match(/```(?:json)?\s*([\s\S]*?)```/);
-  if (m) jsonStr = m[1].trim();
-  try {
-    const parsed = JSON.parse(jsonStr);
-    if (!parsed.categories) throw new Error('缺少 categories 字段');
-    return parsed;
-  } catch (e) {
-    throw new Error(`解析 LLM 输出失败: ${e.message}\n\n原始输出:\n${raw}`);
-  }
-}
-
-let currentResults = null;
-
-function renderResults(data) {
-  currentResults = data;
-  resultList.innerHTML = '';
-
-  CATEGORIES.forEach((cat, idx) => {
-    const value = data.categories[cat.key] ?? '';
-    const item = document.createElement('div');
-    item.className = 'result-item flex items-center gap-3 py-2 px-3 rounded-lg hover:bg-gray-50 transition-colors';
-    item.style.animationDelay = `${idx * 50}ms`;
-    item.innerHTML = `
-      <span class="text-xs font-mono text-gray-400 w-8 shrink-0">${cat.key}</span>
-      <span class="text-sm text-gray-700 flex-1">${cat.name}</span>
-      <select data-key="${cat.key}" class="px-2 py-1 border border-gray-200 rounded text-sm text-center w-16 focus:ring-2 focus:ring-blue-500 outline-none">
-        <option value="">-</option>
-        ${cat.options.map(o => `<option value="${o.value}"${o.value == value ? ' selected' : ''}>${o.value}</option>`).join('')}
-      </select>`;
-    resultList.appendChild(item);
-  });
-
-  resultList.querySelectorAll('select').forEach(sel => {
-    sel.addEventListener('change', () => { currentResults.categories[sel.dataset.key] = parseInt(sel.value, 10); });
-  });
-
-  if (data.reasoning) {
-    reasoningText.textContent = data.reasoning;
-    reasoningSection.classList.remove('hidden');
+  saveCurrentAnnotations();
+  showToast('已保存', 'success');
+  const nextIdx = findNextUnannotated(currentIdx + 1);
+  if (nextIdx >= 0) {
+    selectVideo(nextIdx);
   } else {
-    reasoningSection.classList.add('hidden');
+    showToast('全部标注完成！', 'success');
   }
+});
 
-  emptyState.classList.add('hidden');
-  loadingState.classList.add('hidden');
-  resultList.classList.remove('hidden');
-  actionBtns.classList.remove('hidden');
+function findNextUnannotated(startIdx) {
+  for (let i = startIdx; i < csvData.length; i++) {
+    if (!CODE_COLS.every(col => csvData[i].codes[col] !== undefined)) return i;
+  }
+  for (let i = 0; i < startIdx; i++) {
+    if (!CODE_COLS.every(col => csvData[i].codes[col] !== undefined)) return i;
+  }
+  return -1;
 }
 
-analyzeBtn.addEventListener('click', handleAnalyze);
+// ============================================================
+// 键盘快捷键
+// ============================================================
 document.addEventListener('keydown', (e) => {
-  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter' && !aiMode.classList.contains('hidden')) {
+  if (mainLayout.classList.contains('hidden')) return;
+  if (e.key === 'ArrowUp' && currentIdx > 0) {
+    e.preventDefault(); selectVideo(currentIdx - 1);
+  }
+  if (e.key === 'ArrowDown' && currentIdx < csvData.length - 1) {
+    e.preventDefault(); selectVideo(currentIdx + 1);
+  }
+  if (e.key === 'Enter' && !e.ctrlKey && !e.metaKey &&
+      document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
+    e.preventDefault(); saveAndNextBtn.click();
+  }
+  if ((e.ctrlKey || e.metaKey) && e.key === 's') {
     e.preventDefault();
-    handleAnalyze();
+    saveCurrentAnnotations();
+    showToast('已保存当前标注', 'success');
   }
 });
 
-async function handleAnalyze() {
-  const desc = videoDescInput.value.trim();
-  if (!desc) { showToast('请输入视频内容描述', 'error'); videoDescInput.focus(); return; }
+// ============================================================
+// 搜索
+// ============================================================
+searchInput.addEventListener('input', () => renderVideoList(searchInput.value.trim()));
 
-  analyzeBtn.disabled = true;
-  analyzeText.textContent = '分析中...';
-  emptyState.classList.add('hidden');
-  resultList.classList.add('hidden');
-  actionBtns.classList.add('hidden');
-  reasoningSection.classList.add('hidden');
-  loadingState.classList.remove('hidden');
-
-  try {
-    const { systemPrompt, userMessage } = buildPrompt(desc);
-    const data = await callLLM(systemPrompt, userMessage);
-    renderResults(data);
-    showToast('分析完成', 'success');
-  } catch (err) {
-    loadingState.classList.add('hidden');
-    emptyState.classList.remove('hidden');
-    showToast(err.message, 'error');
-    console.error(err);
-  } finally {
-    analyzeBtn.disabled = false;
-    analyzeText.textContent = '分析';
-  }
-}
-
-copyAiBtn.addEventListener('click', () => {
-  if (!currentResults) return;
-  const row = CATEGORIES.map(c => currentResults.categories[c.key] ?? '').join('\t');
-  copyToClipboard(row);
-});
+// ============================================================
+// 文件导入 / 导出
+// ============================================================
+$('importCsv').addEventListener('change', (e) => { if (e.target.files[0]) handleCSVImport(e.target.files[0]); });
+$('importCsvEmpty').addEventListener('change', (e) => { if (e.target.files[0]) handleCSVImport(e.target.files[0]); });
+exportCsvBtn.addEventListener('click', exportCSV);
 
 // ============================================================
 // Toast
@@ -765,16 +766,16 @@ copyAiBtn.addEventListener('click', () => {
 function showToast(message, type = 'info') {
   const colors = { success: 'bg-green-500', error: 'bg-red-500', info: 'bg-blue-500' };
   const toast = document.createElement('div');
-  toast.className = `toast ${colors[type] || colors.info} text-white px-4 py-2.5 rounded-lg shadow-lg text-sm max-w-xs`;
+  toast.className = `toast ${colors[type] || colors.info} text-white px-4 py-2 rounded-lg shadow-lg text-xs max-w-xs`;
   toast.textContent = message;
   toastContainer.appendChild(toast);
   setTimeout(() => { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 2500);
 }
 
 // ============================================================
-// 启动
+// 初始化
 // ============================================================
-init();
+renderManualForm();
 </script>
 </body>
 </html>
