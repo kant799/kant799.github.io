@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>视频建构编码</title>
+<title>TikTok 视频分类标注工具</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
   * { box-sizing: border-box; }
@@ -68,7 +68,7 @@
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
       </svg>
     </div>
-    <h1 class="text-sm font-semibold text-gray-800">视频建构编码</h1>
+    <h1 class="text-sm font-semibold text-gray-800">TikTok 视频分类标注工具</h1>
     <span id="statsBar" class="text-xs text-gray-400 ml-2"></span>
   </div>
   <div class="flex items-center gap-2">
@@ -100,12 +100,12 @@
   </div>
 </div>
 
-<!-- 三栏主布局 -->
+<!-- 两栏主布局 -->
 <div id="mainLayout" class="flex-1 hidden" style="height: 0;">
   <div class="flex h-full">
 
     <!-- 左栏：视频列表 -->
-    <div class="w-72 shrink-0 bg-white border-r border-gray-200 flex flex-col">
+    <div class="w-80 shrink-0 bg-white border-r border-gray-200 flex flex-col">
       <div class="p-3 border-b border-gray-100">
         <div class="flex items-center justify-between">
           <span class="text-xs font-medium text-gray-600">视频列表</span>
@@ -122,29 +122,6 @@
       </div>
     </div>
 
-    <!-- 中栏：视频播放器 -->
-    <div class="w-[360px] shrink-0 bg-gray-100 flex flex-col items-center justify-center relative border-r border-gray-200">
-      <div class="w-full h-full flex items-center justify-center">
-        <div id="playerEmpty" class="text-center text-gray-400">
-          <svg class="w-12 h-12 mx-auto mb-2 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-          </svg>
-          <p class="text-xs">选择左侧视频开始播放</p>
-        </div>
-        <div id="playerContainer" class="hidden w-full h-full relative">
-          <iframe id="tiktokPlayer" class="w-full h-full" allowfullscreen style="border:none;"></iframe>
-          <div id="iframeFallback" class="hidden absolute inset-0 flex flex-col items-center justify-center bg-gray-100">
-            <p class="text-sm text-gray-500 mb-2">视频加载失败</p>
-            <a id="fallbackLink" href="#" target="_blank" class="text-xs text-blue-500 hover:underline flex items-center gap-1">
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
-              在 TikTok 打开
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
-
     <!-- 右栏：标注面板 -->
     <div class="flex-1 flex flex-col overflow-hidden">
       <!-- 当前视频信息 + 表格视图 -->
@@ -152,7 +129,7 @@
         <!-- 视频链接行 -->
         <div class="px-4 py-2 flex items-center gap-2">
           <span id="currentVideoIdx" class="text-xs font-mono text-gray-400"></span>
-          <a id="currentVideoLink" href="#" target="_blank" class="text-xs text-blue-500 hover:underline truncate flex-1"></a>
+          <button id="currentVideoLink" class="text-xs text-blue-500 hover:underline truncate flex-1 text-left bg-transparent border-0 cursor-pointer p-0"></button>
         </div>
         <!-- 表格视图 -->
         <div id="tableView" class="px-3 pb-2 overflow-x-auto">
@@ -234,7 +211,7 @@ const CATEGORY_GROUPS = [
         key: '2.1', name: '叙事视角',
         options: [
           { value: 1, label: '宏观国家叙事', desc: '强调国家层面的发展、成就与集体主义精神' },
-          { value: 2, label: '微观个体故事', desc: '通过具体个人的经历与情感折射宏大主题' },
+          { value: 2, label: '微观/个体故事', desc: '小故事/个人（如科学家、农民、艺术家）的经历与情感切入' },
           { value: 3, label: '事实信息导向', desc: '以客观、中立口吻快速陈述新闻事件' },
           { value: 4, label: '冲突/争议框架', desc: '呈现不同观点或对立立场' },
         ]
@@ -242,10 +219,10 @@ const CATEGORY_GROUPS = [
       {
         key: '2.2', name: '情感基调',
         options: [
-          { value: 1, label: '自豪/成就导向', desc: '突出进步、强大与成功，激发民族自豪感' },
-          { value: 2, label: '同情/关怀导向', desc: '展现对弱势群体、受灾民众或动物的关怀' },
-          { value: 3, label: '惊奇/趣味导向', desc: '展示奇特景观、高科技或有趣的文化现象' },
-          { value: 4, label: '中立/客观', desc: '无明显情感色彩，平静陈述' },
+          { value: 1, label: '积极愉悦', desc: '喜悦、轻松、幽默、励志、温暖、自豪、治愈' },
+          { value: 2, label: '中性理性', desc: '客观陈述、科普纪实、新闻播报、平淡记录、无明显情绪' },
+          { value: 3, label: '消极负面', desc: '愤怒、悲伤、恐惧、焦虑、厌恶、压抑、批判不满' },
+          { value: 4, label: '复杂共情', desc: '感动、怀旧、惋惜、沉思、温情、略带伤感、人文关怀' },
         ]
       },
       {
@@ -253,7 +230,7 @@ const CATEGORY_GROUPS = [
         options: [
           { value: 1, label: '官方信源主导', desc: '政府官员、官方发布会或官方文件' },
           { value: 2, label: '专家信源主导', desc: '学者、分析师、工程师等专业人士观点' },
-          { value: 3, label: '民众信源主导', desc: '普通民众、现场目击者或用户的经历' },
+          { value: 3, label: '民众（个人）信源主导', desc: '普通民众、现场目击者或用户的经历和看法为核心' },
           { value: 4, label: '媒体自身信源', desc: 'CGTN记者拍摄、主持人出镜报道或评论' },
         ]
       },
@@ -327,11 +304,6 @@ const searchInput      = $('searchInput');
 const statsBar         = $('statsBar');
 const currentVideoIdx  = $('currentVideoIdx');
 const currentVideoLink = $('currentVideoLink');
-const playerEmpty      = $('playerEmpty');
-const playerContainer  = $('playerContainer');
-const tiktokPlayer     = $('tiktokPlayer');
-const iframeFallback   = $('iframeFallback');
-const fallbackLink     = $('fallbackLink');
 const manualForm       = $('manualForm');
 const progressCells    = $('progressCells');
 const progressCount    = $('progressCount');
@@ -516,7 +488,9 @@ function renderVideoList(filter = '') {
           </div>
         </div>
       </div>`;
-    div.addEventListener('click', () => selectVideo(idx));
+    div.addEventListener('click', (e) => {
+      selectVideo(idx);
+    });
     videoList.appendChild(div);
   });
 
@@ -548,24 +522,13 @@ function selectVideo(idx) {
 
   // 顶栏
   currentVideoIdx.textContent = `#${idx + 1}`;
-  currentVideoLink.href = row.url;
   currentVideoLink.textContent = row.url;
-
-  // 播放器
-  if (vid) {
-    playerEmpty.classList.add('hidden');
-    playerContainer.classList.remove('hidden');
-    iframeFallback.classList.add('hidden');
-    tiktokPlayer.src = `https://www.tiktok.com/embed/v2/${vid}`;
-    let loaded = false;
-    tiktokPlayer.onload = () => { loaded = true; };
-    setTimeout(() => {
-      if (!loaded) {
-        iframeFallback.classList.remove('hidden');
-        fallbackLink.href = row.url;
-      }
-    }, 8000);
-  }
+  // 设置点击事件：在新窗口打开
+  currentVideoLink.onclick = (e) => {
+    e.preventDefault();
+    const win = window.open(row.url, 'tiktok_video', 'width=400,height=800,left=100,top=100,alwaysOnTop=yes');
+    if (win) win.focus();
+  };
 
   // 表格视图
   renderTableView();
